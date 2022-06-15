@@ -1,7 +1,12 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.6.21"
+    application
+    kotlin("jvm")
+}
+
+application {
+    mainClass.set("com.open592.appletviewer.cmd.AppletViewerCommandKt")
 }
 
 group = "com.open592"
@@ -12,6 +17,8 @@ repositories {
 }
 
 dependencies {
+    api(libs.guice)
+
     testImplementation(kotlin("test"))
 }
 

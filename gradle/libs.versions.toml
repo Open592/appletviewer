@@ -1,0 +1,5 @@
+[versions]
+guice = "5.1.0"
+
+[libraries]
+guice = { module = "com.google.inject:guice", version.ref = "guice" }
