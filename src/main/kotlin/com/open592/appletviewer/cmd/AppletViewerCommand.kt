@@ -35,4 +35,6 @@ fun main(args: Array<String>) {
             exitProcess(1)
         }
     }
+
+    println("Hello world!")
 }

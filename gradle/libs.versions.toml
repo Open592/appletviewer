@@ -1,5 +1,12 @@
 [versions]
+kotlin = "1.6.21"
+# Plugins
+kotlinter = "3.9.0"
+# Libraries
 guice = "5.1.0"
+
+[plugins]
+kotlinter = { id = "org.jmailen.kotlinter", version.ref = "kotlinter"}
 
 [libraries]
 guice = { module = "com.google.inject:guice", version.ref = "guice" }
