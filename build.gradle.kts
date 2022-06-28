@@ -39,10 +39,6 @@ plugins.withType<KotlinPluginWrapper> {
     }
 }
 
-tasks.check {
-    dependsOn("installKotlinterPrePushHook")
-}
-
 tasks.test {
     useJUnitPlatform()
 }
