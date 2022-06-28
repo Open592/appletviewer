@@ -33,6 +33,10 @@ dependencies {
 
 plugins.withType<KotlinPluginWrapper> {
     apply(plugin = "org.jmailen.kotlinter")
+
+    kotlin {
+        explicitApi()
+    }
 }
 
 tasks.check {

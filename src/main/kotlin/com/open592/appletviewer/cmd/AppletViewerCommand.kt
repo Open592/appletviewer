@@ -18,7 +18,7 @@ private object Constants {
  * This entry point is called from the launcher.
  * TODO: Add reference to the launcher calling code.
  */
-fun main(args: Array<String>) {
+public fun main(args: Array<String>) {
     if (args.size > 1) {
         println("Invalid arguments")
 

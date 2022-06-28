@@ -5,9 +5,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="7b36ce28-1add-4dbf-b042-1f9b2009c61e" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/src/main/kotlin/com/open592/settings/JVMPropertiesSettingsStore.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/kotlin/com/open592/settings/SettingsStore.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle.kts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/settings.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/settings.gradle.kts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/open592/appletviewer/cmd/AppletViewerCommand.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/open592/appletviewer/cmd/AppletViewerCommand.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -84,7 +88,7 @@
     "settings.editor.selected.configurable": "preferences.pluginManager"
   }
 }]]></component>
-  <component name="RunManager" selected="Gradle.appletviewer [formatKotlin]">
+  <component name="RunManager" selected="Gradle.appletviewer [build]">
     <configuration name="appletviewer [build]" type="GradleRunConfiguration" factoryName="Gradle" nameIsGenerated="true">
       <ExternalSystemSettings>
         <option name="executionName" />
@@ -199,7 +203,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1654839728324</updated>
-      <workItem from="1656392997068" duration="3350000" />
+      <workItem from="1656392997068" duration="3622000" />
     </task>
     <servers />
   </component>
