@@ -8,6 +8,9 @@ package com.open592.debug.capture
  * feature was enabled, there was no choice but to intercept the messages, but in Open592's
  * implementation we have the option of passing them along to the underlying system stream.
  *
+ * NOTE: Due to keeping the same behavior as the original implementation, we do not publish
+ * a message until we receive a line separator.
+ *
  * This class has a contract which requires that upon initialization both `System.out` and
  * `System.err` will be captured. In the case that you wish to return to using the original
  * system streams you must explicitly call `.release()`
@@ -27,18 +30,16 @@ public class OutputCapture {
         System.setOut(this.out.getSystemStream())
     }
 
-    public fun getErr(): List<CapturedMessage> {
+    public fun getErr(): List<String> {
         return get(CaptureType.ERR)
     }
 
-    public fun getOut(): List<CapturedMessage> {
+    public fun getOut(): List<String> {
         return get(CaptureType.OUT)
     }
 
-    private fun get(type: CaptureType): List<CapturedMessage> {
-        return messages.filter {
-            it.type == type
-        }
+    private fun get(type: CaptureType): List<String> {
+        return messages.filter { it.type == type }.map { it.message }
     }
 
     private fun captureErr(message: String) {
@@ -50,12 +51,6 @@ public class OutputCapture {
     }
 
     private fun capture(message: String, type: CaptureType) {
-        if (message == System.lineSeparator() && messages.size > 0) {
-            messages[messages.lastIndex].appendLine()
-
-            return
-        }
-
         messages.add(CapturedMessage(message, type))
     }
 }

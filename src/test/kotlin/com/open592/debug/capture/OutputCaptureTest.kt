@@ -7,16 +7,16 @@ class OutputCaptureTest {
     @Test
     fun singleCaptureTest() {
         val message = "test"
-        val expected = "test${System.lineSeparator()}"
+        val expected = "test\n"
         val capture = OutputCapture()
 
         println(message)
 
-        val captures: List<CapturedMessage> = capture.getOut()
+        val messages: List<String> = capture.getOut()
 
         assertEquals(0, capture.getErr().size, "Expected StdErr list to not contain any values")
-        assertEquals(1, captures.size, "Expected StdOut to have one value")
+        assertEquals(1, messages.size, "Expected StdOut to have one value")
 
-        assertEquals(expected, captures[captures.lastIndex].message)
+        assertEquals(expected, messages[messages.lastIndex])
     }
 }
