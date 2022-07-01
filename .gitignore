@@ -1,14 +1,4 @@
-# https://git.openrs2.org/openrs2/openrs2/src/branch/master/.gitignore
-.*
-!.editorconfig
-!.git*
-!.idea
-*.iml
-*/build
-*/out
-*/target
-*~
-/build
-/out
-/target
-hs_err_pid*.log
+build/
+.gradle/
+.idea/workspace.xml
+
