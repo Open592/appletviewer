@@ -1,4 +1,4 @@
-package com.open592.debug.capture
+package com.open592.appletviewer.debug.capture
 
 import java.io.OutputStream
 import java.io.PrintStream

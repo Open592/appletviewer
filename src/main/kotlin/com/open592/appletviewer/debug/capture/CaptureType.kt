@@ -1,4 +1,4 @@
-package com.open592.debug.capture
+package com.open592.appletviewer.debug.capture
 
 /**
  * Represents the types of messages supported within the OutputCapture class.

@@ -1,4 +1,4 @@
-package com.open592.debug.capture
+package com.open592.appletviewer.debug.capture
 
 /**
  * Provides easy access to output sent to either StdErr or StdOut
