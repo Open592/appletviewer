@@ -32,16 +32,12 @@ public class OutputCapture @Inject constructor(
         }
     }
 
-    public fun getErr(): List<String> {
-        return get(CaptureType.ERR)
-    }
-
-    public fun getOut(): List<String> {
-        return get(CaptureType.OUT)
-    }
-
-    private fun get(type: CaptureType): List<String> {
+    public fun get(type: CaptureType): List<String> {
         return messages.filter { it.type == type }.map { it.message }
+    }
+
+    public fun get(): List<String> {
+        return messages.map { it.message }
     }
 
     private fun capture(type: CaptureType, message: String) {

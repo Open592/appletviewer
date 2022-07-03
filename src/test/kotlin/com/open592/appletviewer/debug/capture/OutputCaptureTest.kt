@@ -7,15 +7,15 @@ class OutputCaptureTest {
     @Test
     fun singleMessageTest() {
         val input = "test"
-        val expected = "test\n"
+        val expected = "$input\n"
         val capture = OutputCapture(setOf(SystemOutInterceptor(), SystemErrorInterceptor()))
 
         println(input)
 
-        val messages: List<String> = capture.getOut()
+        val messages: List<String> = capture.get(CaptureType.OUT)
 
-        assertEquals(0, capture.getErr().size, "Expected StdErr list to not contain any values")
-        assertEquals(1, messages.size, "Expected StdOut to have one value")
+        assertEquals(0, capture.get(CaptureType.ERR).size, "Expected CaptureType.ERR to be empty")
+        assertEquals(1, messages.size, "Expected CaptureType.OUT to have 1 entry")
 
         assertEquals(expected, messages[messages.lastIndex])
     }
@@ -32,10 +32,25 @@ class OutputCaptureTest {
 
         println()
 
-        val messages: List<String> = capture.getOut()
+        val messages: List<String> = capture.get(CaptureType.OUT)
 
-        assertEquals(1, messages.size, "Expected StdOut to have one value")
+        assertEquals(1, messages.size, "Expected CaptureType.OUT have to have 1 entry")
 
         assertEquals(expected, messages[messages.lastIndex])
+    }
+
+    @Test
+    fun multipleMessageTypesTest() {
+        val first = "first"
+        val second = "second"
+        val expected = listOf("$first\n", "$second\n")
+        val capture = OutputCapture(setOf(SystemOutInterceptor(), SystemErrorInterceptor()))
+
+        println(first)
+        System.err.println(second)
+
+        assertEquals(1, capture.get(CaptureType.ERR).size, "Expected CaptureType.ERR to have 1 entry")
+        assertEquals(1, capture.get(CaptureType.OUT).size, "Expected CaptureType.OUT to have 1 entry")
+        assertEquals(expected, capture.get())
     }
 }
