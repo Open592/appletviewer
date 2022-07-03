@@ -1,6 +1,5 @@
 package com.open592.appletviewer.debug.capture
 
-import java.io.PrintStream
 import javax.inject.Inject
 import javax.inject.Singleton
 
