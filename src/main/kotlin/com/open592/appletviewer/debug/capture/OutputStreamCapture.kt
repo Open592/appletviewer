@@ -12,7 +12,7 @@ import java.io.OutputStream
  */
 internal class OutputStreamCapture(
     private val interceptor: Interceptor,
-    private val handler: (CaptureType, String) -> Unit
+    private val handler: MessageCaptureHandler
 ) : OutputStream() {
     private val line: StringBuilder = StringBuilder()
 

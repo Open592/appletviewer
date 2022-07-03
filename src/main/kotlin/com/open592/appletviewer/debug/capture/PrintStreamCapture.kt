@@ -4,5 +4,5 @@ import java.io.PrintStream
 
 internal class PrintStreamCapture(
     interceptor: Interceptor,
-    handler: (CaptureType, String) -> Unit
+    handler: MessageCaptureHandler
 ) : PrintStream(OutputStreamCapture(interceptor, handler))
