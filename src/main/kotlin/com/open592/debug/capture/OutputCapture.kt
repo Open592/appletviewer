@@ -51,6 +51,6 @@ public class OutputCapture {
     }
 
     private fun capture(message: String, type: CaptureType) {
-        messages.add(CapturedMessage(message, type))
+        messages.add(CapturedMessage(type, message))
     }
 }
