@@ -1,7 +1,10 @@
 package com.open592.appletviewer.debug.capture
 
+import javax.inject.Inject
+import javax.inject.Singleton
+
 /**
- * Provides easy access to output sent to either StdErr or StdOut
+ * Provides easy access to PrintStreams
  *
  * We use this class to facilitate catching messages sent to the standard output streams
  * and displaying them within the debug console. In the original appletviewer, when this
@@ -10,24 +13,23 @@ package com.open592.appletviewer.debug.capture
  *
  * NOTE: Due to keeping the same behavior as the original implementation, we do not publish
  * a message until we receive a line separator.
- *
- * This class has a contract which requires that upon initialization both `System.out` and
- * `System.err` will be captured. In the case that you wish to return to using the original
- * system streams you must explicitly call `.release()`
  */
-public class OutputCapture {
-    private val err: PrintStreamCapture = PrintStreamCapture(System.err, ::captureErr)
-    private val out: PrintStreamCapture = PrintStreamCapture(System.out, ::captureOut)
+@Singleton
+public class OutputCapture @Inject constructor(
+    private val interceptors: Set<Interceptor>
+) {
     private val messages: MutableList<CapturedMessage> = mutableListOf()
 
     init {
-        System.setErr(this.err)
-        System.setOut(this.out)
+        interceptors.forEach {
+            it.intercept(PrintStreamCapture(it, ::capture))
+        }
     }
 
     public fun release() {
-        System.setErr(this.err.getSystemStream())
-        System.setOut(this.out.getSystemStream())
+        interceptors.forEach {
+            it.release()
+        }
     }
 
     public fun getErr(): List<String> {
@@ -42,15 +44,7 @@ public class OutputCapture {
         return messages.filter { it.type == type }.map { it.message }
     }
 
-    private fun captureErr(message: String) {
-        capture(message, CaptureType.ERR)
-    }
-
-    private fun captureOut(message: String) {
-        capture(message, CaptureType.OUT)
-    }
-
-    private fun capture(message: String, type: CaptureType) {
+    private fun capture(type: CaptureType, message: String) {
         messages.add(CapturedMessage(type, message))
     }
 }

@@ -3,10 +3,6 @@ package com.open592.appletviewer.debug.capture
 import java.io.PrintStream
 
 internal class PrintStreamCapture(
-    private val systemStream: PrintStream,
-    handler: (String) -> Unit
-) : PrintStream(OutputStreamCapture(systemStream, handler)) {
-    fun getSystemStream(): PrintStream {
-        return systemStream
-    }
-}
+    interceptor: Interceptor,
+    handler: (CaptureType, String) -> Unit
+) : PrintStream(OutputStreamCapture(interceptor, handler))

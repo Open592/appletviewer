@@ -1,7 +1,6 @@
 package com.open592.appletviewer.debug.capture
 
 import java.io.OutputStream
-import java.io.PrintStream
 
 /**
  * Implements a OutputStream which intercepts a PrintStream and accepts
@@ -12,8 +11,8 @@ import java.io.PrintStream
  * chunk for `System.lineSeparator()`.
  */
 internal class OutputStreamCapture(
-    private val systemStream: PrintStream,
-    private val handler: (String) -> Unit
+    private val interceptor: Interceptor,
+    private val handler: (CaptureType, String) -> Unit
 ) : OutputStream() {
     private val line: StringBuilder = StringBuilder()
 
@@ -37,7 +36,7 @@ internal class OutputStreamCapture(
              * In our implementation we utilize `.appendLine` which appends `\n`
              * regardless of system line separator.
              */
-            handler(line.appendLine().toString())
+            handler(interceptor.type, line.appendLine().toString())
 
             line.clear()
 
@@ -48,6 +47,6 @@ internal class OutputStreamCapture(
     }
 
     override fun flush() {
-        systemStream.flush()
+        interceptor.systemStream.flush()
     }
 }

@@ -8,7 +8,7 @@ class OutputCaptureTest {
     fun singleMessageTest() {
         val input = "test"
         val expected = "test\n"
-        val capture = OutputCapture()
+        val capture = OutputCapture(setOf(SystemOutInterceptor(), SystemErrorInterceptor()))
 
         println(input)
 
@@ -24,7 +24,7 @@ class OutputCaptureTest {
     fun multipleMessageTest() {
         val inputs = arrayOf("test", "one", "two", "three")
         val expected = "${inputs.joinToString("")}\n"
-        val capture = OutputCapture()
+        val capture = OutputCapture(setOf(SystemOutInterceptor(), SystemErrorInterceptor()))
 
         inputs.forEach {
             print(it)
