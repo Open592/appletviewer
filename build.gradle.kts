@@ -28,7 +28,10 @@ repositories {
 dependencies {
     api(libs.guice)
 
+    implementation(libs.kotlin.coroutines.core)
+
     testImplementation(kotlin("test"))
+    testImplementation(libs.kotlin.coroutines.test)
 }
 
 plugins.withType<KotlinPluginWrapper> {

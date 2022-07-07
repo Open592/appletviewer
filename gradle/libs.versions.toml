@@ -1,12 +1,13 @@
 [versions]
-kotlin = "1.6.21"
-# Plugins
-kotlinter = "3.9.0"
-# Libraries
 guice = "5.1.0"
+kotlin = "1.6.21"
+kotlinCoroutines = "1.6.3"
+kotlinter = "3.9.0"
 
 [plugins]
 kotlinter = { id = "org.jmailen.kotlinter", version.ref = "kotlinter"}
 
 [libraries]
 guice = { module = "com.google.inject:guice", version.ref = "guice" }
+kotlin-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinCoroutines"}
+kotlin-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinCoroutines"}
