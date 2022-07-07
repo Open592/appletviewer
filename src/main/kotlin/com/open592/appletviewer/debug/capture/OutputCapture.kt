@@ -1,5 +1,10 @@
 package com.open592.appletviewer.debug.capture
 
+import com.open592.appletviewer.event.EventBus
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -18,9 +23,10 @@ internal typealias MessageCaptureHandler = (CaptureType, String) -> Unit
  */
 @Singleton
 public class OutputCapture @Inject constructor(
-    private val interceptors: Set<Interceptor>
+    private val interceptors: Set<Interceptor>,
+    private val eventBus: EventBus<OutputCaptureEvent>
 ) {
-    private val messages: MutableList<CapturedMessage> = mutableListOf()
+    private val scope = CoroutineScope(Dispatchers.Default)
 
     init {
         interceptors.forEach {
@@ -34,15 +40,12 @@ public class OutputCapture @Inject constructor(
         }
     }
 
-    public fun get(type: CaptureType): List<String> {
-        return messages.filter { it.type == type }.map { it.message }
-    }
-
-    public fun get(): List<String> {
-        return messages.map { it.message }
-    }
-
     private fun capture(type: CaptureType, message: String) {
-        messages.add(CapturedMessage(type, message))
+        val handler = CoroutineExceptionHandler { _, _ -> } // Ignored
+        val event = OutputCaptureEvent.MessageReceived(CapturedMessage(type, message))
+
+        scope.launch(handler) {
+            eventBus.emitEvent(event)
+        }
     }
 }
