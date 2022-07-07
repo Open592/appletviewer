@@ -3,8 +3,6 @@ package com.open592.appletviewer.debug.capture
 import com.open592.appletviewer.event.EventBus
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.runBlockingTest
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
 import kotlin.test.Test
@@ -36,6 +34,7 @@ class OutputCaptureTest {
             assertEquals(expected, messages[messages.lastIndex])
         }
     }
+
     @Test
     fun multipleMessageTest() {
         runTest {

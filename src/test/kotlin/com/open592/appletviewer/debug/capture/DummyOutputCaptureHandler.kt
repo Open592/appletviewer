@@ -2,9 +2,10 @@ package com.open592.appletviewer.debug.capture
 
 import com.open592.appletviewer.event.ApplicationEventListener
 import com.open592.appletviewer.event.EventBus
-import kotlinx.coroutines.*
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.withTimeout
 
-class DummyOutputCaptureHandler (
+class DummyOutputCaptureHandler(
     eventBus: EventBus<OutputCaptureEvent>
 ) : ApplicationEventListener<OutputCaptureEvent>(eventBus) {
     private val messages: MutableList<CapturedMessage> = mutableListOf()
@@ -27,7 +28,7 @@ class DummyOutputCaptureHandler (
 
     suspend fun waitForMessages(expectedMessageCount: Int, timeout: Long = 500L) {
         withTimeout(timeout) {
-            while(true) {
+            while (true) {
                 if (messages.size == expectedMessageCount) {
                     return@withTimeout
                 }
