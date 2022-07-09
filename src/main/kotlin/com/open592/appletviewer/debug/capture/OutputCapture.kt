@@ -8,6 +8,8 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
 
+internal typealias MessageCaptureHandler = (CaptureType, String) -> Unit
+
 /**
  * Provides easy access to PrintStreams
  *
