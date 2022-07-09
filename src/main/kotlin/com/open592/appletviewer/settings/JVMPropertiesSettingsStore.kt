@@ -1,4 +1,4 @@
-package com.open592.settings
+package com.open592.appletviewer.settings
 
 import kotlin.Boolean
 

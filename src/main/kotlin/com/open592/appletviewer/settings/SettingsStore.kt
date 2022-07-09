@@ -1,4 +1,4 @@
-package com.open592.settings
+package com.open592.appletviewer.settings
 
 /**
  * An interface for interacting with Key Value settings.
