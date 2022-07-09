@@ -22,7 +22,7 @@ class DummyOutputCaptureHandler(
         }
     }
 
-    fun get(type: CaptureType): List<String> {
+    fun get(type: CapturedMessagedType): List<String> {
         return messages.filter { it.type == type }.map { it.message }
     }
 

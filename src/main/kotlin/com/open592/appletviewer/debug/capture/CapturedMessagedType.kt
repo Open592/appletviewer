@@ -6,7 +6,7 @@ package com.open592.appletviewer.debug.capture
  * The original appletviewer supported intercepting StdErr and StdOut, and we
  * support the same functionality.
  */
-public enum class CaptureType {
+public enum class CapturedMessagedType {
     ERR,
     OUT,
 }

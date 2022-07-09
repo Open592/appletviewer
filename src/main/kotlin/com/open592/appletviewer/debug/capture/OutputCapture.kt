@@ -1,14 +1,7 @@
 package com.open592.appletviewer.debug.capture
 
-import com.open592.appletviewer.event.EventBus
-import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
-
-internal typealias MessageCaptureHandler = (CaptureType, String) -> Unit
 
 /**
  * Provides easy access to PrintStreams
@@ -23,29 +16,17 @@ internal typealias MessageCaptureHandler = (CaptureType, String) -> Unit
  */
 @Singleton
 public class OutputCapture @Inject constructor(
-    private val interceptors: Set<Interceptor>,
-    private val eventBus: EventBus<OutputCaptureEvent>
+    private val captures: Set<Capture>
 ) {
-    private val scope = CoroutineScope(Dispatchers.Default)
-
     init {
-        interceptors.forEach {
-            it.intercept(PrintStreamCapture(it, ::capture))
+        captures.forEach {
+            it.capture(PrintStreamCapture(it))
         }
     }
 
     public fun release() {
-        interceptors.forEach {
+        captures.forEach {
             it.release()
-        }
-    }
-
-    private fun capture(type: CaptureType, message: String) {
-        val handler = CoroutineExceptionHandler { _, _ -> } // Ignored
-        val event = OutputCaptureEvent.MessageReceived(CapturedMessage(type, message))
-
-        scope.launch(handler) {
-            eventBus.emitEvent(event)
         }
     }
 }

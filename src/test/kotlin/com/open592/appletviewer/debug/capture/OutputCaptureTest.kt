@@ -14,8 +14,9 @@ class OutputCaptureTest {
     fun singleMessageTest() {
         runTest {
             val eventBus = EventBus<OutputCaptureEvent>()
+            val eventWriter = CaptureWriter(eventBus)
             val eventHandler = DummyOutputCaptureHandler(eventBus)
-            OutputCapture(setOf(SystemOutInterceptor()), eventBus)
+            OutputCapture(setOf(SystemOutCapture(eventWriter)))
 
             val input = "test"
             val expected = "$input\n"
@@ -26,10 +27,14 @@ class OutputCaptureTest {
                 eventHandler.waitForMessages(1)
             }
 
-            val messages: List<String> = eventHandler.get(CaptureType.OUT)
+            val messages: List<String> = eventHandler.get(CapturedMessagedType.OUT)
 
             assertEquals(1, messages.size, "Expected CaptureType.OUT to have 1 entry")
-            assertEquals(0, eventHandler.get(CaptureType.ERR).size, "Expected CaptureType.ERR to have 0 entries")
+            assertEquals(
+                0,
+                eventHandler.get(CapturedMessagedType.ERR).size,
+                "Expected CaptureType.ERR to have 0 entries"
+            )
 
             assertEquals(expected, messages[messages.lastIndex])
         }
@@ -39,8 +44,9 @@ class OutputCaptureTest {
     fun multipleMessageTest() {
         runTest {
             val eventBus = EventBus<OutputCaptureEvent>()
+            val eventWriter = CaptureWriter(eventBus)
             val eventHandler = DummyOutputCaptureHandler(eventBus)
-            OutputCapture(setOf(SystemOutInterceptor()), eventBus)
+            OutputCapture(setOf(SystemOutCapture(eventWriter)))
 
             val inputs = arrayOf("test", "one", "two", "three")
             val expected = "${inputs.joinToString("")}\n"
@@ -55,7 +61,7 @@ class OutputCaptureTest {
                 eventHandler.waitForMessages(1)
             }
 
-            val messages: List<String> = eventHandler.get(CaptureType.OUT)
+            val messages: List<String> = eventHandler.get(CapturedMessagedType.OUT)
 
             assertEquals(1, messages.size, "Expected CaptureType.OUT have to have 1 entry")
 
@@ -67,8 +73,9 @@ class OutputCaptureTest {
     fun multipleMessageTypesTest() {
         runTest {
             val eventBus = EventBus<OutputCaptureEvent>()
+            val eventWriter = CaptureWriter(eventBus)
             val eventHandler = DummyOutputCaptureHandler(eventBus)
-            OutputCapture(setOf(SystemErrorInterceptor(), SystemOutInterceptor()), eventBus)
+            OutputCapture(setOf(SystemErrorCapture(eventWriter), SystemOutCapture(eventWriter)))
 
             val first = "first"
             val second = "second"
@@ -81,8 +88,8 @@ class OutputCaptureTest {
                 eventHandler.waitForMessages(expected.size)
             }
 
-            assertEquals(1, eventHandler.get(CaptureType.ERR).size, "Expected CaptureType.ERR to have 1 entry")
-            assertEquals(1, eventHandler.get(CaptureType.OUT).size, "Expected CaptureType.OUT to have 1 entry")
+            assertEquals(1, eventHandler.get(CapturedMessagedType.ERR).size, "Expected CaptureType.ERR to have 1 entry")
+            assertEquals(1, eventHandler.get(CapturedMessagedType.OUT).size, "Expected CaptureType.OUT to have 1 entry")
             assertEquals(expected, eventHandler.get())
         }
     }
