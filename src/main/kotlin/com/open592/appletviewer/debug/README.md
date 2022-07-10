@@ -21,7 +21,7 @@ In the original applet viewer, the debug console was behind the
 console anytime you wanted additional debug information.
 
 Within Open592 we add the `com.open592.disableDebugConsole` flag which lets you
-disable the debug flag when it would otherwise be shown.
+disable the debug console when it would otherwise be shown.
 
 ### Ability to log to both system stream and debug console.
 In the original applet viewer, when enabled, the debug console forced everything
