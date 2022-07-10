@@ -8,9 +8,9 @@ import kotlin.Boolean
  * The applet viewer heavily uses the JVM system properties for configuration
  * before the JavConfig file is fetched from the server.
  */
-public class JVMPropertiesSettingsStore : SettingsStore {
+public class SystemPropertiesSettingsStore : SettingsStore {
     public override fun getBoolean(key: String): Boolean {
-        return getString(key).toBoolean().or(false)
+        return getString(key).toBoolean()
     }
 
     public override fun getString(key: String): String? {
