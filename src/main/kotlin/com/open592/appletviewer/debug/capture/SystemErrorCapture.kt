@@ -6,7 +6,7 @@ import javax.inject.Singleton
 
 @Singleton
 public class SystemErrorCapture @Inject constructor(
-    private val writer: CaptureWriter
+    private val eventEmitter: OutputCaptureEventEmitter
 ) : Capture(CapturedMessagedType.ERR, System.err) {
     public override fun capture(stream: PrintStream) {
         System.setErr(stream)
@@ -17,10 +17,9 @@ public class SystemErrorCapture @Inject constructor(
     }
 
     public override fun write(message: String) {
-        writer.write(CapturedMessage(type, message))
-    }
+        eventEmitter.emit(CapturedMessage(type, message))
 
-    public override fun flush() {
-        systemStream.flush()
+        // Defer to super class to determine if we should log to system stream
+        super.write(message)
     }
 }

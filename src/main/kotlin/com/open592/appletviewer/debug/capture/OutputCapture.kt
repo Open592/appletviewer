@@ -1,5 +1,6 @@
 package com.open592.appletviewer.debug.capture
 
+import com.open592.appletviewer.settings.SettingsStore
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -16,10 +17,14 @@ import javax.inject.Singleton
  */
 @Singleton
 public class OutputCapture @Inject constructor(
+    settings: SettingsStore,
     private val captures: Set<Capture>
 ) {
     init {
+        val shouldLogToSystemStream = settings.getBoolean("com.open592.debugConsoleLogToSystemStream")
+
         captures.forEach {
+            it.shouldLogToSystemStream = shouldLogToSystemStream
             it.capture(PrintStreamCapture(it))
         }
     }

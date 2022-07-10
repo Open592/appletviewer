@@ -9,12 +9,12 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-public class CaptureWriter @Inject constructor(
+public class OutputCaptureEventEmitter @Inject constructor(
     private val eventBus: EventBus<OutputCaptureEvent>
 ) {
     private val scope = CoroutineScope(Dispatchers.Default)
 
-    public fun write(message: CapturedMessage) {
+    public fun emit(message: CapturedMessage) {
         val handler = CoroutineExceptionHandler { _, _ -> } // Ignored
         val event = OutputCaptureEvent.MessageReceived(message)
 

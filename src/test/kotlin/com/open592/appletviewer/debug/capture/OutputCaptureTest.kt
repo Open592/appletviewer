@@ -1,6 +1,7 @@
 package com.open592.appletviewer.debug.capture
 
 import com.open592.appletviewer.event.EventBus
+import com.open592.appletviewer.settings.helpers.MockSettingsStore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
@@ -8,15 +9,21 @@ import kotlinx.coroutines.withContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
+val shouldNotLogToSystemStreamSettings = MockSettingsStore(
+    mapOf(
+        "com.open592.debugConsoleLogToSystemStream" to "false"
+    )
+)
+
 @ExperimentalCoroutinesApi
 class OutputCaptureTest {
     @Test
     fun singleMessageTest() {
         runTest {
             val eventBus = EventBus<OutputCaptureEvent>()
-            val eventWriter = CaptureWriter(eventBus)
+            val eventEmitter = OutputCaptureEventEmitter(eventBus)
             val eventHandler = DummyOutputCaptureHandler(eventBus)
-            OutputCapture(setOf(SystemOutCapture(eventWriter)))
+            OutputCapture(shouldNotLogToSystemStreamSettings, setOf(SystemOutCapture(eventEmitter)))
 
             val input = "test"
             val expected = "$input\n"
@@ -44,9 +51,9 @@ class OutputCaptureTest {
     fun multipleMessageTest() {
         runTest {
             val eventBus = EventBus<OutputCaptureEvent>()
-            val eventWriter = CaptureWriter(eventBus)
+            val eventEmitter = OutputCaptureEventEmitter(eventBus)
             val eventHandler = DummyOutputCaptureHandler(eventBus)
-            OutputCapture(setOf(SystemOutCapture(eventWriter)))
+            OutputCapture(shouldNotLogToSystemStreamSettings, setOf(SystemOutCapture(eventEmitter)))
 
             val inputs = arrayOf("test", "one", "two", "three")
             val expected = "${inputs.joinToString("")}\n"
@@ -73,9 +80,12 @@ class OutputCaptureTest {
     fun multipleMessageTypesTest() {
         runTest {
             val eventBus = EventBus<OutputCaptureEvent>()
-            val eventWriter = CaptureWriter(eventBus)
+            val eventEmitter = OutputCaptureEventEmitter(eventBus)
             val eventHandler = DummyOutputCaptureHandler(eventBus)
-            OutputCapture(setOf(SystemErrorCapture(eventWriter), SystemOutCapture(eventWriter)))
+            OutputCapture(
+                shouldNotLogToSystemStreamSettings,
+                setOf(SystemErrorCapture(eventEmitter), SystemOutCapture(eventEmitter))
+            )
 
             val first = "first"
             val second = "second"

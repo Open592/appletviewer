@@ -12,10 +12,19 @@ import java.io.PrintStream
  */
 public abstract class Capture(
     public val type: CapturedMessagedType,
-    public val systemStream: PrintStream
+    public val systemStream: PrintStream,
+    public var shouldLogToSystemStream: Boolean = false
 ) {
     public abstract fun capture(stream: PrintStream)
     public abstract fun release()
-    public abstract fun write(message: String)
-    public abstract fun flush()
+    public open fun write(message: String) {
+        if (shouldLogToSystemStream) {
+            systemStream.print(message)
+        }
+    }
+    public open fun flush() {
+        if (shouldLogToSystemStream) {
+            systemStream.flush()
+        }
+    }
 }

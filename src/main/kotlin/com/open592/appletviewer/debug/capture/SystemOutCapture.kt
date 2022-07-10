@@ -6,7 +6,7 @@ import javax.inject.Singleton
 
 @Singleton
 public class SystemOutCapture @Inject constructor(
-    private val writer: CaptureWriter
+    private val eventEmitter: OutputCaptureEventEmitter
 ) : Capture(CapturedMessagedType.OUT, System.out) {
     public override fun capture(stream: PrintStream) {
         System.setOut(stream)
@@ -17,10 +17,9 @@ public class SystemOutCapture @Inject constructor(
     }
 
     public override fun write(message: String) {
-        writer.write(CapturedMessage(type, message))
-    }
+        eventEmitter.emit(CapturedMessage(type, message))
 
-    public override fun flush() {
-        systemStream.flush()
+        // Defer to super class to decide if we should log to system stream
+        super.write(message)
     }
 }
