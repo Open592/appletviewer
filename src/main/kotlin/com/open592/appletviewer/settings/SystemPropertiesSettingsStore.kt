@@ -1,6 +1,6 @@
 package com.open592.appletviewer.settings
 
-import kotlin.Boolean
+import javax.inject.Singleton
 
 /**
  * A simple settings store which is backed by the JVM system properties
@@ -8,6 +8,7 @@ import kotlin.Boolean
  * The applet viewer heavily uses the JVM system properties for configuration
  * before the JavConfig file is fetched from the server.
  */
+@Singleton
 public class SystemPropertiesSettingsStore : SettingsStore {
     public override fun getBoolean(key: String): Boolean {
         return getString(key).toBoolean()
