@@ -13,8 +13,8 @@ import java.util.EventListener
  */
 public abstract class ApplicationEventListener<T : ApplicationEvent>(
     private val eventBus: EventBus<T>,
-    scope: CoroutineScope = CoroutineScope(Dispatchers.Default)
 ) : EventListener {
+    private val scope: CoroutineScope = CoroutineScope(Dispatchers.Default)
     init {
         scope.launch {
             eventBus.events.collect {

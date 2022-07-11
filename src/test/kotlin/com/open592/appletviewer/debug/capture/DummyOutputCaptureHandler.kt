@@ -8,7 +8,7 @@ import kotlinx.coroutines.withTimeout
 class DummyOutputCaptureHandler(
     eventBus: EventBus<OutputCaptureEvent>
 ) : ApplicationEventListener<OutputCaptureEvent>(eventBus) {
-    private val messages: MutableList<CapturedMessage> = mutableListOf()
+    private val captures: MutableList<CapturedMessage> = mutableListOf()
 
     override fun processEvent(event: OutputCaptureEvent) {
         when (event) {
@@ -17,19 +17,19 @@ class DummyOutputCaptureHandler(
     }
 
     fun get(): List<String> {
-        return messages.map {
+        return captures.map {
             it.message
         }
     }
 
     fun get(type: CapturedMessagedType): List<String> {
-        return messages.filter { it.type == type }.map { it.message }
+        return captures.filter { it.type == type }.map { it.message }
     }
 
     suspend fun waitForMessages(expectedMessageCount: Int, timeout: Long = 500L) {
         withTimeout(timeout) {
             while (true) {
-                if (messages.size == expectedMessageCount) {
+                if (captures.size == expectedMessageCount) {
                     return@withTimeout
                 }
 
@@ -39,6 +39,6 @@ class DummyOutputCaptureHandler(
     }
 
     private fun handleMessageReceived(event: OutputCaptureEvent.MessageReceived) {
-        messages.add(event.message)
+        captures.add(event.capture)
     }
 }

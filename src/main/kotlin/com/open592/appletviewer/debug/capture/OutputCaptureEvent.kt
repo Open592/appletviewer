@@ -11,5 +11,5 @@ public sealed class OutputCaptureEvent : ApplicationEvent {
      *
      * All types of messages will fire this event. It is up to the consumer to filter if applicable.
      */
-    public data class MessageReceived(public val message: CapturedMessage) : OutputCaptureEvent()
+    public data class MessageReceived(public val capture: CapturedMessage) : OutputCaptureEvent()
 }

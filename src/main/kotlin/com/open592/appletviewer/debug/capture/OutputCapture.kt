@@ -17,12 +17,9 @@ import javax.inject.Singleton
  */
 @Singleton
 public class OutputCapture @Inject constructor(
-    settings: SettingsStore,
     private val captures: Set<Capture>
 ) {
-    init {
-        val shouldLogToSystemStream = settings.getBoolean("com.open592.debugConsoleLogToSystemStream")
-
+    public fun capture(shouldLogToSystemStream: Boolean) {
         captures.forEach {
             it.shouldLogToSystemStream = shouldLogToSystemStream
             it.capture(PrintStreamCapture(it))
