@@ -1,6 +1,5 @@
 package com.open592.appletviewer.debug.capture
 
-import com.open592.appletviewer.settings.SettingsStore
 import javax.inject.Inject
 import javax.inject.Singleton
 

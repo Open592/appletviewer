@@ -12,7 +12,7 @@ import java.util.EventListener
  * to process.
  */
 public abstract class ApplicationEventListener<T : ApplicationEvent>(
-    private val eventBus: EventBus<T>,
+    private val eventBus: EventBus<T>
 ) : EventListener {
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.Default)
     init {

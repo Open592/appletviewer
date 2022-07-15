@@ -17,7 +17,7 @@ public class DebugConsole @Inject constructor(
     eventBus: EventBus<OutputCaptureEvent>,
     private val outputCapture: OutputCapture,
     private val settings: SettingsStore
-): ApplicationEventListener<OutputCaptureEvent>(eventBus) {
+) : ApplicationEventListener<OutputCaptureEvent>(eventBus) {
     /**
      * In the original implementation the debug console is not visible until
      * the first message has been received.
@@ -45,12 +45,12 @@ public class DebugConsole @Inject constructor(
     }
 
     public override fun processEvent(event: OutputCaptureEvent) {
-        when(event) {
+        when (event) {
             is OutputCaptureEvent.MessageReceived -> handleMessageReceived(event)
         }
     }
 
-    private fun getFrame() : Frame {
+    private fun getFrame(): Frame {
         if (!this::frame.isInitialized) {
             textArea = TextArea()
             textArea.isEditable = false
