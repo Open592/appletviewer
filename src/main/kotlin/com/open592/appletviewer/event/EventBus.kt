@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.asSharedFlow
  * Provides a simple event bus which can emit events that can be consumed
  * by clients which extend `ApplicationEventListener`
  */
-public class EventBus<T : ApplicationEvent> {
+public abstract class EventBus<T : ApplicationEvent> {
     private val _events = MutableSharedFlow<T>()
     public val events: SharedFlow<T> = _events.asSharedFlow()
 

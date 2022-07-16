@@ -9,7 +9,7 @@ import javax.inject.Singleton
 
 @Singleton
 public class SystemOutInterceptor @Inject constructor(
-    private val eventEmitter: DebugConsoleEventEmitter
+    private val eventBus: DebugConsoleEventBus
 ) : Interceptor(CapturedMessagedType.OUT, System.out) {
     public override fun capture(stream: PrintStream) {
         System.setOut(stream)
@@ -20,7 +20,7 @@ public class SystemOutInterceptor @Inject constructor(
     }
 
     public override fun write(message: String) {
-        eventEmitter.emit(CapturedMessage(type, message))
+        eventBus.dispatchMessageReceived(CapturedMessage(type, message))
 
         // Defer to super class to decide if we should log to system stream
         super.write(message)

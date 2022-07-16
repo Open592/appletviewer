@@ -2,7 +2,6 @@ package com.open592.appletviewer.debug
 
 import com.open592.appletviewer.debug.capture.OutputCapture
 import com.open592.appletviewer.event.ApplicationEventListener
-import com.open592.appletviewer.event.EventBus
 import com.open592.appletviewer.settings.SettingsStore
 import java.awt.Frame
 import java.awt.TextArea
@@ -13,7 +12,7 @@ import javax.inject.Singleton
 
 @Singleton
 public class DebugConsole @Inject constructor(
-    eventBus: EventBus<DebugConsoleEvent>,
+    eventBus: DebugConsoleEventBus,
     private val outputCapture: OutputCapture,
     private val settings: SettingsStore
 ) : ApplicationEventListener<DebugConsoleEvent>(eventBus) {

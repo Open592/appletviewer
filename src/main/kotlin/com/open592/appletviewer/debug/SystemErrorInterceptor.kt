@@ -9,7 +9,7 @@ import javax.inject.Singleton
 
 @Singleton
 public class SystemErrorInterceptor @Inject constructor(
-    private val eventEmitter: DebugConsoleEventEmitter
+    private val eventBus: DebugConsoleEventBus
 ) : Interceptor(CapturedMessagedType.ERR, System.err) {
     public override fun capture(stream: PrintStream) {
         System.setErr(stream)
@@ -20,7 +20,7 @@ public class SystemErrorInterceptor @Inject constructor(
     }
 
     public override fun write(message: String) {
-        eventEmitter.emit(CapturedMessage(type, message))
+        eventBus.dispatchMessageReceived(CapturedMessage(type, message))
 
         // Defer to super class to determine if we should log to system stream
         super.write(message)
