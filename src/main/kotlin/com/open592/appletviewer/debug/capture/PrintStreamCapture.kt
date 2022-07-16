@@ -4,8 +4,8 @@ import java.io.OutputStream
 import java.io.PrintStream
 
 public class PrintStreamCapture(
-    capture: Capture
-) : PrintStream(OutputStreamCapture(capture)) {
+    interceptor: Interceptor
+) : PrintStream(OutputStreamCapture(interceptor)) {
     /**
      * Implements a OutputStream which intercepts a PrintStream and accepts
      * a callback which is invoked after receiving a line of input.
@@ -14,7 +14,7 @@ public class PrintStreamCapture(
      * explicitly. We update the implementation by checking each
      * chunk for `System.lineSeparator()`.
      */
-    private class OutputStreamCapture(private val capture: Capture) : OutputStream() {
+    private class OutputStreamCapture(private val interceptor: Interceptor) : OutputStream() {
         private val line: StringBuilder = StringBuilder()
 
         override fun write(b: Int) {
@@ -40,7 +40,7 @@ public class PrintStreamCapture(
                  * We defer to the capture for whether we will write to the underlying system stream
                  * or not.
                  */
-                capture.write(line.appendLine().toString())
+                interceptor.write(line.appendLine().toString())
 
                 line.clear()
 
@@ -52,7 +52,7 @@ public class PrintStreamCapture(
 
         // We defer to the capture for whether we will flush the system stream or not
         override fun flush() {
-            capture.flush()
+            interceptor.flush()
         }
     }
 }

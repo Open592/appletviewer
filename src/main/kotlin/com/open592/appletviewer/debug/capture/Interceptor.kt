@@ -10,7 +10,7 @@ import java.io.PrintStream
  * - System.out
  * - System.err
  */
-public abstract class Capture(
+public abstract class Interceptor(
     public val type: CapturedMessagedType,
     public val systemStream: PrintStream,
     public var shouldLogToSystemStream: Boolean = false

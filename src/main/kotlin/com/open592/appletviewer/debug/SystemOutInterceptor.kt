@@ -1,13 +1,16 @@
-package com.open592.appletviewer.debug.capture
+package com.open592.appletviewer.debug
 
+import com.open592.appletviewer.debug.capture.CapturedMessage
+import com.open592.appletviewer.debug.capture.CapturedMessagedType
+import com.open592.appletviewer.debug.capture.Interceptor
 import java.io.PrintStream
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-public class SystemOutCapture @Inject constructor(
-    private val eventEmitter: OutputCaptureEventEmitter
-) : Capture(CapturedMessagedType.OUT, System.out) {
+public class SystemOutInterceptor @Inject constructor(
+    private val eventEmitter: DebugConsoleEventEmitter
+) : Interceptor(CapturedMessagedType.OUT, System.out) {
     public override fun capture(stream: PrintStream) {
         System.setOut(stream)
     }

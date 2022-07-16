@@ -1,7 +1,6 @@
 package com.open592.appletviewer.debug
 
 import com.open592.appletviewer.debug.capture.OutputCapture
-import com.open592.appletviewer.debug.capture.OutputCaptureEvent
 import com.open592.appletviewer.event.ApplicationEventListener
 import com.open592.appletviewer.event.EventBus
 import com.open592.appletviewer.settings.SettingsStore
@@ -14,10 +13,10 @@ import javax.inject.Singleton
 
 @Singleton
 public class DebugConsole @Inject constructor(
-    eventBus: EventBus<OutputCaptureEvent>,
+    eventBus: EventBus<DebugConsoleEvent>,
     private val outputCapture: OutputCapture,
     private val settings: SettingsStore
-) : ApplicationEventListener<OutputCaptureEvent>(eventBus) {
+) : ApplicationEventListener<DebugConsoleEvent>(eventBus) {
     /**
      * In the original implementation the debug console is not visible until
      * the first message has been received.
@@ -44,9 +43,9 @@ public class DebugConsole @Inject constructor(
         outputCapture.capture(shouldLogToSystemStream)
     }
 
-    public override fun processEvent(event: OutputCaptureEvent) {
+    public override fun processEvent(event: DebugConsoleEvent) {
         when (event) {
-            is OutputCaptureEvent.MessageReceived -> handleMessageReceived(event)
+            is DebugConsoleEvent.MessageReceived -> handleMessageReceived(event)
         }
     }
 
@@ -66,7 +65,7 @@ public class DebugConsole @Inject constructor(
         return frame
     }
 
-    private fun handleMessageReceived(event: OutputCaptureEvent.MessageReceived) {
+    private fun handleMessageReceived(event: DebugConsoleEvent.MessageReceived) {
         textArea.append(event.capture.message)
     }
 

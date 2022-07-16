@@ -1,5 +1,6 @@
-package com.open592.appletviewer.debug.capture
+package com.open592.appletviewer.debug
 
+import com.open592.appletviewer.debug.capture.CapturedMessage
 import com.open592.appletviewer.event.EventBus
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
@@ -9,14 +10,14 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-public class OutputCaptureEventEmitter @Inject constructor(
-    private val eventBus: EventBus<OutputCaptureEvent>
+public class DebugConsoleEventEmitter @Inject constructor(
+    private val eventBus: EventBus<DebugConsoleEvent>
 ) {
     private val scope = CoroutineScope(Dispatchers.Default)
 
     public fun emit(message: CapturedMessage) {
         val handler = CoroutineExceptionHandler { _, _ -> } // Ignored
-        val event = OutputCaptureEvent.MessageReceived(message)
+        val event = DebugConsoleEvent.MessageReceived(message)
 
         scope.launch(handler) {
             eventBus.emitEvent(event)

@@ -16,17 +16,17 @@ import javax.inject.Singleton
  */
 @Singleton
 public class OutputCapture @Inject constructor(
-    private val captures: Set<Capture>
+    private val interceptors: Set<Interceptor>
 ) {
     public fun capture(shouldLogToSystemStream: Boolean) {
-        captures.forEach {
+        interceptors.forEach {
             it.shouldLogToSystemStream = shouldLogToSystemStream
             it.capture(PrintStreamCapture(it))
         }
     }
 
     public fun release() {
-        captures.forEach {
+        interceptors.forEach {
             it.release()
         }
     }
