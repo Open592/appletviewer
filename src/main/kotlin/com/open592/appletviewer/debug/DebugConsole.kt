@@ -48,29 +48,32 @@ public class DebugConsole @Inject constructor(
         }
     }
 
-    private fun getFrame(): Frame {
-        if (!this::frame.isInitialized) {
-            textArea = TextArea()
-            textArea.isEditable = false
+    private fun initialize() {
+        textArea = TextArea()
+        textArea.isEditable = false
 
-            frame = Frame()
-            frame.add(textArea, "Center")
-            frame.title = TITLE
-            frame.setLocation(320, 240)
-            frame.setSize(720, 260)
-            frame.addWindowListener(WindowListener())
-        }
-
-        return frame
+        frame = Frame()
+        frame.add(textArea, "Center")
+        frame.title = TITLE
+        frame.setLocation(320, 240)
+        frame.setSize(720, 260)
+        frame.addWindowListener(WindowListener())
     }
 
     private fun handleMessageReceived(event: DebugConsoleEvent.MessageReceived) {
+        // When receiving the first message we initialize the debug console
+        if (!this::frame.isInitialized) {
+            initialize()
+        }
+
         textArea.append(event.capture.message)
     }
 
     private inner class WindowListener : WindowAdapter() {
-        override fun windowClosing(e: WindowEvent?) {
-            getFrame().isVisible = false
+        override fun windowClosing(e: WindowEvent) {
+            if (::frame.isInitialized) {
+                frame.isVisible = false
+            }
         }
     }
 
