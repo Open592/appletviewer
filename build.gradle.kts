@@ -11,7 +11,7 @@ plugins {
 }
 
 application {
-    mainClass.set("com.open592.appletviewer.cmd.AppletViewerCommandKt")
+    mainClass.set("com.open592.appletviewer.cmd.Main")
 }
 
 kotlinter {

@@ -2,10 +2,6 @@ package com.open592.appletviewer.cmd
 
 import kotlin.system.exitProcess
 
-private object Constants {
-    const val SupportedGameName = "runescape"
-}
-
 /*
  * Entry point of the AppletViewer
  *
@@ -18,23 +14,28 @@ private object Constants {
  * This entry point is called from the launcher.
  * TODO: Add reference to the launcher calling code.
  */
-public fun main(args: Array<String>) {
-    if (args.size > 1) {
-        println("Invalid arguments")
+public object Main {
+    private const val GAME_NAME = "runescape"
 
-        // Using the same status code as the original applet viewer
-        exitProcess(0)
-    }
+    @JvmStatic
+    public fun main(args: Array<String>) {
+        if (args.size > 1) {
+            println("Invalid arguments")
 
-    if (args.isNotEmpty()) {
-        val gameName = args[0]
-
-        if (!gameName.equals(Constants.SupportedGameName, true)) {
-            println("Received $gameName, but only ${Constants.SupportedGameName} is supported. Exiting...")
-
-            exitProcess(1)
+            // Using the same status code as the original applet viewer
+            exitProcess(0)
         }
-    }
 
-    println("Hello world!")
+        if (args.isNotEmpty()) {
+            val gameName = args[0]
+
+            if (!gameName.equals(GAME_NAME, true)) {
+                println("Received $gameName, but only $GAME_NAME is supported. Exiting...")
+
+                exitProcess(1)
+            }
+        }
+
+        println("Hello world!")
+    }
 }
