@@ -42,7 +42,7 @@ public class DebugConsole @Inject constructor(
         outputCapture.capture(shouldLogToSystemStream)
     }
 
-    public override fun processEvent(event: DebugConsoleEvent) {
+    protected override fun processEvent(event: DebugConsoleEvent) {
         when (event) {
             is DebugConsoleEvent.MessageReceived -> handleMessageReceived(event)
         }
