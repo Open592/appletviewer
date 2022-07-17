@@ -24,7 +24,7 @@ public interface SettingsStore {
      * @param key the Key of the setting you are wishing to retrieve
      * @return the setting if possible to resolve, otherwise `null` is returned
      */
-    public fun getString(key: String): String?
+    public fun getString(key: String): String
 
     /**
      * Given a string key, determine if the setting can be resolved.

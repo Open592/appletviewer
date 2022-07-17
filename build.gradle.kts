@@ -11,6 +11,11 @@ plugins {
 }
 
 application {
+    applicationDefaultJvmArgs = listOf(
+        "-Dcom.jagex.debug=${System.getProperty("com.jagex.debug")}",
+        "-Dcom.open592.debugConsoleLogToSystemStream=${System.getProperty("com.open592.debugConsoleLogToSystemStream")}"
+    )
+
     mainClass.set("com.open592.appletviewer.cmd.Main")
 }
 

@@ -6,7 +6,7 @@ import com.open592.appletviewer.debug.capture.Interceptor
 import com.open592.appletviewer.settings.SettingsStore
 import com.open592.appletviewer.settings.SystemPropertiesSettingsStore
 
-public class DebugConsoleModule : AbstractModule() {
+public object DebugConsoleModule : AbstractModule() {
     override fun configure() {
         val binder = Multibinder.newSetBinder(binder(), Interceptor::class.java)
         binder.addBinding().to(SystemOutInterceptor::class.java)

@@ -14,11 +14,11 @@ public class SystemPropertiesSettingsStore : SettingsStore {
         return getString(key).toBoolean()
     }
 
-    public override fun getString(key: String): String? {
-        return System.getProperty(key)
+    public override fun getString(key: String): String {
+        return System.getProperty(key).orEmpty()
     }
 
     public override fun exists(key: String): Boolean {
-        return getString(key) != null
+        return getString(key).isNotEmpty()
     }
 }

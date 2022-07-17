@@ -54,6 +54,7 @@ public class DebugConsole @Inject constructor(
 
         frame = Frame()
         frame.add(textArea, "Center")
+        frame.isVisible = true
         frame.title = TITLE
         frame.setLocation(320, 240)
         frame.setSize(720, 260)
