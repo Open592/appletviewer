@@ -1,4 +1,4 @@
-package com.open592.appletviewer.debug.controller
+package com.open592.appletviewer.debug
 
 import com.open592.appletviewer.debug.event.DebugConsoleEvent
 import com.open592.appletviewer.debug.event.DebugConsoleEventBus
