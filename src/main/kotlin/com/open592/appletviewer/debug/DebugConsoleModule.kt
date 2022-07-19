@@ -3,6 +3,10 @@ package com.open592.appletviewer.debug
 import com.google.inject.AbstractModule
 import com.google.inject.multibindings.Multibinder
 import com.open592.appletviewer.debug.capture.Interceptor
+import com.open592.appletviewer.debug.capture.SystemErrorInterceptor
+import com.open592.appletviewer.debug.capture.SystemOutInterceptor
+import com.open592.appletviewer.debug.view.DebugConsoleView
+import com.open592.appletviewer.debug.view.DebugConsoleComponent
 import com.open592.appletviewer.settings.SettingsStore
 import com.open592.appletviewer.settings.SystemPropertiesSettingsStore
 
@@ -13,5 +17,7 @@ public object DebugConsoleModule : AbstractModule() {
         binder.addBinding().to(SystemErrorInterceptor::class.java)
 
         bind(SettingsStore::class.java).to(SystemPropertiesSettingsStore::class.java)
+
+        bind(DebugConsoleView::class.java).to(DebugConsoleComponent::class.java)
     }
 }
