@@ -1,9 +1,9 @@
 package com.open592.appletviewer.debug
 
+import com.open592.appletviewer.debug.capture.OutputCapture
 import com.open592.appletviewer.debug.event.DebugConsoleEvent
 import com.open592.appletviewer.debug.event.DebugConsoleEventBus
 import com.open592.appletviewer.debug.view.DebugConsoleView
-import com.open592.appletviewer.debug.capture.OutputCapture
 import com.open592.appletviewer.event.ApplicationEventListener
 import com.open592.appletviewer.settings.SettingsStore
 import javax.inject.Inject

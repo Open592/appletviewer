@@ -1,8 +1,5 @@
 package com.open592.appletviewer.debug.capture
 
-import com.open592.appletviewer.debug.capture.CapturedMessage
-import com.open592.appletviewer.debug.capture.CapturedMessagedType
-import com.open592.appletviewer.debug.capture.Interceptor
 import com.open592.appletviewer.debug.event.DebugConsoleEventBus
 import java.io.PrintStream
 import javax.inject.Inject

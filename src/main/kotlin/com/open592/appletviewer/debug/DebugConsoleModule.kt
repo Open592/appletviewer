@@ -5,8 +5,8 @@ import com.google.inject.multibindings.Multibinder
 import com.open592.appletviewer.debug.capture.Interceptor
 import com.open592.appletviewer.debug.capture.SystemErrorInterceptor
 import com.open592.appletviewer.debug.capture.SystemOutInterceptor
-import com.open592.appletviewer.debug.view.DebugConsoleView
 import com.open592.appletviewer.debug.view.DebugConsoleComponent
+import com.open592.appletviewer.debug.view.DebugConsoleView
 import com.open592.appletviewer.settings.SettingsStore
 import com.open592.appletviewer.settings.SystemPropertiesSettingsStore
 
