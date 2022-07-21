@@ -37,6 +37,7 @@ dependencies {
 
     testImplementation(kotlin("test"))
     testImplementation(libs.kotlin.coroutines.test)
+    testImplementation(libs.mockk)
 }
 
 plugins.withType<KotlinPluginWrapper> {
