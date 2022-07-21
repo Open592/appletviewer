@@ -10,7 +10,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-public class DebugConsoleController @Inject constructor(
+public class DebugConsole @Inject constructor(
     eventBus: DebugConsoleEventBus,
     private val view: DebugConsoleView,
     private val outputCapture: OutputCapture,
@@ -27,7 +27,7 @@ public class DebugConsoleController @Inject constructor(
      *
      * On receiving output we need to display the view and append the message.
      */
-    public fun start() {
+    public fun initialize() {
         val shouldStart = settings.getBoolean("com.jagex.debug")
 
         // Nothing to do if we aren't running in debug mode
