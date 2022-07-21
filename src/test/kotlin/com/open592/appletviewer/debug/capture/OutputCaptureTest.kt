@@ -5,7 +5,7 @@ import kotlin.test.assertEquals
 
 class OutputCaptureTest {
     @Test
-    fun singleMessageTest() {
+    fun `Should capture a single message from println`() {
         val interceptor = DummyInterceptor(CapturedMessagedType.OUT, System.out)
         val outputCapture = OutputCapture(setOf(interceptor))
 
@@ -23,7 +23,7 @@ class OutputCaptureTest {
     }
 
     @Test
-    fun multipleMessageTest() {
+    fun `Should only capture a message after a newline is received`() {
         val interceptor = DummyInterceptor(CapturedMessagedType.OUT, System.out)
         val outputCapture = OutputCapture(setOf(interceptor))
 
@@ -45,7 +45,7 @@ class OutputCaptureTest {
     }
 
     @Test
-    fun multipleMessageTypesTest() {
+    fun `Should capture multiple messages of different interceptor types`() {
         val systemOutInterceptor = DummyInterceptor(CapturedMessagedType.OUT, System.out)
         val systemErrInterceptor = DummyInterceptor(CapturedMessagedType.ERR, System.err)
         val outputCapture = OutputCapture(setOf(systemOutInterceptor, systemErrInterceptor))
