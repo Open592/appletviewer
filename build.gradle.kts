@@ -36,6 +36,7 @@ dependencies {
     implementation(libs.kotlin.coroutines.core)
 
     testImplementation(kotlin("test"))
+    testImplementation(libs.jimfs)
     testImplementation(libs.kotlin.coroutines.test)
     testImplementation(libs.mockk)
 }

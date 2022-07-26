@@ -1,5 +1,6 @@
 [versions]
 guice = "5.1.0"
+jimfs = "1.2"
 kotlin = "1.6.21"
 kotlinCoroutines = "1.6.3"
 kotlinter = "3.9.0"
@@ -10,6 +11,7 @@ kotlinter = { id = "org.jmailen.kotlinter", version.ref = "kotlinter" }
 
 [libraries]
 guice = { module = "com.google.inject:guice", version.ref = "guice" }
+jimfs = { module = "com.google.jimfs:jimfs", version.ref = "jimfs" }
 kotlin-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinCoroutines" }
 kotlin-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinCoroutines" }
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
