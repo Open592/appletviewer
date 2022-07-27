@@ -5,7 +5,11 @@ import com.open592.appletviewer.debug.capture.SystemOutInterceptor
 import com.open592.appletviewer.debug.event.DebugConsoleEventBus
 import com.open592.appletviewer.debug.view.DebugConsoleView
 import com.open592.appletviewer.settings.SettingsStore
-import io.mockk.*
+import io.mockk.Runs
+import io.mockk.every
+import io.mockk.just
+import io.mockk.mockk
+import io.mockk.verify
 import kotlin.test.Test
 
 class DebugConsoleTest {
@@ -62,7 +66,7 @@ class DebugConsoleTest {
 
         verify(exactly = 1, timeout = 50) { debugConsoleView.isDisplayed() }
         verify(exactly = 1) { debugConsoleView.display() }
-        verify(exactly = 1) { debugConsoleView.appendMessage("$message\n")}
+        verify(exactly = 1) { debugConsoleView.appendMessage("$message\n") }
     }
 
     companion object {

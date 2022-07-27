@@ -3,7 +3,6 @@ package com.open592.appletviewer.preferences
 import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Path
-import javax.inject.Singleton
 
 /**
  * Holds persistent data across AppletViewer sessions.
@@ -24,7 +23,7 @@ import javax.inject.Singleton
 */
 public class AppletViewerPreferences constructor(
     private val filePath: Path
-){
+) {
     private val preferences: MutableMap<String, String> = mutableMapOf()
 
     init {
@@ -56,7 +55,7 @@ public class AppletViewerPreferences constructor(
      * Sets a preference value and allows for controlling whether the newly added value
      * is added to the preferences file on the filesystem
      */
-    public fun set(key:String, value: String, shouldWrite: Boolean) {
+    public fun set(key: String, value: String, shouldWrite: Boolean) {
         preferences[key] = value
 
         if (shouldWrite) {

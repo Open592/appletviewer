@@ -76,7 +76,7 @@ class AppletViewerPreferencesTest {
             Pair("One", "1"),
             Pair("Two", "2"),
             Pair("Three", "3"),
-            Pair("Four", "4"),
+            Pair("Four", "4")
         )
         // We will write this value and trigger a flush to the filesystem
         val flushValue = Pair("Five", "5")
