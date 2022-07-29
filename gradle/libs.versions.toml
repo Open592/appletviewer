@@ -1,13 +1,14 @@
 [versions]
 guice = "5.1.0"
 jimfs = "1.2"
-kotlin = "1.6.21"
-kotlinCoroutines = "1.6.3"
-kotlinter = "3.9.0"
+kotlin = "1.7.10"
+kotlinCoroutines = "1.6.4"
+kotlinter = "3.11.1"
 mockk = "1.12.4"
 
 [plugins]
 kotlinter = { id = "org.jmailen.kotlinter", version.ref = "kotlinter" }
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 
 [libraries]
 guice = { module = "com.google.inject:guice", version.ref = "guice" }
