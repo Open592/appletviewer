@@ -11,5 +11,8 @@ max_line_length = 120
 indent_size = 4
 indent_style = space
 
+[**/test/**.kt]
+ktlint_ignore_back_ticked_identifier = true
+
 [*.md]
 max_line_length = 80
