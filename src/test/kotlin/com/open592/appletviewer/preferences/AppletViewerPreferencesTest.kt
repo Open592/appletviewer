@@ -12,7 +12,7 @@ class AppletViewerPreferencesTest {
     fun `Should not throw an exception when the preferences file doesn't exist`() {
         val fs = Jimfs.newFileSystem(Configuration.forCurrentPlatform())
         // This should return a path which doesn't resolve to a file
-        val filePath = fs.getPath(PREFERENCES_FILE_NAME)
+        val filePath = fs.getPath(AppletViewerPreferences.DEFAULT_FILE_NAME)
 
         assertDoesNotThrow {
             AppletViewerPreferences(filePath)
@@ -22,7 +22,7 @@ class AppletViewerPreferencesTest {
     @Test
     fun `Should properly write values to a previously empty file`() {
         val fs = Jimfs.newFileSystem(Configuration.forCurrentPlatform())
-        val filePath = fs.getPath(PREFERENCES_FILE_NAME)
+        val filePath = fs.getPath(AppletViewerPreferences.DEFAULT_FILE_NAME)
         val expectedData = Pair("Test", "Value")
 
         Files.createFile(filePath)
@@ -39,7 +39,7 @@ class AppletViewerPreferencesTest {
     @Test
     fun `Should properly load data from an existing file and handle updating it`() {
         val fs = Jimfs.newFileSystem(Configuration.forCurrentPlatform())
-        val filePath = fs.getPath(PREFERENCES_FILE_NAME)
+        val filePath = fs.getPath(AppletViewerPreferences.DEFAULT_FILE_NAME)
         val initialData = Pair("Language", "0")
         val updatedData = Pair(initialData.first, "1")
 
@@ -70,7 +70,7 @@ class AppletViewerPreferencesTest {
     @Test
     fun `Should allow setting preferences without writing to the filesystem`() {
         val fs = Jimfs.newFileSystem(Configuration.forCurrentPlatform())
-        val filePath = fs.getPath(PREFERENCES_FILE_NAME)
+        val filePath = fs.getPath(AppletViewerPreferences.DEFAULT_FILE_NAME)
         // Our first set of values should not be written to the filesystem before the second set of values are set
         val firstExpectedValues = listOf(
             Pair("One", "1"),
@@ -118,9 +118,5 @@ class AppletViewerPreferencesTest {
                 assertEquals("${firstExpectedValues[index].first}=${firstExpectedValues[index].second}", line)
             }
         }
-    }
-
-    private companion object {
-        private const val PREFERENCES_FILE_NAME = "jagexappletviewer.preferences"
     }
 }

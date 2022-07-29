@@ -5,10 +5,6 @@ import javax.inject.Provider
 
 public class AppletViewerPreferencesProvider : Provider<AppletViewerPreferences> {
     override fun get(): AppletViewerPreferences {
-        return AppletViewerPreferences(FILE_PATH)
-    }
-
-    private companion object {
-        private val FILE_PATH = Path.of("jagexappletviewer.preferences")
+        return AppletViewerPreferences(Path.of(AppletViewerPreferences.DEFAULT_FILE_NAME))
     }
 }

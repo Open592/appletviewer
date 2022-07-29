@@ -94,4 +94,8 @@ public class AppletViewerPreferences constructor(
             }
         }
     }
+
+    public companion object {
+        public const val DEFAULT_FILE_NAME: String = "jagexappletviewer.preferences"
+    }
 }
