@@ -26,35 +26,45 @@ public enum class SupportedLanguage {
 
     public companion object {
         /**
-         * Initialize the user's language.
+         * Resolve the user's language.
          *
          * We first attempt to resolve the language from the preferences file (set during a previous sessions).
          * If that fails we resolve using default locale and write the resulting language ID to the preferences
          * file for future sessions.
          */
-        public fun initializeUserLanguage(preferences: AppletViewerPreferences): SupportedLanguage {
-            val languageFromPreferences = getUserLanguageFromPreferences(preferences)
+        public fun resolve(preferences: AppletViewerPreferences): SupportedLanguage {
+            val languageFromPreferences = fromPreferences(preferences)
 
             if (languageFromPreferences != null) {
                 return languageFromPreferences
             }
 
-            val userLanguage = resolveUserLanguage()
+            val userLanguage = fromDefaultLocale() ?: ENGLISH
 
-            setUserLanguageInPreferences(preferences, userLanguage)
+            saveToPreferences(preferences, userLanguage)
 
             return userLanguage
         }
 
         /**
-         * Given a language ID attempt to resolve a SupportedLanguage.
+         * Attempt to resolve the user's language using their default locale.
          */
-        private fun fromLanguageID(id: Int): SupportedLanguage? {
+        private fun fromDefaultLocale(): SupportedLanguage? {
+            val defaultLocale = Locale.getDefault()
+
+            return fromISO3LanguageID(defaultLocale.isO3Language)
+                ?: fromISO3CountryID(defaultLocale.isO3Country)
+        }
+
+        /**
+         * Given an ISO3 country ID, attempt to resolve a SupportedLanguage.
+         */
+        private fun fromISO3CountryID(id: String): SupportedLanguage? {
             return when (id) {
-                0 -> ENGLISH
-                1 -> GERMAN
-                2 -> FRENCH
-                3 -> BRAZILIAN_PORTUGUESE
+                "GB", "US" -> ENGLISH
+                "DE" -> GERMAN
+                "FR" -> FRENCH
+                "BR" -> BRAZILIAN_PORTUGUESE
                 else -> null
             }
         }
@@ -73,14 +83,14 @@ public enum class SupportedLanguage {
         }
 
         /**
-         * Given an ISO3 country ID, attempt to resolve a SupportedLanguage.
+         * Given a language ID attempt to resolve a SupportedLanguage.
          */
-        private fun fromISO3CountryID(id: String): SupportedLanguage? {
+        private fun fromLanguageID(id: Int): SupportedLanguage? {
             return when (id) {
-                "GB", "US" -> ENGLISH
-                "DE" -> GERMAN
-                "FR" -> FRENCH
-                "BR" -> BRAZILIAN_PORTUGUESE
+                0 -> ENGLISH
+                1 -> GERMAN
+                2 -> FRENCH
+                3 -> BRAZILIAN_PORTUGUESE
                 else -> null
             }
         }
@@ -88,7 +98,7 @@ public enum class SupportedLanguage {
         /**
          * Attempt to get the user language by looking into the AppletViewer preferences files.
          */
-        private fun getUserLanguageFromPreferences(preferences: AppletViewerPreferences): SupportedLanguage? {
+        private fun fromPreferences(preferences: AppletViewerPreferences): SupportedLanguage? {
             val languageId = preferences.get(LANGUAGE_PREFERENCE_KEY)
 
             return if (languageId.isNotEmpty()) {
@@ -106,21 +116,8 @@ public enum class SupportedLanguage {
          * Given a SupportedLanguage resolved for the user, write it to the applet viewer
          * preferences file for future sessions to reference.
          */
-        private fun setUserLanguageInPreferences(preferences: AppletViewerPreferences, language: SupportedLanguage) {
+        private fun saveToPreferences(preferences: AppletViewerPreferences, language: SupportedLanguage) {
             preferences.set(LANGUAGE_PREFERENCE_KEY, language.getLanguageID().toString())
-        }
-
-        /**
-         * Attempt to resolve the user's language using their default locale.
-         *
-         * If this fails, we will fall back to using ENGLISH as their default language.
-         */
-        private fun resolveUserLanguage(): SupportedLanguage {
-            val defaultLocale = Locale.getDefault()
-
-            return fromISO3LanguageID(defaultLocale.isO3Language)
-                ?: fromISO3CountryID(defaultLocale.isO3Country)
-                ?: ENGLISH
         }
 
         private const val LANGUAGE_PREFERENCE_KEY = "Language"
