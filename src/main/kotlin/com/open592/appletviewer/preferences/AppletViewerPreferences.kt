@@ -78,7 +78,7 @@ public class AppletViewerPreferences constructor(
             val split = it.split("=", limit = 2)
 
             if (split.size == 2) {
-                set(split[0], split[1])
+                set(split[0], split[1], shouldWrite = false)
             }
         }
     }
