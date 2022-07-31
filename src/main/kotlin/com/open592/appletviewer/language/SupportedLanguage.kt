@@ -24,6 +24,14 @@ public enum class SupportedLanguage {
         return this.ordinal
     }
 
+    /**
+     * Write the SupportedLanguage value to the applet viewer preferences file. This allows
+     * for reference by future sessions.
+     */
+    private fun writeToPreferences(preferences: AppletViewerPreferences) {
+        preferences.set(LANGUAGE_PREFERENCE_KEY, this.getLanguageID().toString())
+    }
+
     public companion object {
         /**
          * Resolve the user's language.
@@ -39,21 +47,24 @@ public enum class SupportedLanguage {
                 return languageFromPreferences
             }
 
-            val userLanguage = fromDefaultLocale() ?: ENGLISH
+            val userLanguage = fromDefaultLocale()
 
-            saveToPreferences(preferences, userLanguage)
+            userLanguage.writeToPreferences(preferences)
 
             return userLanguage
         }
 
         /**
          * Attempt to resolve the user's language using their default locale.
+         *
+         * If we fail to find an appropriate locale we fall back to ENGLISH
          */
-        private fun fromDefaultLocale(): SupportedLanguage? {
+        private fun fromDefaultLocale(): SupportedLanguage {
             val defaultLocale = Locale.getDefault()
 
             return fromISO3LanguageID(defaultLocale.isO3Language)
                 ?: fromISO3CountryID(defaultLocale.isO3Country)
+                ?: ENGLISH
         }
 
         /**
@@ -110,14 +121,6 @@ public enum class SupportedLanguage {
             } else {
                 null
             }
-        }
-
-        /**
-         * Given a SupportedLanguage resolved for the user, write it to the applet viewer
-         * preferences file for future sessions to reference.
-         */
-        private fun saveToPreferences(preferences: AppletViewerPreferences, language: SupportedLanguage) {
-            preferences.set(LANGUAGE_PREFERENCE_KEY, language.getLanguageID().toString())
         }
 
         private const val LANGUAGE_PREFERENCE_KEY = "Language"
