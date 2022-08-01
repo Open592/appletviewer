@@ -1,4 +1,4 @@
-package com.open592.appletviewer.language
+package com.open592.appletviewer.localization
 
 import com.open592.appletviewer.preferences.AppletViewerPreferences
 import java.lang.NumberFormatException

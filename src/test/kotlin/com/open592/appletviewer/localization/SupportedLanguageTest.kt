@@ -1,4 +1,4 @@
-package com.open592.appletviewer.language
+package com.open592.appletviewer.localization
 
 import com.google.common.jimfs.Configuration
 import com.google.common.jimfs.Jimfs
