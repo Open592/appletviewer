@@ -23,46 +23,46 @@ class AppletViewerPreferencesTest {
     fun `Should properly write values to a previously empty file`() {
         val fs = Jimfs.newFileSystem(Configuration.forCurrentPlatform())
         val filePath = fs.getPath(AppletViewerPreferences.DEFAULT_FILE_NAME)
-        val expectedData = Pair("Test", "Value")
+        val (expectedKey, expectedValue) = Pair("Test", "Value")
 
         Files.createFile(filePath)
 
         val preferences = AppletViewerPreferences(filePath)
 
         assertDoesNotThrow {
-            preferences.set(expectedData.first, expectedData.second)
+            preferences.set(expectedKey, expectedValue)
         }
 
-        assertEquals(expectedData.second, preferences.get(expectedData.first))
+        assertEquals(expectedValue, preferences.get(expectedKey))
     }
 
     @Test
     fun `Should properly load data from an existing file and handle updating it`() {
         val fs = Jimfs.newFileSystem(Configuration.forCurrentPlatform())
         val filePath = fs.getPath(AppletViewerPreferences.DEFAULT_FILE_NAME)
-        val initialData = Pair("Language", "0")
-        val updatedData = Pair(initialData.first, "1")
+        val (initialKey, initialValue) = Pair("Language", "0")
+        val (updatedKey, updatedValue) = Pair(initialKey, "1")
 
         Files.createFile(filePath)
         Files.newBufferedWriter(filePath).use {
-            it.write("${initialData.first}=${initialData.second}")
+            it.write("$initialKey=$initialValue")
             it.newLine()
         }
 
         val preferences = AppletViewerPreferences(filePath)
 
-        assertEquals(initialData.second, preferences.get(initialData.first))
+        assertEquals(initialValue, preferences.get(initialKey))
 
         assertDoesNotThrow {
-            preferences.set(updatedData.first, updatedData.second)
+            preferences.set(updatedKey, updatedValue)
         }
 
-        assertEquals(updatedData.second, preferences.get(updatedData.first))
+        assertEquals(updatedValue, preferences.get(updatedKey))
 
         // Make sure the underlying filesystem was updated
         Files.newBufferedReader(filePath).useLines {
             it.forEach {
-                assertEquals("${updatedData.first}=${updatedData.second}", it)
+                assertEquals("$updatedKey=$updatedValue", it)
             }
         }
     }
@@ -79,7 +79,7 @@ class AppletViewerPreferencesTest {
             Pair("Four", "4")
         )
         // We will write this value and trigger a flush to the filesystem
-        val flushValue = Pair("Five", "5")
+        val (flushKey, flushValue) = Pair("Five", "5")
 
         // Create an empty file to start
         Files.createFile(filePath)
@@ -87,8 +87,8 @@ class AppletViewerPreferencesTest {
         val preferences = AppletViewerPreferences(filePath)
 
         assertDoesNotThrow {
-            firstExpectedValues.forEach {
-                preferences.set(it.first, it.second, shouldWrite = false)
+            firstExpectedValues.forEach { (key, value) ->
+                preferences.set(key, value, shouldWrite = false)
             }
         }
 
@@ -96,21 +96,21 @@ class AppletViewerPreferencesTest {
         assertEquals(0, Files.newBufferedReader(filePath).lines().count())
 
         // Make sure the values are stored
-        firstExpectedValues.forEach {
-            assertEquals(it.second, preferences.get(it.first))
+        firstExpectedValues.forEach { (key, value) ->
+            assertEquals(value, preferences.get(key))
         }
 
         // Write the final value, and trigger the previous values
         // to be flushed to the preferences file
         assertDoesNotThrow {
-            preferences.set(flushValue.first, flushValue.second)
+            preferences.set(flushKey, flushValue)
         }
 
         Files.newBufferedReader(filePath).useLines {
             it.forEachIndexed { index, line ->
                 // TODO: Ehh is this the most clean way of doing this?
                 if (index >= firstExpectedValues.count()) {
-                    assertEquals("${flushValue.first}=${flushValue.second}", line)
+                    assertEquals("$flushKey=$flushValue", line)
 
                     return
                 }
