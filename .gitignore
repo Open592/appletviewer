@@ -2,4 +2,5 @@ build/
 .gradle/
 .idea/workspace.xml
 .idea/kotlinc.xml
+jagexappletviewer.preferences
 

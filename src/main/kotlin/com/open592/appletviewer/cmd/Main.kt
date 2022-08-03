@@ -1,8 +1,8 @@
 package com.open592.appletviewer.cmd
 
 import com.google.inject.Guice
-import com.open592.appletviewer.view.AppletViewer
-import com.open592.appletviewer.view.AppletViewerModule
+import com.open592.appletviewer.viewer.Viewer
+import com.open592.appletviewer.viewer.ViewerModule
 import kotlinx.coroutines.runBlocking
 import kotlin.system.exitProcess
 
@@ -41,8 +41,8 @@ public object Main {
         }
 
         runBlocking {
-            val appletViewer = Guice.createInjector(AppletViewerModule).getInstance(AppletViewer::class.java)
-            appletViewer.start()
+            val viewer = Guice.createInjector(ViewerModule).getInstance(Viewer::class.java)
+            viewer.initialize()
         }
     }
 }
