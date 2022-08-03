@@ -18,7 +18,7 @@ public class SystemOutInterceptor @Inject constructor(
     }
 
     public override fun write(message: String) {
-        eventBus.dispatchMessageReceived(CapturedMessage(type, message))
+        eventBus.dispatchMessageReceivedEvent(CapturedMessage(type, message))
 
         // Defer to super class to decide if we should log to system stream
         super.write(message)
