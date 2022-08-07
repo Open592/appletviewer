@@ -1,5 +1,7 @@
 package com.open592.appletviewer.event
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -10,6 +12,7 @@ import kotlinx.coroutines.flow.asSharedFlow
  */
 public abstract class EventBus<T : ApplicationEvent> {
     private val _events = MutableSharedFlow<T>()
+    protected val scope: CoroutineScope = CoroutineScope(Dispatchers.Default)
     public val events: SharedFlow<T> = _events.asSharedFlow()
 
     public suspend fun emitEvent(event: T): Unit = _events.emit(event)

@@ -29,12 +29,8 @@ public class ProgressIndicatorComponent @Inject constructor(
         dialog = Dialog(parentFrame, WINDOW_TITLE, false)
 
         dialog.add(this)
-        dialog.addWindowListener(object : WindowAdapter(), ActionListener {
+        dialog.addWindowListener(object : WindowAdapter() {
             override fun windowClosing(e: WindowEvent?) {
-                viewerEventBus.dispatchQuitEvent()
-            }
-
-            override fun actionPerformed(e: ActionEvent?) {
                 viewerEventBus.dispatchQuitEvent()
             }
         })
