@@ -8,8 +8,6 @@ import java.awt.Dialog
 import java.awt.Font
 import java.awt.Frame
 import java.awt.Graphics
-import java.awt.event.ActionEvent
-import java.awt.event.ActionListener
 import java.awt.event.WindowAdapter
 import java.awt.event.WindowEvent
 import javax.inject.Inject
@@ -29,12 +27,8 @@ public class ProgressIndicatorComponent @Inject constructor(
         dialog = Dialog(parentFrame, WINDOW_TITLE, false)
 
         dialog.add(this)
-        dialog.addWindowListener(object : WindowAdapter(), ActionListener {
+        dialog.addWindowListener(object : WindowAdapter() {
             override fun windowClosing(e: WindowEvent?) {
-                viewerEventBus.dispatchQuitEvent()
-            }
-
-            override fun actionPerformed(e: ActionEvent?) {
                 viewerEventBus.dispatchQuitEvent()
             }
         })

@@ -4,9 +4,7 @@ import java.awt.Frame
 import java.awt.TextArea
 import java.awt.event.WindowAdapter
 import java.awt.event.WindowEvent
-import javax.inject.Singleton
 
-@Singleton
 public class DebugConsoleComponent : DebugConsoleView {
     private val frame: Frame = Frame()
     private val textArea: TextArea = TextArea()

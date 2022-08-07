@@ -13,7 +13,7 @@ import kotlin.system.exitProcess
 
 @Singleton
 public class Viewer @Inject constructor(
-    private val eventBus: ViewerEventBus,
+    eventBus: ViewerEventBus,
     private val debugConsole: DebugConsole,
     private val localization: Localization,
     private val progressIndicator: ProgressIndicator
