@@ -1,6 +1,7 @@
 package com.open592.appletviewer.viewer
 
 import com.open592.appletviewer.debug.DebugConsole
+import com.open592.appletviewer.dialog.ApplicationDialog
 import com.open592.appletviewer.event.ApplicationEventListener
 import com.open592.appletviewer.localization.Localization
 import com.open592.appletviewer.progress.ProgressIndicator
@@ -13,9 +14,10 @@ import kotlin.system.exitProcess
 
 @Singleton
 public class Viewer @Inject constructor(
-    private val eventBus: ViewerEventBus,
+    eventBus: ViewerEventBus,
     private val debugConsole: DebugConsole,
     private val localization: Localization,
+    private val applicationDialog: ApplicationDialog,
     private val progressIndicator: ProgressIndicator
 ) : ApplicationEventListener<ViewerEvent>(eventBus) {
     private val frame = Frame()
@@ -23,6 +25,9 @@ public class Viewer @Inject constructor(
     public fun initialize() {
         // Initialize the debug console in case we are in debug mode
         debugConsole.initialize()
+
+        // Initialize the application dialog
+        applicationDialog.initialize(frame)
 
         // Initialize the progress indicator
         progressIndicator.initialize(frame)

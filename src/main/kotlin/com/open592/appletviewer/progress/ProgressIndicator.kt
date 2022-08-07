@@ -1,5 +1,7 @@
 package com.open592.appletviewer.progress
 
+import com.open592.appletviewer.dialog.ApplicationDialogType
+import com.open592.appletviewer.dialog.event.ApplicationDialogEventBus
 import com.open592.appletviewer.event.ApplicationEventListener
 import com.open592.appletviewer.progress.event.ProgressEvent
 import com.open592.appletviewer.progress.event.ProgressEventBus
@@ -11,10 +13,14 @@ import javax.inject.Singleton
 @Singleton
 public class ProgressIndicator @Inject constructor(
     eventBus: ProgressEventBus,
+    private val applicationDialogEventBus: ApplicationDialogEventBus,
     private val view: ProgressIndicatorView
 ) : ApplicationEventListener<ProgressEvent>(eventBus) {
     public fun initialize(parentFrame: Frame) {
         view.initialize(parentFrame)
+
+        applicationDialogEventBus.dispatchDisplayEvent(ApplicationDialogType.MESSAGE, "Hello world")
+        applicationDialogEventBus.dispatchDisplayEvent(ApplicationDialogType.FATAL_ERROR, "Uh oh\nNot good")
     }
 
     protected override fun processEvent(event: ProgressEvent) {
