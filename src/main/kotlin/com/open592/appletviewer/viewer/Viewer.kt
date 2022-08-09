@@ -22,8 +22,6 @@ public class Viewer @Inject constructor(
         debugConsole.initialize()
 
         progressIndicator.eventBus.dispatchChangeVisibilityEvent(visible = true)
-        progressIndicator.eventBus.dispatchUpdateProgressEvent(percentage = 25)
-        progressIndicator.eventBus.dispatchChangeTextEvent("Hello, 1234")
 
         println(localization.getContent("err_missing_config"))
     }

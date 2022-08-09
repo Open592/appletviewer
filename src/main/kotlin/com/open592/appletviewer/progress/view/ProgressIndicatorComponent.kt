@@ -22,29 +22,31 @@ public class ProgressIndicatorComponent @Inject constructor(
 ) : Component(), ProgressIndicatorView {
     private val dialog: Dialog = Dialog(rootFrame, WINDOW_TITLE, false)
     private val fontMetrics = this.getFontMetrics(TEXT_FONT)
+
     private var currentProgress = 0
     private var currentContent = localization.getContent("loaderbox_initial")
 
     init {
         dialog.add(this)
+        dialog.isResizable = false
+        dialog.setSize(WINDOW_WIDTH, WINDOW_HEIGHT)
+        dialog.setLocationRelativeTo(rootFrame)
+
         dialog.addWindowListener(object : WindowAdapter() {
             override fun windowClosing(e: WindowEvent?) {
                 viewerEventBus.dispatchQuitEvent()
             }
         })
-        dialog.isResizable = false
-        dialog.setSize(WINDOW_WIDTH, WINDOW_HEIGHT)
-        dialog.setLocationRelativeTo(rootFrame)
     }
 
     public override fun paint(g: Graphics?) {
+        if (g == null) {
+            this.repaint()
+
+            return
+        }
+
         try {
-            if (g == null) {
-                this.repaint()
-
-                return
-            }
-
             val content = "${this.currentContent} - ${this.currentProgress}%"
 
             g.color = Color.BLACK
