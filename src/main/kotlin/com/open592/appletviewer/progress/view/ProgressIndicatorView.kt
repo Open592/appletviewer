@@ -1,16 +1,9 @@
 package com.open592.appletviewer.progress.view
 
-import java.awt.Frame
-
 /**
  * Represents the user visible API of the ProgressIndicator
  */
 public interface ProgressIndicatorView {
-    /**
-     * Initializes the ProgressIndicator component
-     */
-    public fun initialize(parentFrame: Frame)
-
     /**
      * Sets whether the ProgressIndicator is visible to the user or not
      */

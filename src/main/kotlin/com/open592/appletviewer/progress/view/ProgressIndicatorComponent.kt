@@ -1,6 +1,7 @@
 package com.open592.appletviewer.progress.view
 
 import com.open592.appletviewer.localization.Localization
+import com.open592.appletviewer.root.Root
 import com.open592.appletviewer.viewer.event.ViewerEventBus
 import java.awt.Color
 import java.awt.Component
@@ -15,17 +16,16 @@ import javax.inject.Singleton
 
 @Singleton
 public class ProgressIndicatorComponent @Inject constructor(
+    @Root private val rootFrame: Frame,
     private val viewerEventBus: ViewerEventBus,
     localization: Localization
 ) : Component(), ProgressIndicatorView {
-    private lateinit var dialog: Dialog
+    private val dialog: Dialog = Dialog(rootFrame, WINDOW_TITLE, false)
+    private val fontMetrics = this.getFontMetrics(TEXT_FONT)
     private var currentProgress = 0
     private var currentContent = localization.getContent("loaderbox_initial")
-    private val fontMetrics = this.getFontMetrics(TEXT_FONT)
 
-    public override fun initialize(parentFrame: Frame) {
-        dialog = Dialog(parentFrame, WINDOW_TITLE, false)
-
+    init {
         dialog.add(this)
         dialog.addWindowListener(object : WindowAdapter() {
             override fun windowClosing(e: WindowEvent?) {
@@ -34,7 +34,7 @@ public class ProgressIndicatorComponent @Inject constructor(
         })
         dialog.isResizable = false
         dialog.setSize(WINDOW_WIDTH, WINDOW_HEIGHT)
-        dialog.setLocationRelativeTo(parentFrame)
+        dialog.setLocationRelativeTo(rootFrame)
     }
 
     public override fun paint(g: Graphics?) {
@@ -61,7 +61,7 @@ public class ProgressIndicatorComponent @Inject constructor(
     }
 
     public override fun changeVisibility(visible: Boolean) {
-        dialog.isVisible = visible
+        this.dialog.isVisible = visible
     }
 
     public override fun changeText(text: String) {
