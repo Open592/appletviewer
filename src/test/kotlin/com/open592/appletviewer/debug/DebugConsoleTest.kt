@@ -45,7 +45,7 @@ class DebugConsoleTest {
 
         // Mock that we aren't running in debug mode
         every { settings.getBoolean(DEBUG_PROPERTY) } returns true
-        every { settings.getBoolean(DISABLE_PROPERTY) } returns false
+        every { settings.getBoolean(DISABLE_PROPERTY) } returns true
 
         val debugConsole = DebugConsole(eventBus, debugConsoleView, outputCapture, settings)
 

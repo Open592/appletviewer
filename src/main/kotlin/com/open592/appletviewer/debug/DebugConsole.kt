@@ -29,9 +29,9 @@ public class DebugConsole @Inject constructor(
      */
     public fun initialize() {
         val isDebug = settings.getBoolean("com.jagex.debug")
-        val shouldStart = settings.getBoolean("com.open592.disableDebugConsole")
+        val isDisabled = settings.getBoolean("com.open592.disableDebugConsole")
 
-        if (!isDebug || !shouldStart) {
+        if (!isDebug || isDisabled) {
             return
         }
 

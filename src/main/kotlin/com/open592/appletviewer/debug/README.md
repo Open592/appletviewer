@@ -4,7 +4,7 @@
 The applet viewer provides the ability to display both `Stdout` and `stderr`
 logs within a separate window, instead of directly within the console.
 
-![Screenshot of debug console](https://www.dropbox.com/s/0fweulsbz8e0z3o/jagex-debug-console.png?raw=1)
+![Screenshot of debug console](/share/images/jagex-debug-console.png?raw=1)
 
 ## Functionality
 When `com.jagex.debug` is enabled the debug host console will hook into both
