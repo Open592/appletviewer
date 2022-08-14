@@ -31,7 +31,30 @@ class DebugConsoleTest {
         // Make sure we only checked for if we are running in debug mode and then short-circuited
         verify(exactly = 1) { settings.getBoolean(DEBUG_PROPERTY) }
         verify(exactly = 0) { settings.getBoolean(LOG_TO_SYSTEM_STREAM_PROPERTY) }
+        // Verify we are not invoking the outputCapture
+        verify(exactly = 0) { outputCapture.capture(false) }
+    }
 
+    @Test
+    fun `Should not capture messages even when in debug mode if the disableDebugConsole flag is set`() {
+        val eventBus = DebugConsoleEventBus()
+        val debugConsoleView = mockk<DebugConsoleView>()
+        // Mocking this purely to make sure we aren't invoking it
+        val outputCapture = mockk<OutputCapture>()
+        val settings = mockk<SettingsStore>()
+
+        // Mock that we aren't running in debug mode
+        every { settings.getBoolean(DEBUG_PROPERTY) } returns true
+        every { settings.getBoolean(DISABLE_PROPERTY) } returns false
+
+        val debugConsole = DebugConsole(eventBus, debugConsoleView, outputCapture, settings)
+
+        debugConsole.initialize()
+
+        // Make sure, that even if debug mode is turned on, we still short circuit due to disable property being set
+        verify(exactly = 1) { settings.getBoolean(DEBUG_PROPERTY) }
+        verify(exactly = 1) { settings.getBoolean(DISABLE_PROPERTY) }
+        verify(exactly = 0) { settings.getBoolean(LOG_TO_SYSTEM_STREAM_PROPERTY) }
         // Verify we are not invoking the outputCapture
         verify(exactly = 0) { outputCapture.capture(false) }
     }
@@ -71,6 +94,7 @@ class DebugConsoleTest {
 
     companion object {
         const val DEBUG_PROPERTY = "com.jagex.debug"
+        const val DISABLE_PROPERTY = "com.open592.disableDebugConsole"
         const val LOG_TO_SYSTEM_STREAM_PROPERTY = "com.open592.debugConsoleLogToSystemStream"
     }
 }
