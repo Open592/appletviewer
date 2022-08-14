@@ -108,10 +108,7 @@ class ApplicationModalTest {
             view.display(
                 withArg {
                     assertEquals(it.type, ApplicationModalType.FATAL_ERROR)
-                    assertEquals(it.content.size, expectedModalContentStrings.size)
-                    assertEquals(it.content[0], expectedModalContentStrings[0])
-                    assertEquals(it.content[1], expectedModalContentStrings[1])
-                    assertEquals(it.content[2], expectedModalContentStrings[2])
+                    assertEquals(it.content, expectedModalContentStrings)
                     assertEquals(it.title, expectedModalTitle)
                     assertEquals(it.buttonText, expectedButtonText)
                 }
