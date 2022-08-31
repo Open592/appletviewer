@@ -1,10 +1,8 @@
 package com.open592.appletviewer.viewer
 
+import com.open592.appletviewer.config.ApplicationConfiguration
 import com.open592.appletviewer.debug.DebugConsole
 import com.open592.appletviewer.event.ApplicationEventListener
-import com.open592.appletviewer.localization.Localization
-import com.open592.appletviewer.modal.ApplicationModal
-import com.open592.appletviewer.modal.ApplicationModalType
 import com.open592.appletviewer.progress.ProgressIndicator
 import com.open592.appletviewer.settings.SettingsStore
 import com.open592.appletviewer.viewer.event.ViewerEvent
@@ -17,9 +15,8 @@ import kotlin.system.exitProcess
 public class Viewer @Inject constructor(
     eventBus: ViewerEventBus,
     private val settingsStore: SettingsStore,
-    private val applicationModal: ApplicationModal,
+    private val applicationConfiguration: ApplicationConfiguration,
     private val debugConsole: DebugConsole,
-    private val localization: Localization,
     private val progressIndicator: ProgressIndicator
 ) : ApplicationEventListener<ViewerEvent>(eventBus) {
     public fun initialize() {
@@ -30,10 +27,7 @@ public class Viewer @Inject constructor(
 
         progressIndicator.eventBus.dispatchChangeVisibilityEvent(visible = true)
 
-        applicationModal.eventBus.dispatchDisplayEvent(
-            ApplicationModalType.FATAL_ERROR,
-            localization.getContent("err_missing_config")
-        )
+        applicationConfiguration.initialize()
     }
 
     protected override fun processEvent(event: ViewerEvent) {
