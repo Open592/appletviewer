@@ -23,13 +23,15 @@ class DebugConsoleTest {
 
         // Mock that we aren't running in debug mode
         every { settings.getBoolean(DEBUG_PROPERTY) } returns false
+        every { settings.getBoolean(DISABLE_PROPERTY) } returns false
 
         val debugConsole = DebugConsole(eventBus, debugConsoleView, outputCapture, settings)
 
         debugConsole.initialize()
 
-        // Make sure we only checked for if we are running in debug mode and then short-circuited
+        // Make sure we if we are running in debug mode and then short-circuited
         verify(exactly = 1) { settings.getBoolean(DEBUG_PROPERTY) }
+        verify(exactly = 1) { settings.getBoolean(DISABLE_PROPERTY) }
         verify(exactly = 0) { settings.getBoolean(LOG_TO_SYSTEM_STREAM_PROPERTY) }
         // Verify we are not invoking the outputCapture
         verify(exactly = 0) { outputCapture.capture(false) }
@@ -68,6 +70,7 @@ class DebugConsoleTest {
         val settings = mockk<SettingsStore>()
 
         every { settings.getBoolean(DEBUG_PROPERTY) } returns true
+        every { settings.getBoolean(DISABLE_PROPERTY) } returns false
         every { settings.getBoolean(LOG_TO_SYSTEM_STREAM_PROPERTY) } returns false
 
         val debugConsole = DebugConsole(eventBus, debugConsoleView, outputCapture, settings)
@@ -75,6 +78,7 @@ class DebugConsoleTest {
         debugConsole.initialize()
 
         verify(exactly = 1) { settings.getBoolean(DEBUG_PROPERTY) }
+        verify(exactly = 1) { settings.getBoolean(DISABLE_PROPERTY) }
         verify(exactly = 1) { settings.getBoolean(LOG_TO_SYSTEM_STREAM_PROPERTY) }
 
         // Log an event to trigger the output capture to emit a message which will be received by the
