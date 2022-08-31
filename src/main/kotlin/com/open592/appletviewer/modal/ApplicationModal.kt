@@ -37,9 +37,7 @@ public class ApplicationModal @Inject constructor(
                 content = parseMessage(message),
                 title = localization.getContent("error"),
                 buttonText = localization.getContent("quit"),
-                closeAction = {
-                    viewerEventBus.dispatchQuitEvent()
-                }
+                closeAction = viewerEventBus::dispatchQuitEvent
             )
         )
     }
@@ -51,9 +49,7 @@ public class ApplicationModal @Inject constructor(
                 content = parseMessage(message),
                 title = localization.getContent("message"),
                 buttonText = localization.getContent("ok"),
-                closeAction = {
-                    view.close()
-                }
+                closeAction = view::close
             )
         )
     }

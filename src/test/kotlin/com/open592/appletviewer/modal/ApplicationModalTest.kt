@@ -47,6 +47,7 @@ class ApplicationModalTest {
                     assertEquals(it.content.first(), expectedMessage)
                     assertEquals(it.title, expectedModalTitle)
                     assertEquals(it.buttonText, expectedButtonText)
+                    assertEquals(it.closeAction, view::close)
                 }
             )
         }
@@ -77,6 +78,7 @@ class ApplicationModalTest {
                     assertEquals(it.content.first(), expectedMessage)
                     assertEquals(it.title, expectedModalTitle)
                     assertEquals(it.buttonText, expectedButtonText)
+                    assertEquals(it.closeAction, viewerEventBus::dispatchQuitEvent)
                 }
             )
         }
@@ -111,6 +113,7 @@ class ApplicationModalTest {
                     assertEquals(it.content, expectedModalContentStrings)
                     assertEquals(it.title, expectedModalTitle)
                     assertEquals(it.buttonText, expectedButtonText)
+                    assertEquals(it.closeAction, viewerEventBus::dispatchQuitEvent)
                 }
             )
         }
