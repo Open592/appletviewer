@@ -1,6 +1,7 @@
 package com.open592.appletviewer.cmd
 
 import com.google.inject.Guice
+import com.open592.appletviewer.common.Constants
 import com.open592.appletviewer.viewer.Viewer
 import com.open592.appletviewer.viewer.ViewerModule
 import kotlinx.coroutines.runBlocking
@@ -19,8 +20,6 @@ import kotlin.system.exitProcess
  * TODO: Add reference to the launcher calling code.
  */
 public object Main {
-    private const val GAME_NAME = "runescape"
-
     @JvmStatic
     public fun main(args: Array<String>) {
         if (args.size > 1) {
@@ -33,8 +32,8 @@ public object Main {
         if (args.isNotEmpty()) {
             val gameName = args[0]
 
-            if (!gameName.equals(GAME_NAME, true)) {
-                println("Received $gameName, but only $GAME_NAME is supported. Exiting...")
+            if (!gameName.equals(Constants.GAME_NAME, true)) {
+                println("Received $gameName, but only ${Constants.GAME_NAME} is supported. Exiting...")
 
                 exitProcess(1)
             }

@@ -1,5 +1,6 @@
 package com.open592.appletviewer.config
 
+import com.open592.appletviewer.common.Constants
 import com.open592.appletviewer.localization.Localization
 import com.open592.appletviewer.modal.ApplicationModal
 import com.open592.appletviewer.modal.ApplicationModalType
@@ -93,7 +94,7 @@ public class ApplicationConfiguration @Inject constructor(
      * ----> "runescape" > (* Directory where we look for "com.jagex.configfile" *)
      */
     private fun getConfigFileDirectory(fileName: String): Path {
-        return Path.of(settingsStore.getString("user.dir"), fileName)
+        return Path.of(settingsStore.getString("user.dir"), Constants.GAME_NAME, fileName)
     }
 
     private companion object {
