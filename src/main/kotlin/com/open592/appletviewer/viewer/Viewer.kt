@@ -30,7 +30,7 @@ public class Viewer @Inject constructor(
         applicationConfiguration.initialize()
     }
 
-    protected override fun processEvent(event: ViewerEvent) {
+    protected override suspend fun processEvent(event: ViewerEvent) {
         when (event) {
             is ViewerEvent.Quit -> handleQuitEvent()
         }

@@ -12,7 +12,7 @@ public class ProgressIndicator @Inject constructor(
     public val eventBus: ProgressEventBus,
     private val view: ProgressIndicatorView
 ) : ApplicationEventListener<ProgressEvent>(eventBus) {
-    protected override fun processEvent(event: ProgressEvent) {
+    protected override suspend fun processEvent(event: ProgressEvent) {
         when (event) {
             is ProgressEvent.ChangeVisibility -> view.changeVisibility(event.visible)
             is ProgressEvent.ChangeText -> view.changeText(event.text)

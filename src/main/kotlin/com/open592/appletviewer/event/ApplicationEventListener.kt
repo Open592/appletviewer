@@ -27,5 +27,5 @@ public abstract class ApplicationEventListener<T : ApplicationEvent>(
      * Processes one of the events which can be emitted by the associated
      * EventBus
      */
-    protected abstract fun processEvent(event: T)
+    protected abstract suspend fun processEvent(event: T)
 }

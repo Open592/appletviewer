@@ -1,11 +1,17 @@
 package com.open592.appletviewer.config
 
+import com.open592.appletviewer.assets.AssetManager
+import com.open592.appletviewer.assets.event.AssetManagerEvent
 import com.open592.appletviewer.common.Constants
+import com.open592.appletviewer.event.ApplicationEvent
+import com.open592.appletviewer.event.ApplicationEventListener
 import com.open592.appletviewer.localization.Localization
 import com.open592.appletviewer.modal.ApplicationModal
 import com.open592.appletviewer.modal.ApplicationModalType
 import com.open592.appletviewer.preferences.AppletViewerPreferences
 import com.open592.appletviewer.settings.SettingsStore
+import java.io.BufferedReader
+import java.io.IOException
 import java.nio.file.Path
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -14,9 +20,10 @@ import javax.inject.Singleton
 public class ApplicationConfiguration @Inject constructor(
     private val applicationModal: ApplicationModal,
     private val appletViewerPreferences: AppletViewerPreferences,
+    private val assetManager: AssetManager,
     private val localization: Localization,
     private val settingsStore: SettingsStore
-) {
+) : ApplicationEventListener<AssetManagerEvent>(assetManager.eventBus) {
     public fun initialize() {
         val configURL = settingsStore.getString(CONFIG_URL_PROPERTY_NAME)
         val configFileName = settingsStore.getString(CONFIG_FILE_PROPERTY_NAME)
@@ -27,6 +34,19 @@ public class ApplicationConfiguration @Inject constructor(
                 localization.getContent("err_missing_config")
             )
         }
+    }
+
+    protected override suspend fun processEvent(event: AssetManagerEvent) {
+        when(event) {
+            AssetManagerEvent.AssetRequestCompleted ->
+        }
+    }
+
+    private fun fetchRemoteJavConfig(url: String): BufferedReader {
+    }
+
+    private fun readLocalJavConfig(path: Path): BufferedReader {
+
     }
 
     /**
