@@ -1,7 +1,7 @@
 package com.open592.appletviewer.modal
 
+import com.open592.appletviewer.config.ApplicationConfiguration
 import com.open592.appletviewer.event.ApplicationEventListener
-import com.open592.appletviewer.localization.Localization
 import com.open592.appletviewer.modal.event.ApplicationModalEvent
 import com.open592.appletviewer.modal.event.ApplicationModalEventBus
 import com.open592.appletviewer.modal.view.ApplicationModalProperties
@@ -13,7 +13,7 @@ import javax.inject.Singleton
 @Singleton
 public class ApplicationModal @Inject constructor(
     public val eventBus: ApplicationModalEventBus,
-    private val localization: Localization,
+    private val configuration: ApplicationConfiguration,
     private val view: ApplicationModalView,
     private val viewerEventBus: ViewerEventBus
 ) : ApplicationEventListener<ApplicationModalEvent>(eventBus) {
@@ -35,8 +35,8 @@ public class ApplicationModal @Inject constructor(
             ApplicationModalProperties(
                 type = ApplicationModalType.FATAL_ERROR,
                 content = parseMessage(message),
-                title = localization.getContent("error"),
-                buttonText = localization.getContent("quit"),
+                title = configuration.getContent("error"),
+                buttonText = configuration.getContent("quit"),
                 closeAction = viewerEventBus::dispatchQuitEvent
             )
         )
@@ -47,8 +47,8 @@ public class ApplicationModal @Inject constructor(
             ApplicationModalProperties(
                 type = ApplicationModalType.MESSAGE,
                 content = parseMessage(message),
-                title = localization.getContent("message"),
-                buttonText = localization.getContent("ok"),
+                title = configuration.getContent("message"),
+                buttonText = configuration.getContent("ok"),
                 closeAction = view::close
             )
         )

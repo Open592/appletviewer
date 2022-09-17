@@ -1,23 +1,30 @@
 package com.open592.appletviewer.viewer
 
 import com.open592.appletviewer.config.ApplicationConfiguration
+import com.open592.appletviewer.config.language.SupportedLanguage
+import com.open592.appletviewer.config.resolver.ConfigurationException
 import com.open592.appletviewer.debug.DebugConsole
 import com.open592.appletviewer.event.ApplicationEventListener
+import com.open592.appletviewer.modal.ApplicationModal
+import com.open592.appletviewer.modal.ApplicationModalType
 import com.open592.appletviewer.progress.ProgressIndicator
 import com.open592.appletviewer.settings.SettingsStore
 import com.open592.appletviewer.viewer.event.ViewerEvent
 import com.open592.appletviewer.viewer.event.ViewerEventBus
 import javax.inject.Inject
+import javax.inject.Provider
 import javax.inject.Singleton
 import kotlin.system.exitProcess
 
 @Singleton
 public class Viewer @Inject constructor(
     eventBus: ViewerEventBus,
-    private val settingsStore: SettingsStore,
-    private val applicationConfiguration: ApplicationConfiguration,
+    private val applicationConfigurationProvider: Provider<ApplicationConfiguration>,
+    private val applicationModal: ApplicationModal,
     private val debugConsole: DebugConsole,
-    private val progressIndicator: ProgressIndicator
+    private val progressIndicator: ProgressIndicator,
+    private val settingsStore: SettingsStore,
+    private val language: SupportedLanguage,
 ) : ApplicationEventListener<ViewerEvent>(eventBus) {
     public fun initialize() {
         // Initialize the debug console in case we are in debug mode
@@ -27,7 +34,13 @@ public class Viewer @Inject constructor(
 
         progressIndicator.eventBus.dispatchChangeVisibilityEvent(visible = true)
 
-        applicationConfiguration.initialize()
+        try {
+            applicationConfigurationProvider.get()
+        } catch (e: ConfigurationException) {
+            applicationModal.eventBus.dispatchDisplayEvent(ApplicationModalType.FATAL_ERROR, language.getPackagedLocalizedContent(e.contentKey))
+
+            return
+        }
     }
 
     protected override fun processEvent(event: ViewerEvent) {

@@ -1,7 +1,8 @@
-package com.open592.appletviewer.localization
+package com.open592.appletviewer.config.language
 
 import com.google.common.jimfs.Configuration
 import com.google.common.jimfs.Jimfs
+import com.open592.appletviewer.config.language.SupportedLanguage
 import com.open592.appletviewer.preferences.AppletViewerPreferences
 import java.util.Locale
 import kotlin.test.AfterTest

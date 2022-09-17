@@ -39,8 +39,8 @@ msg=key=value
 ```
 
 It is the job of the `config` package to parse out all localized content strings
-from the `jav_config.ws` file and utilize our provided `setContent` method to
-provide access to this dynamic localized content.
+from the `jav_config.ws` file and expose the dynamic content to the rest of the
+applet viewer.
 
 ### Initial locale strings
 

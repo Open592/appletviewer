@@ -12,6 +12,7 @@ kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 
 [libraries]
 guice = { module = "com.google.inject:guice", version.ref = "guice" }
+guice-throwingproviders = { module = "com.google.inject.extensions:guice-throwingproviders", version.ref = "guice" }
 jimfs = { module = "com.google.jimfs:jimfs", version.ref = "jimfs" }
 kotlin-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinCoroutines" }
 kotlin-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinCoroutines" }

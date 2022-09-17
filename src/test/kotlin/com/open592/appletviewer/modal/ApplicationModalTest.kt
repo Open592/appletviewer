@@ -1,10 +1,11 @@
 package com.open592.appletviewer.modal
 
-import com.open592.appletviewer.localization.Localization
-import com.open592.appletviewer.localization.SupportedLanguage
+import com.open592.appletviewer.config.ApplicationConfiguration
+import com.open592.appletviewer.config.language.SupportedLanguage
 import com.open592.appletviewer.modal.event.ApplicationModalEventBus
 import com.open592.appletviewer.modal.view.ApplicationModalView
 import com.open592.appletviewer.viewer.event.ViewerEventBus
+import io.mockk.every
 import io.mockk.justRun
 import io.mockk.mockk
 import io.mockk.verify
@@ -17,8 +18,8 @@ class ApplicationModalTest {
         val eventBus = ApplicationModalEventBus()
         val viewerEventBus = ViewerEventBus()
         val view = mockk<ApplicationModalView>()
-        val localization = Localization(SupportedLanguage.ENGLISH)
-        val modal = ApplicationModal(eventBus, localization, view, viewerEventBus)
+        val configuration = mockk<ApplicationConfiguration>()
+        val modal = ApplicationModal(eventBus, configuration, view, viewerEventBus)
 
         // For MESSAGE events we have to initialize the Localization class
         // with the needed content strings since they are provided within
@@ -26,12 +27,8 @@ class ApplicationModalTest {
         val expectedModalTitle = "Message"
         val expectedButtonText = "OK"
 
-        localization.setContent(
-            mapOf(
-                "message" to expectedModalTitle,
-                "ok" to expectedButtonText
-            )
-        )
+        every { configuration.getContent("message") } returns expectedModalTitle
+        every { configuration.getContent("ok") } returns expectedButtonText
 
         val expectedMessage = "Hello world"
 
