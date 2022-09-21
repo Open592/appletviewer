@@ -1,7 +1,9 @@
 package com.open592.appletviewer.modal
 
-import com.open592.appletviewer.localization.Localization
-import com.open592.appletviewer.localization.SupportedLanguage
+import com.open592.appletviewer.config.ApplicationConfiguration
+import com.open592.appletviewer.config.javconfig.JavConfig
+import com.open592.appletviewer.config.javconfig.ServerConfiguration
+import com.open592.appletviewer.config.language.SupportedLanguage
 import com.open592.appletviewer.modal.event.ApplicationModalEventBus
 import com.open592.appletviewer.modal.view.ApplicationModalView
 import com.open592.appletviewer.viewer.event.ViewerEventBus
@@ -14,24 +16,26 @@ import kotlin.test.assertEquals
 class ApplicationModalTest {
     @Test
     fun `Should properly handle a MESSAGE event type`() {
+        val config = ApplicationConfiguration(SupportedLanguage.ENGLISH)
         val eventBus = ApplicationModalEventBus()
         val viewerEventBus = ViewerEventBus()
         val view = mockk<ApplicationModalView>()
-        val localization = Localization(SupportedLanguage.ENGLISH)
-        val modal = ApplicationModal(eventBus, localization, view, viewerEventBus)
+        val modal = ApplicationModal(eventBus, config, view, viewerEventBus)
 
-        // For MESSAGE events we have to initialize the Localization class
-        // with the needed content strings since they are provided within
-        // jav_config.ws
+        // For MESSAGE events we have to initialize the configuration with
+        // a JavConfig instance that includes the needed content strings
+        // since they are not packaged with the applet viewer.
         val expectedModalTitle = "Message"
         val expectedButtonText = "OK"
 
-        localization.setContent(
-            mapOf(
-                "message" to expectedModalTitle,
-                "ok" to expectedButtonText
-            )
-        )
+        val serverConfig = ServerConfiguration()
+
+        serverConfig.setContent("message", expectedModalTitle)
+        serverConfig.setContent("ok", expectedButtonText)
+
+        val javConfig = JavConfig(root = serverConfig, overrides = linkedMapOf(), languageNames = sortedMapOf())
+
+        config.initialize(javConfig)
 
         val expectedMessage = "Hello world"
 
@@ -55,11 +59,11 @@ class ApplicationModalTest {
 
     @Test
     fun `Should properly handle a FATAL_ERROR event type in a locale other than ENGLISH`() {
+        val config = ApplicationConfiguration(SupportedLanguage.GERMAN)
         val eventBus = ApplicationModalEventBus()
         val viewerEventBus = ViewerEventBus()
         val view = mockk<ApplicationModalView>()
-        val localization = Localization(SupportedLanguage.GERMAN)
-        val modal = ApplicationModal(eventBus, localization, view, viewerEventBus)
+        val modal = ApplicationModal(eventBus, config, view, viewerEventBus)
 
         val expectedModalTitle = "Fehler"
         val expectedButtonText = "Beenden"
@@ -86,11 +90,11 @@ class ApplicationModalTest {
 
     @Test
     fun `Should properly handle a FATAL_ERROR event with a multi line message`() {
+        val config = ApplicationConfiguration(SupportedLanguage.ENGLISH)
         val eventBus = ApplicationModalEventBus()
         val viewerEventBus = ViewerEventBus()
         val view = mockk<ApplicationModalView>()
-        val localization = Localization(SupportedLanguage.ENGLISH)
-        val modal = ApplicationModal(eventBus, localization, view, viewerEventBus)
+        val modal = ApplicationModal(eventBus, config, view, viewerEventBus)
 
         val expectedModalTitle = "Error"
         val expectedButtonText = "Quit"

@@ -1,4 +1,4 @@
-package com.open592.appletviewer.localization
+package com.open592.appletviewer.config.language
 
 import com.google.common.jimfs.Configuration
 import com.google.common.jimfs.Jimfs
@@ -91,7 +91,7 @@ class SupportedLanguageTest {
         val expectedLanguage = SupportedLanguage.GERMAN
 
         // Write the language value to the preferences file
-        preferences.set("Language", expectedLanguage.getLanguageID().toString())
+        preferences.set("Language", expectedLanguage.getLanguageId().toString())
 
         // Setting the locale to a different locale to verify we aren't falling back to the Locale
         // to resolve the users language
@@ -115,5 +115,21 @@ class SupportedLanguageTest {
         Locale.setDefault(Locale("de", "DE"))
 
         assertEquals(SupportedLanguage.GERMAN, SupportedLanguage.resolve((preferences)))
+    }
+
+    @Test
+    fun `Should correctly return initial locale content for each supported language`() {
+        val contentKey = "loaderbox_initial"
+        // SupportedLanguage to expected output
+        val testCases = mapOf(
+            SupportedLanguage.ENGLISH to "Loading...",
+            SupportedLanguage.GERMAN to "Lade...",
+            SupportedLanguage.FRENCH to "Chargement...",
+            SupportedLanguage.BRAZILIAN_PORTUGUESE to "Carregando..."
+        )
+
+        testCases.forEach { testCase ->
+            assertEquals(testCase.value, testCase.key.getPackagedLocalizedContent(contentKey))
+        }
     }
 }

@@ -12,7 +12,8 @@ following four languages:
 
 In order to support this feature there can't exist any static user facing
 strings within the applet viewer. This class provides the functionality for
-tying content keys to localized content based on the pre-determined user locale.
+tying content keys to localized content based on the user's locale determined
+at runtime.
 
 ## Details
 
@@ -39,20 +40,20 @@ msg=key=value
 ```
 
 It is the job of the `config` package to parse out all localized content strings
-from the `jav_config.ws` file and utilize our provided `setContent` method to
-provide access to this dynamic localized content.
+from the `jav_config.ws` file and expose them to the applet viewer.
 
 ### Initial locale strings
 
 In the case of strings which need to be displayed to the user before the
 `jav_config.ws` file is loaded we provide a small number of content bundled
-with the applet viewer code. These include things like error handling, and
-initial strings.
+within the applet viewer. These include things like error handling, and
+loading text etc.
 
-## Support for user specifying their desired language
+## Support for users specifying their desired language
 
 In order to support user specifying the supported language that works best for
 them, there exists a "language" menu within the toolbar. If they specify a
 different language than the one pre-selected for them, we write that language
 to the preferences file and ask them to restart the applet viewer. On the next
-load they will see the new language.
+load our `resolve` method will recognize that, and they will see the new
+language.

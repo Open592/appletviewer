@@ -1,6 +1,6 @@
 package com.open592.appletviewer.progress.view
 
-import com.open592.appletviewer.localization.Localization
+import com.open592.appletviewer.config.ApplicationConfiguration
 import com.open592.appletviewer.root.Root
 import com.open592.appletviewer.viewer.event.ViewerEventBus
 import java.awt.Color
@@ -16,15 +16,15 @@ import javax.inject.Singleton
 
 @Singleton
 public class ProgressIndicatorComponent @Inject constructor(
+    private val config: ApplicationConfiguration,
     @Root private val rootFrame: Frame,
-    private val viewerEventBus: ViewerEventBus,
-    localization: Localization
+    private val viewerEventBus: ViewerEventBus
 ) : Component(), ProgressIndicatorView {
     private val dialog: Dialog = Dialog(rootFrame, WINDOW_TITLE, false)
     private val fontMetrics = this.getFontMetrics(TEXT_FONT)
 
     private var currentProgress = 0
-    private var currentContent = localization.getContent("loaderbox_initial")
+    private var currentContent = config.getContent("loaderbox_initial")
 
     init {
         dialog.add(this)
