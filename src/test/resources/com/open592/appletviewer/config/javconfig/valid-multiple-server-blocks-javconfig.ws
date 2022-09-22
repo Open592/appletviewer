@@ -1,15 +1,17 @@
 // Root
 title=RuneScape
 viewerversion=100
-msg=lang0=English
+msg=welcome=Welcome to RuneScape
 param=colourid=0
 
 // Server 1
 [server_one]
-title=ServerOne
+servername=ServerOne
+msg=welcome=Welcome to ServerOne
 param=colourid=1
 
 // Server 2
 [server_two]
-title=ServerTwo
+servername=ServerTwo
+msg=welcome=Welcome to ServerTwo
 param=colourid=2
