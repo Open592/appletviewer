@@ -133,7 +133,7 @@ class JavConfigResolverTest {
 
             assertEquals("RuneScape", javConfig.root.getConfig("title"))
             assertEquals("100", javConfig.root.getConfig("viewerversion"))
-            assertEquals("English", javConfig.languageNames[SupportedLanguage.ENGLISH.getLanguageId()])
+            assertEquals("English", javConfig.languageNames[SupportedLanguage.ENGLISH])
             assertEquals("0", javConfig.root.getParameter("colourid"))
         }
 
@@ -165,7 +165,7 @@ class JavConfigResolverTest {
 
                 assertEquals("RuneScape", javConfig.root.getConfig("title"))
                 assertEquals("100", javConfig.root.getConfig("viewerversion"))
-                assertEquals("English", javConfig.languageNames[SupportedLanguage.ENGLISH.getLanguageId()])
+                assertEquals("English", javConfig.languageNames[SupportedLanguage.ENGLISH])
                 assertEquals("0", javConfig.root.getParameter("colourid"))
             }
 

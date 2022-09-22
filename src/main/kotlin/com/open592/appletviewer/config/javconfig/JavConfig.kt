@@ -1,6 +1,8 @@
 package com.open592.appletviewer.config.javconfig
 
+import com.open592.appletviewer.config.language.SupportedLanguage
 import java.io.BufferedReader
+import java.lang.NumberFormatException
 import java.util.*
 import kotlin.collections.LinkedHashMap
 
@@ -25,13 +27,13 @@ import kotlin.collections.LinkedHashMap
 public data class JavConfig constructor(
     public val root: ServerConfiguration,
     public val overrides: LinkedHashMap<String, ServerConfiguration>,
-    public val languageNames: SortedMap<Int, String>
+    public val languageNames: SortedMap<SupportedLanguage, String>
 ) {
     public companion object {
         public fun parse(reader: BufferedReader): JavConfig {
             val root = ServerConfiguration()
             val overrides = linkedMapOf<String, ServerConfiguration>()
-            val languageNames = sortedMapOf<Int, String>()
+            val languageNames = sortedMapOf<SupportedLanguage, String>()
             var currentServer = root
 
             reader.lineSequence().map(String::trim).forEach { line ->
@@ -72,17 +74,25 @@ public data class JavConfig constructor(
                          * We will use this to drive the locale selection dialog
                          */
                         if (key.length == 5 && key.startsWith("lang")) {
-                            val id = key.substring(4).toInt()
+                            try {
+                                val id = key.substring(4).toInt()
 
-                            languageNames[id] = value
+                                // Ignore unsupported languages
+                                val language = SupportedLanguage.resolveFromLanguageId(id) ?: return@forEach
 
-                            /**
-                             * NOTE: In the original applet viewer code the locale definitions were
-                             * added to the content map. This was done since locale definition creation
-                             * and configuration parsing was done in separate passes. We perform create
-                             * the definitions here, so we can short circuit
-                             */
-                            return@forEach
+                                languageNames[language] = value
+
+                                /**
+                                 * NOTE: In the original applet viewer code the locale definitions were
+                                 * added to the content map. This was done since locale definition creation
+                                 * and configuration parsing was done in separate passes. We create the definitions
+                                 * here, so we can short circuit.
+                                 */
+                                return@forEach
+                            } catch (err: NumberFormatException) {
+                                // Ignore
+                                return@forEach
+                            }
                         }
 
                         currentServer.setContent(key, value)

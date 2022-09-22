@@ -60,6 +60,19 @@ public enum class SupportedLanguage {
         }
 
         /**
+         * Given a language ID attempt to resolve a SupportedLanguage.
+         */
+        public fun resolveFromLanguageId(id: Int): SupportedLanguage? {
+            return when (id) {
+                0 -> ENGLISH
+                1 -> GERMAN
+                2 -> FRENCH
+                3 -> BRAZILIAN_PORTUGUESE
+                else -> null
+            }
+        }
+
+        /**
          * Attempt to resolve the user's language using their default locale.
          *
          * If we fail to find an appropriate locale we fall back to ENGLISH
@@ -67,15 +80,15 @@ public enum class SupportedLanguage {
         private fun fromDefaultLocale(): SupportedLanguage {
             val defaultLocale = Locale.getDefault()
 
-            return fromISO3LanguageID(defaultLocale.isO3Language)
-                ?: fromISO3CountryID(defaultLocale.isO3Country)
+            return fromISO3LanguageId(defaultLocale.isO3Language)
+                ?: fromISO3CountryId(defaultLocale.isO3Country)
                 ?: ENGLISH
         }
 
         /**
          * Given an ISO3 country ID, attempt to resolve a SupportedLanguage.
          */
-        private fun fromISO3CountryID(id: String): SupportedLanguage? {
+        private fun fromISO3CountryId(id: String): SupportedLanguage? {
             return when (id) {
                 "GB", "US" -> ENGLISH
                 "DE" -> GERMAN
@@ -88,25 +101,12 @@ public enum class SupportedLanguage {
         /**
          * Given an ISO3 language ID, attempt to resolve a SupportedLanguage.
          */
-        private fun fromISO3LanguageID(id: String): SupportedLanguage? {
+        private fun fromISO3LanguageId(id: String): SupportedLanguage? {
             return when (id) {
                 "eng" -> ENGLISH
                 "ger", "deu" -> GERMAN
                 "fre", "fra" -> FRENCH
                 "por" -> BRAZILIAN_PORTUGUESE
-                else -> null
-            }
-        }
-
-        /**
-         * Given a language ID attempt to resolve a SupportedLanguage.
-         */
-        private fun fromLanguageID(id: Int): SupportedLanguage? {
-            return when (id) {
-                0 -> ENGLISH
-                1 -> GERMAN
-                2 -> FRENCH
-                3 -> BRAZILIAN_PORTUGUESE
                 else -> null
             }
         }
@@ -119,7 +119,7 @@ public enum class SupportedLanguage {
 
             return if (languageId.isNotEmpty()) {
                 try {
-                    fromLanguageID(languageId.toInt())
+                    resolveFromLanguageId(languageId.toInt())
                 } catch (e: NumberFormatException) {
                     null
                 }
