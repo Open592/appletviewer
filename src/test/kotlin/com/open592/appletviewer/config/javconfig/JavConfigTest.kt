@@ -49,10 +49,12 @@ class JavConfigTest {
 
                 // Make sure that not only are we receiving all expected
                 // languages, but that they are store in the correct order.
-                config.languageNames.keys.forEachIndexed { index, language -> assertEquals(
-                    language,
-                    SupportedLanguage.resolveFromLanguageId(index)
-                ) }
+                config.languageNames.keys.forEachIndexed { index, language ->
+                    assertEquals(
+                        language,
+                        SupportedLanguage.resolveFromLanguageId(index)
+                    )
+                }
             }
         }
     }
@@ -73,7 +75,12 @@ class JavConfigTest {
                 assertEquals("0", config.root.getParameter("colourid"))
 
                 // Validate order of configuration file is preserved
-                config.overrides.asIterable().forEachIndexed { index, server -> assertEquals(expectedOrder[index], server.key) }
+                config.overrides.asIterable().forEachIndexed { index, server ->
+                    assertEquals(
+                        expectedOrder[index],
+                        server.key
+                    )
+                }
 
                 // Validate ServerOne
                 assertEquals("ServerOne", config.overrides[serverOneKey]?.getConfig("servername"))
@@ -84,7 +91,6 @@ class JavConfigTest {
                 assertEquals("ServerTwo", config.overrides[serverTwoKey]?.getConfig("servername"))
                 assertEquals("Welcome to ServerTwo", config.overrides[serverTwoKey]?.getContent("welcome"))
                 assertEquals("2", config.overrides[serverTwoKey]?.getParameter("colourid"))
-
             }
         }
     }
