@@ -130,7 +130,10 @@ class JavConfigResolverTest {
         every { preferences.get("Language") } returns SupportedLanguage.ENGLISH.getLanguageId().toString()
 
         // Construct expected HttpRequest
-        val expectedHttpRequest = HttpRequest.newBuilder(URI(expectedUrl)).GET().build()
+        val expectedHttpRequest = HttpRequest.newBuilder(URI(expectedUrl))
+            .timeout(Duration.ofSeconds(30L))
+            .GET()
+            .build()
         val expectedHttpStatusCode = 200
 
         every {

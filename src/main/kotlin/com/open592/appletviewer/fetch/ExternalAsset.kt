@@ -5,7 +5,7 @@ import java.io.InputStream
 import java.nio.file.Files
 import java.nio.file.Path
 
-public class ExternalAsset constructor(private val stream: InputStream){
+public class ExternalAsset constructor(private val stream: InputStream) {
     public fun toBufferedReader(): BufferedReader {
         return stream.bufferedReader()
     }

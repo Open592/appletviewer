@@ -1,18 +1,12 @@
 package com.open592.appletviewer.config.resolver
 
-import com.open592.appletviewer.common.Constants
 import com.open592.appletviewer.config.javconfig.JavConfig
 import com.open592.appletviewer.fetch.AssetFetch
 import com.open592.appletviewer.preferences.AppletViewerPreferences
 import com.open592.appletviewer.settings.SettingsStore
 import java.io.IOException
-import java.nio.file.FileSystem
-import java.nio.file.FileSystems
-import java.nio.file.Files
-import java.nio.file.Path
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.io.path.notExists
 
 /**
  * Configuration can come from one of two places depending on which
@@ -49,7 +43,8 @@ public class JavConfigResolver @Inject constructor(
     @Throws(JavConfigResolveException::class)
     private fun resolveRemoteConfiguration(urlTemplate: String): JavConfig {
         val url = resolveConfigurationURLTemplate(urlTemplate)
-        val reader = assetFetch.fetchRemoteFile(url)?.toBufferedReader() ?: throw JavConfigResolveException.LoadConfigurationException()
+        val reader = assetFetch.fetchRemoteFile(url)?.toBufferedReader()
+            ?: throw JavConfigResolveException.LoadConfigurationException()
 
         return try {
             JavConfig.parse(reader)
@@ -60,7 +55,8 @@ public class JavConfigResolver @Inject constructor(
 
     @Throws(JavConfigResolveException::class)
     private fun resolveLocalConfiguration(fileName: String): JavConfig {
-        val reader = assetFetch.fetchLocaleFile(fileName)?.toBufferedReader() ?: throw JavConfigResolveException.LoadConfigurationException()
+        val reader = assetFetch.fetchLocaleFile(fileName)?.toBufferedReader()
+            ?: throw JavConfigResolveException.LoadConfigurationException()
 
         return try {
             JavConfig.parse(reader)

@@ -17,8 +17,8 @@ import kotlin.io.path.notExists
 public class AssetFetch @Inject constructor(
     private val httpClient: HttpClient,
     private val fileSystem: FileSystem,
-    private val settingsStore: SettingsStore,
-){
+    private val settingsStore: SettingsStore
+) {
     public fun fetchLocaleFile(filename: String): ExternalAsset? {
         val path = getGameFileDirectory(filename)
 
