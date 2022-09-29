@@ -33,6 +33,20 @@ public class Viewer @Inject constructor(
 
         progressIndicator.eventBus.dispatchChangeVisibilityEvent(visible = true)
 
+        initializeConfiguration()
+    }
+
+    protected override fun processEvent(event: ViewerEvent) {
+        when (event) {
+            is ViewerEvent.Quit -> handleQuitEvent()
+        }
+    }
+
+    private fun handleQuitEvent() {
+        exitProcess(0)
+    }
+
+    private fun initializeConfiguration() {
         try {
             val javConfig = javConfigResolver.resolve()
 
@@ -45,16 +59,6 @@ public class Viewer @Inject constructor(
 
             return
         }
-    }
-
-    protected override fun processEvent(event: ViewerEvent) {
-        when (event) {
-            is ViewerEvent.Quit -> handleQuitEvent()
-        }
-    }
-
-    private fun handleQuitEvent() {
-        exitProcess(0)
     }
 
     private fun printDebugInfo() {

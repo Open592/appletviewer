@@ -4,7 +4,7 @@ import com.google.common.jimfs.Configuration
 import com.google.common.jimfs.Jimfs
 import com.open592.appletviewer.common.Constants
 import com.open592.appletviewer.config.language.SupportedLanguage
-import com.open592.appletviewer.http.HttpFetch
+import com.open592.appletviewer.fetch.AssetFetch
 import com.open592.appletviewer.http.MockHttpResponse
 import com.open592.appletviewer.preferences.AppletViewerPreferences
 import com.open592.appletviewer.settings.SystemPropertiesSettingsStore
@@ -20,8 +20,10 @@ import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.nio.file.FileSystem
+import java.nio.file.FileSystems
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
+import java.time.Duration
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -29,7 +31,7 @@ class JavConfigResolverTest {
     @Test
     fun `Should return MissingConfigurationException when unable to find configuration`() {
         val preferences = mockk<AppletViewerPreferences>()
-        val fetch = mockk<HttpFetch>()
+        val fetch = mockk<AssetFetch>()
         val settings = mockk<SystemPropertiesSettingsStore>()
         val resolver = JavConfigResolver(preferences, fetch, settings)
 
@@ -41,15 +43,17 @@ class JavConfigResolverTest {
         verify(exactly = 1) { settings.getString("com.jagex.config") }
         verify(exactly = 1) { settings.getString("com.jagex.configfile") }
         verify(exactly = 0) { settings.getString("user.dir") }
-        verify(exactly = 0) { fetch.get(any()) }
+        verify(exactly = 0) { fetch.fetchLocaleFile(any()) }
+        verify(exactly = 0) { fetch.fetchRemoteFile(any()) }
     }
 
     @Test
     fun `Should throw a LoadConfigurationException when unable to load a file from the fs`() {
         val nonexistentFile = "i-dont-exist.ws"
         val preferences = mockk<AppletViewerPreferences>()
-        val fetch = mockk<HttpFetch>()
+        val client = mockk<HttpClient>()
         val settings = mockk<SystemPropertiesSettingsStore>()
+        val fetch = AssetFetch(client, FileSystems.getDefault(), settings)
         val resolver = JavConfigResolver(preferences, fetch, settings)
 
         every { settings.getString("com.jagex.config") } returns ""
@@ -61,14 +65,15 @@ class JavConfigResolverTest {
         verify(exactly = 1) { settings.getString("com.jagex.config") }
         verify(exactly = 1) { settings.getString("com.jagex.configfile") }
         verify(exactly = 1) { settings.getString("user.dir") }
+        verify(exactly = 1) { fetch.fetchLocaleFile(nonexistentFile) }
     }
 
     @Test
     fun `Should throw a LoadConfigurationException when unable to fetch remote JavConfig file`() {
         val preferences = mockk<AppletViewerPreferences>()
         val client = mockk<HttpClient>()
-        val fetch = HttpFetch(client)
         val settings = mockk<SystemPropertiesSettingsStore>()
+        val fetch = AssetFetch(client, FileSystems.getDefault(), settings)
         val resolver = JavConfigResolver(preferences, fetch, settings)
 
         // Verify we are resolving URLS templates properly
@@ -83,12 +88,16 @@ class JavConfigResolverTest {
         // Construct expected HttpRequest
         //
         // We should fail when receiving non-200 status codes
-        val expectedHttpRequest = HttpRequest.newBuilder(URI(expectedUrl)).GET().build()
+        val expectedHttpRequest = HttpRequest.newBuilder(URI(expectedUrl))
+            .timeout(Duration.ofSeconds(30L))
+            .GET()
+            .build()
         val expectedHttpStatusCode = 500
+        val response = MockHttpResponse<InputStream?>(expectedHttpRequest, null, expectedHttpStatusCode)
 
         every {
             client.send(expectedHttpRequest, HttpResponse.BodyHandlers.ofInputStream())
-        } returns MockHttpResponse<InputStream?>(expectedHttpRequest, null, expectedHttpStatusCode)
+        } returns response
 
         assertThrows<JavConfigResolveException.LoadConfigurationException> { resolver.resolve() }
 
@@ -108,8 +117,8 @@ class JavConfigResolverTest {
             ?: throw FileNotFoundException("Failed to find $configFile within JavConfigResolverTest")
         val preferences = mockk<AppletViewerPreferences>()
         val client = mockk<HttpClient>()
-        val fetch = HttpFetch(client)
         val settings = mockk<SystemPropertiesSettingsStore>()
+        val fetch = AssetFetch(client, FileSystems.getDefault(), settings)
         val resolver = JavConfigResolver(preferences, fetch, settings)
 
         // Verify we are resolving URLS templates properly
@@ -152,9 +161,10 @@ class JavConfigResolverTest {
 
         useLocalJavConfigFile(configFile) {
             val preferences = mockk<AppletViewerPreferences>()
-            val fetch = mockk<HttpFetch>()
+            val client = mockk<HttpClient>()
             val settings = mockk<SystemPropertiesSettingsStore>()
-            val resolver = JavConfigResolver(preferences, fetch, settings, it)
+            val fetch = AssetFetch(client, it, settings)
+            val resolver = JavConfigResolver(preferences, fetch, settings)
 
             every { settings.getString("com.jagex.config") } returns ""
             every { settings.getString("com.jagex.configfile") } returns configFile
@@ -173,7 +183,7 @@ class JavConfigResolverTest {
             verify(exactly = 1) { settings.getString("com.jagex.configfile") }
             verify(exactly = 1) { settings.getString("user.dir") }
             verify(exactly = 0) { preferences.get(any()) }
-            verify(exactly = 0) { fetch.get(any()) }
+            verify(exactly = 1) { fetch.fetchLocaleFile(configFile) }
         }
     }
 
@@ -183,9 +193,10 @@ class JavConfigResolverTest {
 
         useLocalJavConfigFile(invalidJavConfig) {
             val preferences = mockk<AppletViewerPreferences>()
-            val fetch = mockk<HttpFetch>()
+            val client = mockk<HttpClient>()
             val settings = mockk<SystemPropertiesSettingsStore>()
-            val resolver = JavConfigResolver(preferences, fetch, settings, it)
+            val fetch = AssetFetch(client, it, settings)
+            val resolver = JavConfigResolver(preferences, fetch, settings)
 
             every { settings.getString("com.jagex.config") } returns ""
             every { settings.getString("com.jagex.configfile") } returns invalidJavConfig
@@ -196,6 +207,7 @@ class JavConfigResolverTest {
             verify(exactly = 1) { settings.getString("com.jagex.config") }
             verify(exactly = 1) { settings.getString("com.jagex.configfile") }
             verify(exactly = 1) { settings.getString("user.dir") }
+            verify(exactly = 1) { fetch.fetchLocaleFile(invalidJavConfig) }
         }
     }
 

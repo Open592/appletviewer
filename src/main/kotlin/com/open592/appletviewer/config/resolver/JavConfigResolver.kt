@@ -2,7 +2,7 @@ package com.open592.appletviewer.config.resolver
 
 import com.open592.appletviewer.common.Constants
 import com.open592.appletviewer.config.javconfig.JavConfig
-import com.open592.appletviewer.http.HttpFetch
+import com.open592.appletviewer.fetch.AssetFetch
 import com.open592.appletviewer.preferences.AppletViewerPreferences
 import com.open592.appletviewer.settings.SettingsStore
 import java.io.IOException
@@ -29,9 +29,8 @@ import kotlin.io.path.notExists
 @Singleton
 public class JavConfigResolver @Inject constructor(
     private val appletViewerPreferences: AppletViewerPreferences,
-    private val httpFetch: HttpFetch,
-    private val settingsStore: SettingsStore,
-    private val fileSystem: FileSystem = FileSystems.getDefault()
+    private val assetFetch: AssetFetch,
+    private val settingsStore: SettingsStore
 ) {
     @Throws(JavConfigResolveException::class)
     public fun resolve(): JavConfig {
@@ -50,7 +49,7 @@ public class JavConfigResolver @Inject constructor(
     @Throws(JavConfigResolveException::class)
     private fun resolveRemoteConfiguration(urlTemplate: String): JavConfig {
         val url = resolveConfigurationURLTemplate(urlTemplate)
-        val reader = httpFetch.get(url) ?: throw JavConfigResolveException.LoadConfigurationException()
+        val reader = assetFetch.fetchRemoteFile(url)?.toBufferedReader() ?: throw JavConfigResolveException.LoadConfigurationException()
 
         return try {
             JavConfig.parse(reader)
@@ -61,16 +60,10 @@ public class JavConfigResolver @Inject constructor(
 
     @Throws(JavConfigResolveException::class)
     private fun resolveLocalConfiguration(fileName: String): JavConfig {
-        val path = getConfigFileDirectory(fileName)
-
-        if (path.notExists()) {
-            throw JavConfigResolveException.LoadConfigurationException()
-        }
+        val reader = assetFetch.fetchLocaleFile(fileName)?.toBufferedReader() ?: throw JavConfigResolveException.LoadConfigurationException()
 
         return try {
-            Files.newBufferedReader(path).use {
-                JavConfig.parse(it)
-            }
+            JavConfig.parse(reader)
         } catch (e: IOException) {
             throw JavConfigResolveException.LoadConfigurationException()
         } catch (t: Exception) {
@@ -133,19 +126,6 @@ public class JavConfigResolver @Inject constructor(
                 variableValue
             )
         }
-    }
-
-    /**
-     * It is assumed that the appletviewer will be invoked by the launcher which will be placed
-     * in a directory a level above the "game directory" which includes a number of assets and
-     * configuration files.
-     *
-     * > "jagexlauncher" (* Root directory for the installer *)
-     * ----> "bin" > `user.dir` (* Location where the launcher will be invoked and where the jvm will be initialized *)
-     * ----> "runescape" > (* Directory where we look for "com.jagex.configfile" *)
-     */
-    private fun getConfigFileDirectory(fileName: String): Path {
-        return fileSystem.getPath(settingsStore.getString("user.dir"), Constants.GAME_NAME, fileName)
     }
 
     private companion object {
