@@ -36,11 +36,14 @@ dependencies {
     api(libs.guice)
 
     implementation(libs.kotlin.coroutines.core)
+    implementation(platform(libs.okhttp.bom))
+    implementation("com.squareup.okhttp3:okhttp")
 
     testImplementation(kotlin("test"))
     testImplementation(libs.jimfs)
     testImplementation(libs.kotlin.coroutines.test)
     testImplementation(libs.mockk)
+    testImplementation("com.squareup.okhttp3:mockwebserver")
 }
 
 plugins.withType<KotlinPluginWrapper> {
