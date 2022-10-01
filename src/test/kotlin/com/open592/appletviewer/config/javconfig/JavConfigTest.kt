@@ -1,11 +1,12 @@
 package com.open592.appletviewer.config.javconfig
 
 import com.open592.appletviewer.config.language.SupportedLanguage
+import okio.BufferedSource
+import okio.buffer
+import okio.source
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
-import java.io.BufferedReader
 import java.io.FileNotFoundException
-import java.io.InputStreamReader
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -95,12 +96,12 @@ class JavConfigTest {
         }
     }
 
-    private fun useJavConfigFile(filename: String, action: (BufferedReader) -> Unit) {
+    private fun useJavConfigFile(filename: String, action: (BufferedSource) -> Unit) {
         val javConfigStream = JavConfigTest::class.java.getResourceAsStream(filename)
             ?: throw FileNotFoundException("Failed to find $filename during JavConfigTest")
 
-        val reader = BufferedReader(InputStreamReader(javConfigStream))
+        val config = javConfigStream.source().buffer()
 
-        action(reader)
+        action(config)
     }
 }
