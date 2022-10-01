@@ -4,7 +4,6 @@ import com.open592.appletviewer.config.javconfig.JavConfig
 import com.open592.appletviewer.fetch.AssetFetch
 import com.open592.appletviewer.preferences.AppletViewerPreferences
 import com.open592.appletviewer.settings.SettingsStore
-import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -43,11 +42,10 @@ public class JavConfigResolver @Inject constructor(
     @Throws(JavConfigResolveException::class)
     private fun resolveRemoteConfiguration(urlTemplate: String): JavConfig {
         val url = resolveConfigurationURLTemplate(urlTemplate)
-        val reader = assetFetch.fetchRemoteFile(url)?.toBufferedReader()
-            ?: throw JavConfigResolveException.LoadConfigurationException()
+        val config = assetFetch.fetchRemoteFile(url) ?: throw JavConfigResolveException.LoadConfigurationException()
 
         return try {
-            JavConfig.parse(reader)
+            JavConfig.parse(config)
         } catch (e: Exception) {
             throw JavConfigResolveException.DecodeConfigurationException()
         }
@@ -55,13 +53,11 @@ public class JavConfigResolver @Inject constructor(
 
     @Throws(JavConfigResolveException::class)
     private fun resolveLocalConfiguration(fileName: String): JavConfig {
-        val reader = assetFetch.fetchLocaleFile(fileName)?.toBufferedReader()
+        val config = assetFetch.fetchLocaleFile(fileName)
             ?: throw JavConfigResolveException.LoadConfigurationException()
 
         return try {
-            JavConfig.parse(reader)
-        } catch (e: IOException) {
-            throw JavConfigResolveException.LoadConfigurationException()
+            JavConfig.parse(config)
         } catch (t: Exception) {
             throw JavConfigResolveException.DecodeConfigurationException()
         }

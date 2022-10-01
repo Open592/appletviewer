@@ -1,7 +1,7 @@
 package com.open592.appletviewer.config.javconfig
 
 import com.open592.appletviewer.config.language.SupportedLanguage
-import java.io.BufferedReader
+import okio.BufferedSource
 import java.lang.NumberFormatException
 import java.util.*
 import kotlin.collections.LinkedHashMap
@@ -30,17 +30,19 @@ public data class JavConfig constructor(
     public val languageNames: SortedMap<SupportedLanguage, String>
 ) {
     public companion object {
-        public fun parse(reader: BufferedReader): JavConfig {
+        public fun parse(config: BufferedSource): JavConfig {
             val root = ServerConfiguration()
             val overrides = linkedMapOf<String, ServerConfiguration>()
             val languageNames = sortedMapOf<SupportedLanguage, String>()
             var currentServer = root
 
-            reader.lineSequence().map(String::trim).forEach { line ->
+            while (true) {
+                val line = config.readUtf8Line()?.trim() ?: break
+
                 when {
-                    line.isEmpty() -> return@forEach
+                    line.isEmpty() -> continue
                     // Ignore comments (Multi-line comments are not supported)
-                    line.startsWith("//") || line.startsWith("#") -> return@forEach
+                    line.startsWith("//") || line.startsWith("#") -> continue
                     line.startsWith(SERVER_BLOCK_OPEN_TOKEN) -> {
                         val server = processServerBlock(line)
 
@@ -78,7 +80,7 @@ public data class JavConfig constructor(
                                 val id = key.substring(4).toInt()
 
                                 // Ignore unsupported languages
-                                val language = SupportedLanguage.resolveFromLanguageId(id) ?: return@forEach
+                                val language = SupportedLanguage.resolveFromLanguageId(id) ?: continue
 
                                 languageNames[language] = value
 
@@ -88,10 +90,10 @@ public data class JavConfig constructor(
                                  * and configuration parsing was done in separate passes. We create the definitions
                                  * here, so we can short circuit.
                                  */
-                                return@forEach
+                                continue
                             } catch (err: NumberFormatException) {
                                 // Ignore
-                                return@forEach
+                                continue
                             }
                         }
 
@@ -124,7 +126,7 @@ public data class JavConfig constructor(
                 }
             }
 
-            reader.close()
+            config.close()
 
             return JavConfig(root, overrides, languageNames)
         }
