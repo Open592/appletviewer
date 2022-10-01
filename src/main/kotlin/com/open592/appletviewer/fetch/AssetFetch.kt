@@ -2,47 +2,53 @@ package com.open592.appletviewer.fetch
 
 import com.open592.appletviewer.common.Constants
 import com.open592.appletviewer.settings.SettingsStore
-import java.net.URI
-import java.net.http.HttpClient
-import java.net.http.HttpRequest
-import java.net.http.HttpResponse
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okio.BufferedSource
+import okio.buffer
+import okio.source
 import java.nio.file.FileSystem
 import java.nio.file.Path
-import java.time.Duration
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.io.path.notExists
 
 @Singleton
 public class AssetFetch @Inject constructor(
-    private val httpClient: HttpClient,
+    private val httpClient: OkHttpClient,
     private val fileSystem: FileSystem,
     private val settingsStore: SettingsStore
 ) {
-    public fun fetchLocaleFile(filename: String): ExternalAsset? {
+    public fun fetchLocaleFile(filename: String): BufferedSource? {
         val path = getGameFileDirectory(filename)
 
         if (path.notExists()) {
             return null
         }
 
-        return ExternalAsset.fromPath(path)
+        return path.source().buffer()
     }
 
-    public fun fetchRemoteFile(url: String): ExternalAsset? {
+    public fun fetchRemoteFile(url: String): BufferedSource? {
         try {
-            val request = HttpRequest.newBuilder(URI(url))
-                .timeout(Duration.ofSeconds(30L))
-                .GET()
-                .build()
+            val request = Request.Builder().url(url).build()
 
-            val response = httpClient.send(request, HttpResponse.BodyHandlers.ofInputStream())
+            httpClient.newCall(request).execute().use { response ->
+                if (!response.isSuccessful) {
+                    return null
+                }
 
-            if (response.statusCode() != EXPECTED_STATUS_CODE) {
-                return null
+                // Read response
+                val body = response.body!!.source()
+
+                body.request(Long.MAX_VALUE)
+
+                val ret = body.buffer.clone()
+
+                body.close()
+
+                return ret
             }
-
-            return ExternalAsset(response.body())
         } catch (e: Exception) {
             return null
         }
