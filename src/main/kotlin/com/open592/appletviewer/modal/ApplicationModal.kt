@@ -36,6 +36,6 @@ public class ApplicationModal @Inject constructor(
     }
 
     private fun parseMessage(message: String): List<String> {
-        return message.split("\n", ignoreCase = true)
+        return message.split("\\n", ignoreCase = true)
     }
 }

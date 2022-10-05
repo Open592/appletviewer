@@ -98,7 +98,7 @@ class ApplicationModalTest {
             "You should definitely fix it.",
             "You have until tomorrow."
         )
-        val expectedMessage = expectedModalContentStrings.joinToString("\n")
+        val expectedMessage = expectedModalContentStrings.joinToString("\\n")
 
         justRun { view.display(any()) }
 
