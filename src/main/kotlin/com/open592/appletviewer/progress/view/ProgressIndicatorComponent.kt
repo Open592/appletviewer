@@ -1,13 +1,12 @@
 package com.open592.appletviewer.progress.view
 
 import com.open592.appletviewer.config.ApplicationConfiguration
-import com.open592.appletviewer.root.Root
+import com.open592.appletviewer.frame.RootFrame
 import com.open592.appletviewer.viewer.event.ViewerEventBus
 import java.awt.Color
 import java.awt.Component
 import java.awt.Dialog
 import java.awt.Font
-import java.awt.Frame
 import java.awt.Graphics
 import java.awt.event.WindowAdapter
 import java.awt.event.WindowEvent
@@ -17,10 +16,10 @@ import javax.inject.Singleton
 @Singleton
 public class ProgressIndicatorComponent @Inject constructor(
     config: ApplicationConfiguration,
-    @Root private val rootFrame: Frame,
+    rootFrame: RootFrame,
     private val viewerEventBus: ViewerEventBus
 ) : Component(), ProgressIndicatorView {
-    private val dialog: Dialog = Dialog(rootFrame, WINDOW_TITLE, false)
+    private val dialog: Dialog = Dialog(rootFrame.getFrame(), WINDOW_TITLE, false)
     private val fontMetrics = this.getFontMetrics(TEXT_FONT)
 
     private var currentProgress = 0
@@ -30,7 +29,7 @@ public class ProgressIndicatorComponent @Inject constructor(
         dialog.add(this)
         dialog.isResizable = false
         dialog.setSize(WINDOW_WIDTH, WINDOW_HEIGHT)
-        dialog.setLocationRelativeTo(rootFrame)
+        dialog.setLocationRelativeTo(rootFrame.getFrame())
 
         dialog.addWindowListener(object : WindowAdapter() {
             override fun windowClosing(e: WindowEvent?) {

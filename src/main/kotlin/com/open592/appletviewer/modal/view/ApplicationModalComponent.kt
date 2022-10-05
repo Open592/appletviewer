@@ -1,12 +1,11 @@
 package com.open592.appletviewer.modal.view
 
-import com.open592.appletviewer.root.Root
+import com.open592.appletviewer.frame.RootFrame
 import java.awt.BorderLayout
 import java.awt.Button
 import java.awt.Dialog
 import java.awt.Dimension
 import java.awt.FlowLayout
-import java.awt.Frame
 import java.awt.GridLayout
 import java.awt.Label
 import java.awt.Panel
@@ -17,14 +16,14 @@ import javax.inject.Singleton
 
 @Singleton
 public class ApplicationModalComponent @Inject constructor(
-    @Root rootFrame: Frame
+    rootFrame: RootFrame
 ) : ApplicationModalView {
-    private val modal: Dialog = Dialog(rootFrame, Dialog.DEFAULT_MODALITY_TYPE)
+    private val modal: Dialog = Dialog(rootFrame.getFrame(), Dialog.DEFAULT_MODALITY_TYPE)
 
     init {
         modal.size = Dimension(MODAL_WIDTH, MODAL_HEIGHT)
         modal.isResizable = false
-        modal.setLocationRelativeTo(rootFrame)
+        modal.setLocationRelativeTo(rootFrame.getFrame())
     }
 
     public override fun close() {
