@@ -6,7 +6,6 @@ import com.open592.appletviewer.config.resolver.JavConfigResolver
 import com.open592.appletviewer.debug.DebugConsole
 import com.open592.appletviewer.event.ApplicationEventListener
 import com.open592.appletviewer.modal.ApplicationModal
-import com.open592.appletviewer.modal.ApplicationModalType
 import com.open592.appletviewer.progress.ProgressIndicator
 import com.open592.appletviewer.settings.SettingsStore
 import com.open592.appletviewer.viewer.event.ViewerEvent
@@ -52,12 +51,7 @@ public class Viewer @Inject constructor(
 
             config.initialize(javConfig)
         } catch (e: JavConfigResolveException) {
-            applicationModal.eventBus.dispatchDisplayEvent(
-                ApplicationModalType.FATAL_ERROR,
-                config.getContent(e.contentKey)
-            )
-
-            return
+            applicationModal.displayFatalErrorModal(config.getContent(e.contentKey))
         }
     }
 

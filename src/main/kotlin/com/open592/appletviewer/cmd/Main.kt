@@ -4,7 +4,6 @@ import com.google.inject.Guice
 import com.open592.appletviewer.common.Constants
 import com.open592.appletviewer.viewer.Viewer
 import com.open592.appletviewer.viewer.ViewerModule
-import kotlinx.coroutines.runBlocking
 import kotlin.system.exitProcess
 
 /*
@@ -39,9 +38,7 @@ public object Main {
             }
         }
 
-        runBlocking {
-            val viewer = Guice.createInjector(ViewerModule).getInstance(Viewer::class.java)
-            viewer.initialize()
-        }
+        val viewer = Guice.createInjector(ViewerModule).getInstance(Viewer::class.java)
+        viewer.initialize()
     }
 }
