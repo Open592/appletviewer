@@ -33,11 +33,21 @@ public class Viewer @Inject constructor(
         progressIndicator.eventBus.dispatchChangeVisibilityEvent(visible = true)
 
         initializeConfiguration()
+
+        checkForNewViewerVersion()
     }
 
     protected override fun processEvent(event: ViewerEvent) {
         when (event) {
             is ViewerEvent.Quit -> handleQuitEvent()
+        }
+    }
+
+    private fun checkForNewViewerVersion() {
+        val requiredVersion = config.getConfigAsInt("viewerversion") ?: Int.MAX_VALUE
+
+        if (requiredVersion > VIEWER_VERSION) {
+            applicationModal.displayMessageModal(config.getContent("new_version"))
         }
     }
 
@@ -62,5 +72,9 @@ public class Viewer @Inject constructor(
             println("os.name = ${System.getProperty("os.name")}")
             println("os.arch = ${System.getProperty("os.arch")}")
         }
+    }
+
+    private companion object {
+        private const val VIEWER_VERSION = 100
     }
 }

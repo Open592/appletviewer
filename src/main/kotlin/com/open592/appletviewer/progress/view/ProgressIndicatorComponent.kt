@@ -16,7 +16,7 @@ import javax.inject.Singleton
 
 @Singleton
 public class ProgressIndicatorComponent @Inject constructor(
-    private val config: ApplicationConfiguration,
+    config: ApplicationConfiguration,
     @Root private val rootFrame: Frame,
     private val viewerEventBus: ViewerEventBus
 ) : Component(), ProgressIndicatorView {
