@@ -34,7 +34,21 @@ public class ApplicationConfiguration @Inject constructor(
     }
 
     public fun getConfig(key: String): String {
-        return getActiveServerOverrides()?.getConfig(key) ?: javConfig.root.getConfig(key)
+        val overrideConfig = getActiveServerOverrides()?.getConfig(key)
+
+        if (overrideConfig?.isNotEmpty() == true) {
+            return overrideConfig
+        }
+
+        return javConfig.root.getConfig(key)
+    }
+
+    public fun getConfigAsInt(key: String): Int? {
+        return try {
+            getConfig(key).toInt()
+        } catch (_: NumberFormatException) {
+            null
+        }
     }
 
     public fun getContent(key: String): String {
@@ -44,13 +58,25 @@ public class ApplicationConfiguration @Inject constructor(
             return language.getPackagedLocalizedContent(key)
         }
 
-        return getActiveServerOverrides()?.getContent(key) ?: javConfig.root.getContent(key).ifEmpty {
+        val serverOverrideContent = getActiveServerOverrides()?.getContent(key)
+
+        if (serverOverrideContent?.isNotEmpty() == true) {
+            return serverOverrideContent
+        }
+
+        return javConfig.root.getContent(key).ifEmpty {
             language.getPackagedLocalizedContent(key)
         }
     }
 
     public fun getParameter(key: String): String {
-        return getActiveServerOverrides()?.getParameter(key) ?: javConfig.root.getConfig(key)
+        val serverOverrideParameter = getActiveServerOverrides()?.getParameter(key)
+
+        if (serverOverrideParameter?.isNotEmpty() == true) {
+            return serverOverrideParameter
+        }
+
+        return javConfig.root.getParameter(key)
     }
 
     /**
