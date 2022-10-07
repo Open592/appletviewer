@@ -38,16 +38,9 @@ public class AssetFetch @Inject constructor(
                     return null
                 }
 
-                // Read response
-                val body = response.body!!.source()
+                val result = response.peekBody(Long.MAX_VALUE)
 
-                body.request(Long.MAX_VALUE)
-
-                val ret = body.buffer.clone()
-
-                body.close()
-
-                return ret
+                return result.source()
             }
         } catch (e: Exception) {
             return null
@@ -59,15 +52,25 @@ public class AssetFetch @Inject constructor(
      * in a directory a level above the "game directory" which includes a number of assets and
      * configuration files.
      *
-     * > "jagexlauncher" (* Root directory for the installer *)
+     * NOTE: We differ from the original implementation by allowing for the overriding of the
+     * root launcher directory.
+     *
+     * > "jagexlauncher" (* Root launcher directory where all files required by the launcher are stored *)
      * ----> "bin" > `user.dir` (* Location where the launcher will be invoked and where the jvm will be initialized *)
+     * ----> "lib" > (* Software libraries and properties/configuration files *)
      * ----> "runescape" > (* Directory where we look for "com.jagex.configfile" *)
      */
     private fun getGameFileDirectory(filename: String): Path {
+        val overridePath = settingsStore.getString(LAUNCHER_DIRECTORY_OVERRIDE_PROPERTY_NAME)
+
+        if (overridePath.isNotEmpty()) {
+            return fileSystem.getPath(overridePath, Constants.GAME_NAME, filename)
+        }
+
         return fileSystem.getPath(settingsStore.getString("user.dir"), Constants.GAME_NAME, filename)
     }
 
     private companion object {
-        private const val EXPECTED_STATUS_CODE = 200
+        private const val LAUNCHER_DIRECTORY_OVERRIDE_PROPERTY_NAME = "com.open592.launcherDirectoryOverride"
     }
 }

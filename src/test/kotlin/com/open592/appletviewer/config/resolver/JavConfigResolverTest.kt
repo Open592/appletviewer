@@ -51,9 +51,6 @@ class JavConfigResolverTest {
 
         verify(exactly = 1) { settings.getString("com.jagex.config") }
         verify(exactly = 1) { settings.getString("com.jagex.configfile") }
-        verify(exactly = 0) { settings.getString("user.dir") }
-        verify(exactly = 0) { fetch.fetchLocaleFile(any()) }
-        verify(exactly = 0) { fetch.fetchRemoteFile(any()) }
     }
 
     @Test
@@ -66,6 +63,7 @@ class JavConfigResolverTest {
 
         every { settings.getString("com.jagex.config") } returns ""
         every { settings.getString("com.jagex.configfile") } returns nonexistentFile
+        every { settings.getString("com.open592.launcherDirectoryOverride") } returns ""
         every { settings.getString("user.dir") } returns "not-a-dir"
 
         assertThrows<JavConfigResolveException.LoadConfigurationException> { resolver.resolve() }
@@ -107,8 +105,6 @@ class JavConfigResolverTest {
         verify(exactly = 1) { settings.getString("com.jagex.configfile") }
         // Need to resolve the URL template
         verify(exactly = 1) { preferences.get("Language") }
-        // We should not be looking at the fs
-        verify(exactly = 0) { settings.getString("user.dir") }
 
         // Verify we are making the correct calls
         val request = server.takeRequest()
@@ -158,8 +154,6 @@ class JavConfigResolverTest {
         verify(exactly = 1) { settings.getString("com.jagex.configfile") }
         // Need to resolve the URL template
         verify(exactly = 1) { preferences.get("Language") }
-        // We should not be looking at the fs
-        verify(exactly = 0) { settings.getString("user.dir") }
 
         // Verify we are making the correct calls
         val request = server.takeRequest()
@@ -182,6 +176,7 @@ class JavConfigResolverTest {
 
             every { settings.getString("com.jagex.config") } returns ""
             every { settings.getString("com.jagex.configfile") } returns configFile
+            every { settings.getString("com.open592.launcherDirectoryOverride") } returns ""
             every { settings.getString("user.dir") } returns it.getPath(ROOT).toAbsolutePath().toString()
 
             assertDoesNotThrow {
@@ -196,7 +191,6 @@ class JavConfigResolverTest {
             verify(exactly = 1) { settings.getString("com.jagex.config") }
             verify(exactly = 1) { settings.getString("com.jagex.configfile") }
             verify(exactly = 1) { settings.getString("user.dir") }
-            verify(exactly = 0) { preferences.get(any()) }
         }
     }
 
@@ -212,6 +206,7 @@ class JavConfigResolverTest {
 
             every { settings.getString("com.jagex.config") } returns ""
             every { settings.getString("com.jagex.configfile") } returns invalidJavConfig
+            every { settings.getString("com.open592.launcherDirectoryOverride") } returns ""
             every { settings.getString("user.dir") } returns it.getPath(ROOT).toAbsolutePath().toString()
 
             assertThrows<JavConfigResolveException.DecodeConfigurationException> { resolver.resolve() }
@@ -247,6 +242,8 @@ class JavConfigResolverTest {
         Files.copy(javConfigStream, path, StandardCopyOption.REPLACE_EXISTING)
 
         action(fs)
+
+        fs.close()
     }
 
     private companion object {
