@@ -31,6 +31,7 @@ public class Viewer @Inject constructor(
         printDebugInfo()
 
         progressIndicator.eventBus.dispatchChangeVisibilityEvent(visible = true)
+        progressIndicator.eventBus.dispatchChangeTextEvent(config.getContent("loading_config"))
 
         initializeConfiguration()
 
