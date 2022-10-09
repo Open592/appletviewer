@@ -15,7 +15,8 @@ application {
         "-Dcom.jagex.debug=${System.getProperty("com.jagex.debug")}",
         "-Dcom.open592.disableDebugConsole=${System.getProperty("com.open592.disableDebugConsole")}",
         "-Dcom.open592.debugConsoleLogToSystemStream=${System.getProperty("com.open592.debugConsoleLogToSystemStream")}",
-        "-Dcom.jagex.config=${System.getProperty("com.jagex.config")}"
+        "-Dcom.jagex.config=${System.getProperty("com.jagex.config")}",
+        "-Dcom.open592.launcherDirectoryOverride=${System.getProperty("com.open592.launcherDirectoryOverride")}"
     )
 
     mainClass.set("com.open592.appletviewer.cmd.Main")

@@ -7,6 +7,8 @@ import okhttp3.Request
 import okio.BufferedSource
 import okio.buffer
 import okio.source
+import java.awt.Image
+import java.awt.Toolkit
 import java.nio.file.FileSystem
 import java.nio.file.Path
 import javax.inject.Inject
@@ -27,6 +29,16 @@ public class AssetFetch @Inject constructor(
         }
 
         return path.source().buffer()
+    }
+
+    public fun fetchLocaleImage(filename: String): Image? {
+        val path = getGameFileDirectory(filename)
+
+        if (path.notExists()) {
+            return null
+        }
+
+        return Toolkit.getDefaultToolkit().getImage(path.toUri().toURL())
     }
 
     public fun fetchRemoteFile(url: String): BufferedSource? {
