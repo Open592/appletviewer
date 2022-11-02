@@ -4,7 +4,7 @@ import com.open592.appletviewer.config.ApplicationConfiguration
 import com.open592.appletviewer.events.GlobalEventBus
 import com.open592.appletviewer.modal.view.ApplicationModalProperties
 import com.open592.appletviewer.modal.view.ApplicationModalView
-import com.open592.appletviewer.viewer.event.ViewerEvent
+import com.open592.appletviewer.viewer.ViewerEvent
 import javax.inject.Inject
 import javax.inject.Singleton
 

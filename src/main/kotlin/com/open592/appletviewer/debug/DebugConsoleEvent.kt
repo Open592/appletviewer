@@ -1,4 +1,4 @@
-package com.open592.appletviewer.debug.event
+package com.open592.appletviewer.debug
 
 import com.open592.appletviewer.debug.capture.CapturedMessage
 import com.open592.appletviewer.events.ApplicationEvent

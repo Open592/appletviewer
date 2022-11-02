@@ -3,7 +3,7 @@ package com.open592.appletviewer.progress.view
 import com.open592.appletviewer.config.ApplicationConfiguration
 import com.open592.appletviewer.events.GlobalEventBus
 import com.open592.appletviewer.frame.RootFrame
-import com.open592.appletviewer.viewer.event.ViewerEvent
+import com.open592.appletviewer.viewer.ViewerEvent
 import java.awt.Color
 import java.awt.Component
 import java.awt.Dialog

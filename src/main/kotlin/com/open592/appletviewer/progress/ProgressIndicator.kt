@@ -1,7 +1,6 @@
 package com.open592.appletviewer.progress
 
 import com.open592.appletviewer.events.GlobalEventBus
-import com.open592.appletviewer.progress.event.ProgressEvent
 import com.open592.appletviewer.progress.view.ProgressIndicatorView
 import javax.inject.Inject
 import javax.inject.Singleton

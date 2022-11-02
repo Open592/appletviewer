@@ -1,4 +1,4 @@
-package com.open592.appletviewer.progress.event
+package com.open592.appletviewer.progress
 
 import com.open592.appletviewer.events.ApplicationEvent
 

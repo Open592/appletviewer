@@ -1,4 +1,4 @@
-package com.open592.appletviewer.viewer.event
+package com.open592.appletviewer.viewer
 
 import com.open592.appletviewer.events.ApplicationEvent
 

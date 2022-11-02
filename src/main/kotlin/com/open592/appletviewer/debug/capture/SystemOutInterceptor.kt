@@ -1,6 +1,6 @@
 package com.open592.appletviewer.debug.capture
 
-import com.open592.appletviewer.debug.event.DebugConsoleEvent
+import com.open592.appletviewer.debug.DebugConsoleEvent
 import com.open592.appletviewer.events.GlobalEventBus
 import java.io.PrintStream
 import javax.inject.Inject

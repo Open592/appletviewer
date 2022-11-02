@@ -6,10 +6,9 @@ import com.open592.appletviewer.config.resolver.JavConfigResolver
 import com.open592.appletviewer.debug.DebugConsole
 import com.open592.appletviewer.events.GlobalEventBus
 import com.open592.appletviewer.modal.ApplicationModal
+import com.open592.appletviewer.progress.ProgressEvent
 import com.open592.appletviewer.progress.ProgressIndicator
-import com.open592.appletviewer.progress.event.ProgressEvent
 import com.open592.appletviewer.settings.SettingsStore
-import com.open592.appletviewer.viewer.event.ViewerEvent
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.system.exitProcess
