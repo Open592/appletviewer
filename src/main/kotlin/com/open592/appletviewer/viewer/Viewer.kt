@@ -4,44 +4,52 @@ import com.open592.appletviewer.config.ApplicationConfiguration
 import com.open592.appletviewer.config.resolver.JavConfigResolveException
 import com.open592.appletviewer.config.resolver.JavConfigResolver
 import com.open592.appletviewer.debug.DebugConsole
-import com.open592.appletviewer.event.ApplicationEventListener
+import com.open592.appletviewer.events.GlobalEventBus
 import com.open592.appletviewer.modal.ApplicationModal
 import com.open592.appletviewer.progress.ProgressIndicator
+import com.open592.appletviewer.progress.event.ProgressEvent
 import com.open592.appletviewer.settings.SettingsStore
 import com.open592.appletviewer.viewer.event.ViewerEvent
-import com.open592.appletviewer.viewer.event.ViewerEventBus
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.system.exitProcess
 
 @Singleton
 public class Viewer @Inject constructor(
-    eventBus: ViewerEventBus,
+    private val eventBus: GlobalEventBus,
     private val applicationModal: ApplicationModal,
     private val config: ApplicationConfiguration,
     private val debugConsole: DebugConsole,
     private val progressIndicator: ProgressIndicator,
     private val settingsStore: SettingsStore,
     private val javConfigResolver: JavConfigResolver
-) : ApplicationEventListener<ViewerEvent>(eventBus) {
+) {
+    init {
+        eventBus.listen<ViewerEvent> {
+            when (it) {
+                is ViewerEvent.Quit -> handleQuitEvent()
+            }
+        }
+    }
+
     public fun initialize() {
         // Initialize the debug console in case we are in debug mode
         debugConsole.initialize()
 
         printDebugInfo()
 
-        progressIndicator.eventBus.dispatchChangeVisibilityEvent(visible = true)
-        progressIndicator.eventBus.dispatchChangeTextEvent(config.getContent("loading_config"))
+        // Tell the progress indicator to start listening to events
+        //
+        // TODO: This feels a little weird, would like to avoid having to do this explicitly
+        progressIndicator.initialize()
+
+        // Inform the user that we are loading the configuration
+        eventBus.dispatch(ProgressEvent.ChangeVisibility(visible = true))
+        eventBus.dispatch(ProgressEvent.ChangeText(config.getContent("loading_config")))
 
         initializeConfiguration()
 
         checkForNewViewerVersion()
-    }
-
-    protected override fun processEvent(event: ViewerEvent) {
-        when (event) {
-            is ViewerEvent.Quit -> handleQuitEvent()
-        }
     }
 
     private fun checkForNewViewerVersion() {

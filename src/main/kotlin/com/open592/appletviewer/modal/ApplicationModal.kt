@@ -1,9 +1,10 @@
 package com.open592.appletviewer.modal
 
 import com.open592.appletviewer.config.ApplicationConfiguration
+import com.open592.appletviewer.events.GlobalEventBus
 import com.open592.appletviewer.modal.view.ApplicationModalProperties
 import com.open592.appletviewer.modal.view.ApplicationModalView
-import com.open592.appletviewer.viewer.event.ViewerEventBus
+import com.open592.appletviewer.viewer.event.ViewerEvent
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -11,7 +12,7 @@ import javax.inject.Singleton
 public class ApplicationModal @Inject constructor(
     private val config: ApplicationConfiguration,
     private val view: ApplicationModalView,
-    private val viewerEventBus: ViewerEventBus
+    private val eventBus: GlobalEventBus
 ) {
     public fun displayFatalErrorModal(message: String) {
         view.display(
@@ -19,7 +20,9 @@ public class ApplicationModal @Inject constructor(
                 content = parseMessage(message),
                 title = config.getContent("error"),
                 buttonText = config.getContent("quit"),
-                closeAction = viewerEventBus::dispatchQuitEvent
+                closeAction = {
+                    eventBus.dispatch(ViewerEvent.Quit)
+                }
             )
         )
     }

@@ -1,6 +1,6 @@
 package com.open592.appletviewer.viewer.event
 
-import com.open592.appletviewer.event.ApplicationEvent
+import com.open592.appletviewer.events.ApplicationEvent
 
 /**
  * Represents events sent to the root viewer frame.

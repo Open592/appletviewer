@@ -2,20 +2,25 @@ package com.open592.appletviewer.debug
 
 import com.open592.appletviewer.debug.capture.OutputCapture
 import com.open592.appletviewer.debug.capture.SystemOutInterceptor
-import com.open592.appletviewer.debug.event.DebugConsoleEventBus
 import com.open592.appletviewer.debug.view.DebugConsoleView
+import com.open592.appletviewer.events.GlobalEventBus
 import com.open592.appletviewer.settings.SettingsStore
 import io.mockk.Runs
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class DebugConsoleTest {
     @Test
-    fun `Should not capture messages when debug mode is not true`() {
-        val eventBus = DebugConsoleEventBus()
+    fun `Should not capture messages when debug mode is not true`() = runTest {
+        val eventBus = GlobalEventBus(TestScope(UnconfinedTestDispatcher(testScheduler)))
         val debugConsoleView = mockk<DebugConsoleView>()
         // Mocking this purely to make sure we aren't invoking it
         val outputCapture = mockk<OutputCapture>()
@@ -38,8 +43,8 @@ class DebugConsoleTest {
     }
 
     @Test
-    fun `Should not capture messages even when in debug mode if the disableDebugConsole flag is set`() {
-        val eventBus = DebugConsoleEventBus()
+    fun `Should not capture messages even when in debug mode if the disableDebugConsole flag is set`() = runTest {
+        val eventBus = GlobalEventBus(TestScope(UnconfinedTestDispatcher(testScheduler)))
         val debugConsoleView = mockk<DebugConsoleView>()
         // Mocking this purely to make sure we aren't invoking it
         val outputCapture = mockk<OutputCapture>()
@@ -62,8 +67,8 @@ class DebugConsoleTest {
     }
 
     @Test
-    fun `Should capture messages and initialize the component`() {
-        val eventBus = DebugConsoleEventBus()
+    fun `Should capture messages and initialize the component`() = runTest {
+        val eventBus = GlobalEventBus(TestScope(UnconfinedTestDispatcher(testScheduler)))
         val debugConsoleView = mockk<DebugConsoleView>()
         // Mocking this purely to make sure we aren't invoking it
         val outputCapture = OutputCapture(setOf(SystemOutInterceptor(eventBus)))

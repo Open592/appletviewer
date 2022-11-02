@@ -1,6 +1,6 @@
 package com.open592.appletviewer.progress.event
 
-import com.open592.appletviewer.event.ApplicationEvent
+import com.open592.appletviewer.events.ApplicationEvent
 
 /**
  * Represents events handled by the ProgressIndicator component.

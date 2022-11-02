@@ -2,20 +2,27 @@ package com.open592.appletviewer.debug
 
 import com.open592.appletviewer.debug.capture.OutputCapture
 import com.open592.appletviewer.debug.event.DebugConsoleEvent
-import com.open592.appletviewer.debug.event.DebugConsoleEventBus
 import com.open592.appletviewer.debug.view.DebugConsoleView
-import com.open592.appletviewer.event.ApplicationEventListener
+import com.open592.appletviewer.events.GlobalEventBus
 import com.open592.appletviewer.settings.SettingsStore
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 public class DebugConsole @Inject constructor(
-    eventBus: DebugConsoleEventBus,
+    eventBus: GlobalEventBus,
     private val view: DebugConsoleView,
     private val outputCapture: OutputCapture,
     private val settings: SettingsStore
-) : ApplicationEventListener<DebugConsoleEvent>(eventBus) {
+) {
+    init {
+        eventBus.listen<DebugConsoleEvent> {
+            when (it) {
+                is DebugConsoleEvent.MessageReceived -> handleMessageReceived(it)
+            }
+        }
+    }
+
     /**
      * Entry point of the DebugConsole
      *
@@ -42,12 +49,6 @@ public class DebugConsole @Inject constructor(
         // - System.out
         // - System.err
         outputCapture.capture(shouldLogToSystemStream)
-    }
-
-    protected override fun processEvent(event: DebugConsoleEvent) {
-        when (event) {
-            is DebugConsoleEvent.MessageReceived -> handleMessageReceived(event)
-        }
     }
 
     private fun handleMessageReceived(event: DebugConsoleEvent.MessageReceived) {
