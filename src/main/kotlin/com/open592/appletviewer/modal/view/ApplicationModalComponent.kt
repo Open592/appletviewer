@@ -1,6 +1,8 @@
 package com.open592.appletviewer.modal.view
 
+import com.open592.appletviewer.events.GlobalEventBus
 import com.open592.appletviewer.frame.RootFrame
+import com.open592.appletviewer.viewer.ViewerEvent
 import java.awt.BorderLayout
 import java.awt.Button
 import java.awt.Dialog
@@ -16,7 +18,8 @@ import javax.inject.Singleton
 
 @Singleton
 public class ApplicationModalComponent @Inject constructor(
-    rootFrame: RootFrame
+    rootFrame: RootFrame,
+    private val eventBus: GlobalEventBus
 ) : ApplicationModalView {
     private val modal: Dialog = Dialog(rootFrame.getFrame(), Dialog.DEFAULT_MODALITY_TYPE)
 
@@ -31,11 +34,14 @@ public class ApplicationModalComponent @Inject constructor(
         modal.removeAll()
 
         // Remove existing window listeners
-        modal.windowListeners.forEach {
-            modal.removeWindowListener(it)
-        }
+        modal.windowListeners.forEach(modal::removeWindowListener)
 
         modal.isVisible = false
+    }
+
+    public override fun quit() {
+        // Let the viewer know that we want to quit the application
+        eventBus.dispatch(ViewerEvent.Quit)
     }
 
     public override fun display(properties: ApplicationModalProperties) {

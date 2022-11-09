@@ -4,26 +4,19 @@ import com.open592.appletviewer.config.ApplicationConfiguration
 import com.open592.appletviewer.config.javconfig.JavConfig
 import com.open592.appletviewer.config.javconfig.ServerConfiguration
 import com.open592.appletviewer.config.language.SupportedLanguage
-import com.open592.appletviewer.events.GlobalEventBus
 import com.open592.appletviewer.modal.view.ApplicationModalView
 import io.mockk.justRun
 import io.mockk.mockk
 import io.mockk.verify
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.TestScope
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
-import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-@OptIn(ExperimentalCoroutinesApi::class)
 class ApplicationModalTest {
     @Test
-    fun `Should properly handle a MESSAGE event type`() = runTest {
+    fun `Should properly handle a MESSAGE event type`() {
         val config = ApplicationConfiguration(SupportedLanguage.ENGLISH)
-        val viewerEventBus = GlobalEventBus(TestScope(UnconfinedTestDispatcher(testScheduler)))
         val view = mockk<ApplicationModalView>()
-        val modal = ApplicationModal(config, view, viewerEventBus)
+        val modal = ApplicationModal(config, view)
 
         // For MESSAGE events we have to initialize the configuration with
         // a JavConfig instance that includes the needed content strings
@@ -60,11 +53,10 @@ class ApplicationModalTest {
     }
 
     @Test
-    fun `Should properly handle a FATAL_ERROR event type in a locale other than ENGLISH`() = runTest {
+    fun `Should properly handle a FATAL_ERROR event type in a locale other than ENGLISH`() {
         val config = ApplicationConfiguration(SupportedLanguage.GERMAN)
-        val viewerEventBus = GlobalEventBus(TestScope(UnconfinedTestDispatcher(testScheduler)))
         val view = mockk<ApplicationModalView>()
-        val modal = ApplicationModal(config, view, viewerEventBus)
+        val modal = ApplicationModal(config, view)
 
         val expectedModalTitle = "Fehler"
         val expectedButtonText = "Beenden"
@@ -82,17 +74,17 @@ class ApplicationModalTest {
                     assertEquals(it.content.first(), expectedMessage)
                     assertEquals(it.title, expectedModalTitle)
                     assertEquals(it.buttonText, expectedButtonText)
+                    assertEquals(it.closeAction, view::quit)
                 }
             )
         }
     }
 
     @Test
-    fun `Should properly handle a FATAL_ERROR event with a multi line message`() = runTest {
+    fun `Should properly handle a FATAL_ERROR event with a multi line message`() {
         val config = ApplicationConfiguration(SupportedLanguage.ENGLISH)
-        val viewerEventBus = GlobalEventBus(TestScope(UnconfinedTestDispatcher(testScheduler)))
         val view = mockk<ApplicationModalView>()
-        val modal = ApplicationModal(config, view, viewerEventBus)
+        val modal = ApplicationModal(config, view)
 
         val expectedModalTitle = "Error"
         val expectedButtonText = "Quit"
@@ -114,6 +106,7 @@ class ApplicationModalTest {
                     assertEquals(it.content, expectedModalContentStrings)
                     assertEquals(it.title, expectedModalTitle)
                     assertEquals(it.buttonText, expectedButtonText)
+                    assertEquals(it.closeAction, view::quit)
                 }
             )
         }
