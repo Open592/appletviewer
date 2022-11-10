@@ -49,6 +49,8 @@ public class Viewer @Inject constructor(
         initializeConfiguration()
 
         checkForNewViewerVersion()
+
+        eventBus.dispatch(ProgressEvent.ChangeText(config.getContent("loading_app_resources")))
     }
 
     private fun checkForNewViewerVersion() {

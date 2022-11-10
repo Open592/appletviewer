@@ -79,7 +79,7 @@ class ApplicationModalTest {
         var progressEvent: ProgressEvent.ChangeVisibility? = null
 
         eventBus.listen<ProgressEvent> {
-            when(it) {
+            when (it) {
                 is ProgressEvent.ChangeVisibility -> progressEvent = it
                 else -> fail("Invalid ProgressEvent encountered")
             }
@@ -125,7 +125,7 @@ class ApplicationModalTest {
         var progressEvent: ProgressEvent.ChangeVisibility? = null
 
         eventBus.listen<ProgressEvent> {
-            when(it) {
+            when (it) {
                 is ProgressEvent.ChangeVisibility -> progressEvent = it
                 else -> fail("Invalid ProgressEvent encountered")
             }
