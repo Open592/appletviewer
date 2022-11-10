@@ -4,19 +4,28 @@ import com.open592.appletviewer.config.ApplicationConfiguration
 import com.open592.appletviewer.config.javconfig.JavConfig
 import com.open592.appletviewer.config.javconfig.ServerConfiguration
 import com.open592.appletviewer.config.language.SupportedLanguage
+import com.open592.appletviewer.events.GlobalEventBus
 import com.open592.appletviewer.modal.view.ApplicationModalView
+import com.open592.appletviewer.progress.ProgressEvent
 import io.mockk.justRun
 import io.mockk.mockk
 import io.mockk.verify
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.fail
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class ApplicationModalTest {
     @Test
-    fun `Should properly handle a MESSAGE event type`() {
+    fun `Should properly handle a MESSAGE event type`() = runTest {
         val config = ApplicationConfiguration(SupportedLanguage.ENGLISH)
+        val eventBus = GlobalEventBus(TestScope(UnconfinedTestDispatcher(testScheduler)))
         val view = mockk<ApplicationModalView>()
-        val modal = ApplicationModal(config, view)
+        val modal = ApplicationModal(config, eventBus, view)
 
         // For MESSAGE events we have to initialize the configuration with
         // a JavConfig instance that includes the needed content strings
@@ -53,10 +62,11 @@ class ApplicationModalTest {
     }
 
     @Test
-    fun `Should properly handle a FATAL_ERROR event type in a locale other than ENGLISH`() {
+    fun `Should properly handle a FATAL_ERROR event type in a locale other than ENGLISH`() = runTest {
         val config = ApplicationConfiguration(SupportedLanguage.GERMAN)
+        val eventBus = GlobalEventBus(TestScope(UnconfinedTestDispatcher(testScheduler)))
         val view = mockk<ApplicationModalView>()
-        val modal = ApplicationModal(config, view)
+        val modal = ApplicationModal(config, eventBus, view)
 
         val expectedModalTitle = "Fehler"
         val expectedButtonText = "Beenden"
@@ -64,6 +74,16 @@ class ApplicationModalTest {
         val expectedMessage = "This is a serious error"
 
         justRun { view.display(any()) }
+
+        // A FATAL_ERROR should close the progress indicator
+        var progressEvent: ProgressEvent.ChangeVisibility? = null
+
+        eventBus.listen<ProgressEvent> {
+            when(it) {
+                is ProgressEvent.ChangeVisibility -> progressEvent = it
+                else -> fail("Invalid ProgressEvent encountered")
+            }
+        }
 
         modal.displayFatalErrorModal(expectedMessage)
 
@@ -78,13 +98,16 @@ class ApplicationModalTest {
                 }
             )
         }
+
+        assertEquals(false, progressEvent?.visible)
     }
 
     @Test
-    fun `Should properly handle a FATAL_ERROR event with a multi line message`() {
+    fun `Should properly handle a FATAL_ERROR event with a multi line message`() = runTest {
         val config = ApplicationConfiguration(SupportedLanguage.ENGLISH)
+        val eventBus = GlobalEventBus(TestScope(UnconfinedTestDispatcher(testScheduler)))
         val view = mockk<ApplicationModalView>()
-        val modal = ApplicationModal(config, view)
+        val modal = ApplicationModal(config, eventBus, view)
 
         val expectedModalTitle = "Error"
         val expectedButtonText = "Quit"
@@ -98,6 +121,16 @@ class ApplicationModalTest {
 
         justRun { view.display(any()) }
 
+        // A FATAL_ERROR should close the progress indicator
+        var progressEvent: ProgressEvent.ChangeVisibility? = null
+
+        eventBus.listen<ProgressEvent> {
+            when(it) {
+                is ProgressEvent.ChangeVisibility -> progressEvent = it
+                else -> fail("Invalid ProgressEvent encountered")
+            }
+        }
+
         modal.displayFatalErrorModal(expectedMessage)
 
         verify(exactly = 1, timeout = 50) {
@@ -110,5 +143,7 @@ class ApplicationModalTest {
                 }
             )
         }
+
+        assertEquals(false, progressEvent?.visible)
     }
 }
