@@ -9,19 +9,11 @@ import javax.inject.Singleton
 
 @Singleton
 public class DebugConsole @Inject constructor(
-    eventBus: GlobalEventBus,
+    private val eventBus: GlobalEventBus,
     private val view: DebugConsoleView,
     private val outputCapture: OutputCapture,
     private val settings: SettingsStore
 ) {
-    init {
-        eventBus.listen<DebugConsoleEvent> {
-            when (it) {
-                is DebugConsoleEvent.MessageReceived -> handleMessageReceived(it)
-            }
-        }
-    }
-
     /**
      * Entry point of the DebugConsole
      *
@@ -41,6 +33,8 @@ public class DebugConsole @Inject constructor(
             return
         }
 
+        startEventListener()
+
         // Should we continue to log to the console?
         val shouldLogToSystemStream = settings.getBoolean("com.open592.debugConsoleLogToSystemStream")
 
@@ -48,6 +42,14 @@ public class DebugConsole @Inject constructor(
         // - System.out
         // - System.err
         outputCapture.capture(shouldLogToSystemStream)
+    }
+
+    private fun startEventListener() {
+        eventBus.listen<DebugConsoleEvent> {
+            when (it) {
+                is DebugConsoleEvent.MessageReceived -> handleMessageReceived(it)
+            }
+        }
     }
 
     private fun handleMessageReceived(event: DebugConsoleEvent.MessageReceived) {
