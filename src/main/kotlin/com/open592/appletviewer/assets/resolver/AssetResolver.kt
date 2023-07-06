@@ -1,4 +1,4 @@
-package com.open592.appletviewer.fetch
+package com.open592.appletviewer.assets.resolver
 
 import com.open592.appletviewer.common.Constants
 import com.open592.appletviewer.settings.SettingsStore
@@ -11,16 +11,13 @@ import java.awt.Image
 import java.awt.Toolkit
 import java.nio.file.FileSystem
 import java.nio.file.Path
-import javax.inject.Inject
-import javax.inject.Singleton
 import kotlin.io.path.notExists
 
-@Singleton
-public class AssetFetch @Inject constructor(
-    private val httpClient: OkHttpClient,
+public class AssetResolver(
     private val fileSystem: FileSystem,
+    private val httpClient: OkHttpClient,
     private val settingsStore: SettingsStore
-) {
+){
     public fun fetchLocaleFile(filename: String): BufferedSource? {
         val path = getGameFileDirectory(filename)
 

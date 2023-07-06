@@ -2,6 +2,7 @@ package com.open592.appletviewer.config.resolver
 
 import com.google.common.jimfs.Configuration
 import com.google.common.jimfs.Jimfs
+import com.open592.appletviewer.assets.WindowsApplicationAssetResolver
 import com.open592.appletviewer.common.Constants
 import com.open592.appletviewer.config.language.SupportedLanguage
 import com.open592.appletviewer.fetch.AssetFetch
@@ -40,7 +41,7 @@ class JavConfigResolverTest {
     @Test
     fun `Should return MissingConfigurationException when unable to find configuration`() {
         val preferences = mockk<AppletViewerPreferences>()
-        val fetch = mockk<AssetFetch>()
+        val fetch = mockk<WindowsApplicationAssetResolver>()
         val settings = mockk<SystemPropertiesSettingsStore>()
         val resolver = JavConfigResolver(preferences, fetch, settings)
 

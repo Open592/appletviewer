@@ -12,7 +12,7 @@ import javax.inject.Singleton
 import kotlin.reflect.KClass
 
 @Singleton
-public class GlobalEventBus constructor(
+public class GlobalEventBus(
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.Unconfined)
 ) {
     private val events = MutableSharedFlow<ApplicationEvent>(extraBufferCapacity = 1)

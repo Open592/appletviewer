@@ -1,6 +1,7 @@
 package com.open592.appletviewer.viewer
 
 import com.google.inject.AbstractModule
+import com.open592.appletviewer.assets.AssetResolverModule
 import com.open592.appletviewer.config.ApplicationConfigurationModule
 import com.open592.appletviewer.config.resolver.JavConfigResolverModule
 import com.open592.appletviewer.debug.DebugConsoleModule
@@ -11,6 +12,7 @@ import com.open592.appletviewer.progress.ProgressIndicatorModule
 public object ViewerModule : AbstractModule() {
     public override fun configure() {
         install(RootFrameModule)
+        install(AssetResolverModule)
         /**
          * At the time of loading Viewer the application configuration
          * will not have a backing JavConfig - this is lazy loaded by

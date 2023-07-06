@@ -1,7 +1,7 @@
 package com.open592.appletviewer.config.resolver
 
+import com.open592.appletviewer.assets.AssetResolver
 import com.open592.appletviewer.config.javconfig.JavConfig
-import com.open592.appletviewer.fetch.AssetFetch
 import com.open592.appletviewer.preferences.AppletViewerPreferences
 import com.open592.appletviewer.settings.SettingsStore
 import javax.inject.Inject
@@ -22,7 +22,7 @@ import javax.inject.Singleton
 @Singleton
 public class JavConfigResolver @Inject constructor(
     private val appletViewerPreferences: AppletViewerPreferences,
-    private val assetFetch: AssetFetch,
+    private val assetResolver: AssetResolver,
     private val settingsStore: SettingsStore
 ) {
     @Throws(JavConfigResolveException::class)
@@ -42,7 +42,7 @@ public class JavConfigResolver @Inject constructor(
     @Throws(JavConfigResolveException::class)
     private fun resolveRemoteConfiguration(urlTemplate: String): JavConfig {
         val url = resolveConfigurationURLTemplate(urlTemplate)
-        val config = assetFetch.fetchRemoteFile(url) ?: throw JavConfigResolveException.LoadConfigurationException()
+        val config = assetResolver.fetchRemoteFile(url) ?: throw JavConfigResolveException.LoadConfigurationException()
 
         return try {
             JavConfig.parse(config)
@@ -53,7 +53,7 @@ public class JavConfigResolver @Inject constructor(
 
     @Throws(JavConfigResolveException::class)
     private fun resolveLocalConfiguration(fileName: String): JavConfig {
-        val config = assetFetch.fetchLocaleFile(fileName)
+        val config = assetResolver.fetchLocaleFile(fileName)
             ?: throw JavConfigResolveException.LoadConfigurationException()
 
         return try {
@@ -75,7 +75,7 @@ public class JavConfigResolver @Inject constructor(
      * `http://www.runescape.com/k=3/l=$(Language:0)/jav_config.ws`
      *
      * (In this case the template variable "Language" needs to be resolved, and if it can't be, it defaults
-     * to "0" which in this case means we will be falling back to the english language.
+     * to "0" which in this case means we will be falling back to the English language.
      *
      * @param template The templated URL
      * @return The resolved, valid, URL

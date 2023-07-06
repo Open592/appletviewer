@@ -1,13 +1,13 @@
 package com.open592.appletviewer.frame
 
-import com.open592.appletviewer.fetch.AssetFetch
+import com.open592.appletviewer.assets.AssetResolver
 import java.awt.Frame
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 public class RootFrame @Inject constructor(
-    fetch: AssetFetch
+    fetch: AssetResolver
 ) {
     private val frame = Frame()
 
