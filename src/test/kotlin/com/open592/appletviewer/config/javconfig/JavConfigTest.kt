@@ -96,12 +96,10 @@ class JavConfigTest {
         }
     }
 
-    private fun useJavConfigFile(filename: String, action: (BufferedSource) -> Unit) {
-        val javConfigStream = JavConfigTest::class.java.getResourceAsStream(filename)
+    private fun useJavConfigFile(filename: String, action: (String) -> Unit) {
+        val javConfig = JavConfigTest::class.java.getResource(filename)?.readText()
             ?: throw FileNotFoundException("Failed to find $filename during JavConfigTest")
 
-        val config = javConfigStream.source().buffer()
-
-        action(config)
+        action(javConfig)
     }
 }

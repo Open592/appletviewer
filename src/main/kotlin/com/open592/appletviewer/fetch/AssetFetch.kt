@@ -4,7 +4,7 @@ import com.open592.appletviewer.common.Constants
 import com.open592.appletviewer.settings.SettingsStore
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import okio.BufferedSource
+import okio.IOException
 import okio.buffer
 import okio.source
 import java.awt.Image
@@ -13,6 +13,7 @@ import java.nio.file.FileSystem
 import java.nio.file.Path
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.io.path.isRegularFile
 import kotlin.io.path.notExists
 
 @Singleton
@@ -21,16 +22,28 @@ public class AssetFetch @Inject constructor(
     private val fileSystem: FileSystem,
     private val settingsStore: SettingsStore
 ) {
-    public fun fetchLocaleFile(filename: String): BufferedSource? {
+    /**
+     * Read a locale file from the game file directory to a string.
+     */
+    public fun readLocaleGameFile(filename: String): String? {
         val path = getGameFileDirectory(filename)
 
-        if (path.notExists()) {
+        if (path.notExists() || !path.isRegularFile()) {
             return null
         }
 
-        return path.source().buffer()
+        try {
+            path.source().buffer().use {
+                return it.readUtf8()
+            }
+        } catch (_: IOException) {
+            return null
+        }
     }
 
+    /**
+     * Resolve a locale image file from the game file directory.
+     */
     public fun fetchLocaleImage(filename: String): Image? {
         val path = getGameFileDirectory(filename)
 
@@ -41,18 +54,19 @@ public class AssetFetch @Inject constructor(
         return Toolkit.getDefaultToolkit().getImage(path.toUri().toURL())
     }
 
-    public fun fetchRemoteFile(url: String): BufferedSource? {
+    /**
+     * Read a remote file to a string
+     */
+    public fun readRemoteFile(url: String): String? {
         try {
             val request = Request.Builder().url(url).build()
 
             httpClient.newCall(request).execute().use { response ->
-                if (!response.isSuccessful) {
+                if (!response.isSuccessful || response.body == null) {
                     return null
                 }
 
-                val result = response.peekBody(Long.MAX_VALUE)
-
-                return result.source()
+                return response.body!!.string()
             }
         } catch (e: Exception) {
             return null

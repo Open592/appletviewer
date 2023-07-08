@@ -24,25 +24,23 @@ import kotlin.collections.LinkedHashMap
  *                      the configuration file.
  * @param languageNames Map of language IDs to their localized name
  */
-public data class JavConfig constructor(
+public data class JavConfig(
     public val root: ServerConfiguration,
     public val overrides: LinkedHashMap<String, ServerConfiguration>,
     public val languageNames: SortedMap<SupportedLanguage, String>
 ) {
     public companion object {
-        public fun parse(config: BufferedSource): JavConfig {
+        public fun parse(config: String): JavConfig {
             val root = ServerConfiguration()
             val overrides = linkedMapOf<String, ServerConfiguration>()
             val languageNames = sortedMapOf<SupportedLanguage, String>()
             var currentServer = root
 
-            while (true) {
-                val line = config.readUtf8Line()?.trim() ?: break
-
+            config.lines().forEach { line ->
                 when {
-                    line.isEmpty() -> continue
+                    line.isEmpty() -> return@forEach
                     // Ignore comments (Multi-line comments are not supported)
-                    line.startsWith("//") || line.startsWith("#") -> continue
+                    line.startsWith("//") || line.startsWith("#") -> return@forEach
                     line.startsWith(SERVER_BLOCK_OPEN_TOKEN) -> {
                         val server = processServerBlock(line)
 
@@ -80,7 +78,7 @@ public data class JavConfig constructor(
                                 val id = key.substring(4).toInt()
 
                                 // Ignore unsupported languages
-                                val language = SupportedLanguage.resolveFromLanguageId(id) ?: continue
+                                val language = SupportedLanguage.resolveFromLanguageId(id) ?: return@forEach
 
                                 languageNames[language] = value
 
@@ -90,10 +88,10 @@ public data class JavConfig constructor(
                                  * and configuration parsing was done in separate passes. We create the definitions
                                  * here, so we can short circuit.
                                  */
-                                continue
+                                return@forEach
                             } catch (err: NumberFormatException) {
                                 // Ignore
-                                continue
+                                return@forEach
                             }
                         }
 
@@ -125,8 +123,6 @@ public data class JavConfig constructor(
                     }
                 }
             }
-
-            config.close()
 
             return JavConfig(root, overrides, languageNames)
         }

@@ -41,12 +41,9 @@ class AssetFetchTest {
             every { settingsStore.getString("user.dir") } returns fs.getPath(ROOT).toAbsolutePath().toString()
 
             assertDoesNotThrow {
-                val result = fetch.fetchLocaleFile(fileName)
+                val result = fetch.readLocaleGameFile(fileName)
 
-                assertEquals(
-                    expectedText,
-                    result?.readUtf8()
-                )
+                assertEquals(expectedText, result)
             }
         }
     }
@@ -60,7 +57,7 @@ class AssetFetchTest {
         every { settingsStore.getString("user.dir") } returns "not-a-dir"
 
         assertDoesNotThrow {
-            val result = fetch.fetchLocaleFile("i-dont-exist.txt")
+            val result = fetch.readLocaleGameFile("i-dont-exist.txt")
 
             assertNull(result)
         }
@@ -80,9 +77,9 @@ class AssetFetchTest {
             } returns fs.getPath(ROOT).toAbsolutePath().toString()
 
             assertDoesNotThrow {
-                val result = fetch.fetchLocaleFile(fileName)
+                val result = fetch.readLocaleGameFile(fileName)
 
-                assertEquals(expectedText, result?.readUtf8())
+                assertEquals(expectedText, result)
 
                 verify(exactly = 0) { settingsStore.getString("user.dir") }
             }
@@ -103,8 +100,7 @@ class AssetFetchTest {
         val url = server.url("/happy-path").toString()
 
         assertDoesNotThrow {
-            val remoteFile = fetch.fetchRemoteFile(url)
-            val result = remoteFile?.readUtf8()
+            val result = fetch.readRemoteFile(url)
 
             assertEquals(expectedResult, result)
         }
@@ -123,9 +119,7 @@ class AssetFetchTest {
         val url = server.url("/nothing-to-see-here").toString()
 
         assertDoesNotThrow {
-            val result = fetch.fetchRemoteFile(url)
-
-            assertNull(result)
+            assertNull(fetch.readRemoteFile(url))
         }
     }
 

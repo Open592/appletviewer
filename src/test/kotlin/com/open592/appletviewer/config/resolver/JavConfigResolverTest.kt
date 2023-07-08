@@ -71,7 +71,7 @@ class JavConfigResolverTest {
         verify(exactly = 1) { settings.getString("com.jagex.config") }
         verify(exactly = 1) { settings.getString("com.jagex.configfile") }
         verify(exactly = 1) { settings.getString("user.dir") }
-        verify(exactly = 1) { fetch.fetchLocaleFile(nonexistentFile) }
+        verify(exactly = 1) { fetch.readLocaleGameFile(nonexistentFile) }
     }
 
     @Test
@@ -214,7 +214,7 @@ class JavConfigResolverTest {
             verify(exactly = 1) { settings.getString("com.jagex.config") }
             verify(exactly = 1) { settings.getString("com.jagex.configfile") }
             verify(exactly = 1) { settings.getString("user.dir") }
-            verify(exactly = 1) { fetch.fetchLocaleFile(invalidJavConfig) }
+            verify(exactly = 1) { fetch.readLocaleGameFile(invalidJavConfig) }
         }
     }
 
