@@ -36,7 +36,10 @@ public data class JavConfig(
             val languageNames = sortedMapOf<SupportedLanguage, String>()
             var currentServer = root
 
-            config.lines().forEach { line ->
+            // Make sure we are trimming leading and trailing whitespace
+            val lines = config.lines().map { it.trim() }
+
+            lines.forEach { line ->
                 when {
                     line.isEmpty() -> return@forEach
                     // Ignore comments (Multi-line comments are not supported)
