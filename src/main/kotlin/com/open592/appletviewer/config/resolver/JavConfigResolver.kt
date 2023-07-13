@@ -42,7 +42,7 @@ public class JavConfigResolver @Inject constructor(
     @Throws(JavConfigResolveException::class)
     private fun resolveRemoteConfiguration(urlTemplate: String): JavConfig {
         val url = resolveConfigurationURLTemplate(urlTemplate)
-        val config = assetFetch.readRemoteFile(url) ?: throw JavConfigResolveException.LoadConfigurationException()
+        val config = assetFetch.fetchRemoteFile(url) ?: throw JavConfigResolveException.LoadConfigurationException()
 
         return try {
             JavConfig.parse(config)
@@ -53,7 +53,7 @@ public class JavConfigResolver @Inject constructor(
 
     @Throws(JavConfigResolveException::class)
     private fun resolveLocalConfiguration(fileName: String): JavConfig {
-        val config = assetFetch.readLocaleGameFile(fileName)
+        val config = assetFetch.fetchLocalGameFile(fileName)
             ?: throw JavConfigResolveException.LoadConfigurationException()
 
         return try {

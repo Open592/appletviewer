@@ -1,7 +1,6 @@
 package com.open592.appletviewer.config.javconfig
 
 import com.open592.appletviewer.config.language.SupportedLanguage
-import okio.BufferedSource
 import java.lang.NumberFormatException
 import java.util.*
 import kotlin.collections.LinkedHashMap

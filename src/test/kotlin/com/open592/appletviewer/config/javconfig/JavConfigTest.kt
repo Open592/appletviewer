@@ -1,9 +1,6 @@
 package com.open592.appletviewer.config.javconfig
 
 import com.open592.appletviewer.config.language.SupportedLanguage
-import okio.BufferedSource
-import okio.buffer
-import okio.source
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
 import java.io.FileNotFoundException
