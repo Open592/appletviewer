@@ -1,10 +1,9 @@
 package com.open592.appletviewer.config.resolver
 
-import com.google.common.jimfs.Configuration
-import com.google.common.jimfs.Jimfs
 import com.open592.appletviewer.common.Constants
 import com.open592.appletviewer.config.language.SupportedLanguage
-import com.open592.appletviewer.fetch.AssetFetch
+import com.open592.appletviewer.paths.ApplicationPaths
+import com.open592.appletviewer.paths.ApplicationPathsMocks
 import com.open592.appletviewer.preferences.AppletViewerPreferences
 import com.open592.appletviewer.settings.SystemPropertiesSettingsStore
 import io.mockk.every
@@ -39,10 +38,10 @@ class JavConfigResolverTest {
 
     @Test
     fun `Should return MissingConfigurationException when unable to find configuration`() {
+        val applicationPaths = mockk<ApplicationPaths>()
         val preferences = mockk<AppletViewerPreferences>()
-        val fetch = mockk<AssetFetch>()
         val settings = mockk<SystemPropertiesSettingsStore>()
-        val resolver = JavConfigResolver(preferences, fetch, settings)
+        val resolver = JavConfigResolver(preferences, applicationPaths, client, settings)
 
         every { settings.getString("com.jagex.config") } returns ""
         every { settings.getString("com.jagex.configfile") } returns ""
@@ -56,10 +55,10 @@ class JavConfigResolverTest {
     @Test
     fun `Should throw a LoadConfigurationException when unable to load a file from the fs`() {
         val nonexistentFile = "i-dont-exist.ws"
-        val preferences = mockk<AppletViewerPreferences>()
         val settings = mockk<SystemPropertiesSettingsStore>()
-        val fetch = AssetFetch(client, FileSystems.getDefault(), settings)
-        val resolver = JavConfigResolver(preferences, fetch, settings)
+        val applicationPaths = ApplicationPaths(FileSystems.getDefault(), settings)
+        val preferences = mockk<AppletViewerPreferences>()
+        val resolver = JavConfigResolver(preferences, applicationPaths, client, settings)
 
         every { settings.getString("com.jagex.config") } returns ""
         every { settings.getString("com.jagex.configfile") } returns nonexistentFile
@@ -71,7 +70,7 @@ class JavConfigResolverTest {
         verify(exactly = 1) { settings.getString("com.jagex.config") }
         verify(exactly = 1) { settings.getString("com.jagex.configfile") }
         verify(exactly = 1) { settings.getString("user.dir") }
-        verify(exactly = 1) { fetch.fetchLocalGameFile(nonexistentFile) }
+        verify(exactly = 1) { applicationPaths.resolveGameFileDirectoryPath(nonexistentFile) }
     }
 
     @Test
@@ -82,10 +81,10 @@ class JavConfigResolverTest {
 
         server.start()
 
+        val applicationPaths = mockk<ApplicationPaths>()
         val preferences = mockk<AppletViewerPreferences>()
         val settings = mockk<SystemPropertiesSettingsStore>()
-        val fetch = AssetFetch(client, FileSystems.getDefault(), settings)
-        val resolver = JavConfigResolver(preferences, fetch, settings)
+        val resolver = JavConfigResolver(preferences, applicationPaths, client, settings)
 
         // Get mocked URL
         val baseUrl = server.url("/")
@@ -127,10 +126,10 @@ class JavConfigResolverTest {
 
         server.start()
 
+        val applicationPaths = mockk<ApplicationPaths>()
         val preferences = mockk<AppletViewerPreferences>()
         val settings = mockk<SystemPropertiesSettingsStore>()
-        val fetch = AssetFetch(client, FileSystems.getDefault(), settings)
-        val resolver = JavConfigResolver(preferences, fetch, settings)
+        val resolver = JavConfigResolver(preferences, applicationPaths, client, settings)
 
         // Verify we are resolving URLS templates properly
         val baseUrl = server.url("/")
@@ -168,16 +167,18 @@ class JavConfigResolverTest {
     fun `Should correctly read a jav config file from the filesystem`() {
         val configFile = "simple-javconfig.ws"
 
-        useLocalJavConfigFile(configFile) {
-            val preferences = mockk<AppletViewerPreferences>()
+        useLocalJavConfigFile(configFile) { fileSystem ->
             val settings = mockk<SystemPropertiesSettingsStore>()
-            val fetch = AssetFetch(client, it, settings)
-            val resolver = JavConfigResolver(preferences, fetch, settings)
+            val applicationPaths = ApplicationPaths(fileSystem, settings)
+            val preferences = mockk<AppletViewerPreferences>()
+            val resolver = JavConfigResolver(preferences, applicationPaths, client, settings)
 
             every { settings.getString("com.jagex.config") } returns ""
             every { settings.getString("com.jagex.configfile") } returns configFile
             every { settings.getString("com.open592.launcherDirectoryOverride") } returns ""
-            every { settings.getString("user.dir") } returns it.getPath(ROOT).toAbsolutePath().toString()
+            every { settings.getString("user.dir") } returns (
+                fileSystem.getPath(ApplicationPathsMocks.ROOT_DIR, "bin").toAbsolutePath().toString()
+                )
 
             assertDoesNotThrow {
                 val javConfig = resolver.resolve()
@@ -198,23 +199,25 @@ class JavConfigResolverTest {
     fun `Should throw DecodeConfigurationException when an invalid JavConfig file is encountered`() {
         val invalidJavConfig = "invalid-javconfig.ws"
 
-        useLocalJavConfigFile(invalidJavConfig) {
-            val preferences = mockk<AppletViewerPreferences>()
+        useLocalJavConfigFile(invalidJavConfig) { fileSystem ->
             val settings = mockk<SystemPropertiesSettingsStore>()
-            val fetch = AssetFetch(client, it, settings)
-            val resolver = JavConfigResolver(preferences, fetch, settings)
+            val applicationPaths = ApplicationPaths(fileSystem, settings)
+            val preferences = mockk<AppletViewerPreferences>()
+            val resolver = JavConfigResolver(preferences, applicationPaths, client, settings)
 
             every { settings.getString("com.jagex.config") } returns ""
             every { settings.getString("com.jagex.configfile") } returns invalidJavConfig
             every { settings.getString("com.open592.launcherDirectoryOverride") } returns ""
-            every { settings.getString("user.dir") } returns it.getPath(ROOT).toAbsolutePath().toString()
+            every { settings.getString("user.dir") } returns (
+                fileSystem.getPath(ApplicationPathsMocks.ROOT_DIR, "bin").toAbsolutePath().toString()
+                )
 
             assertThrows<JavConfigResolveException.DecodeConfigurationException> { resolver.resolve() }
 
             verify(exactly = 1) { settings.getString("com.jagex.config") }
             verify(exactly = 1) { settings.getString("com.jagex.configfile") }
             verify(exactly = 1) { settings.getString("user.dir") }
-            verify(exactly = 1) { fetch.fetchLocalGameFile(invalidJavConfig) }
+            verify(exactly = 1) { applicationPaths.resolveGameFileDirectoryPath(invalidJavConfig) }
         }
     }
 
@@ -229,24 +232,17 @@ class JavConfigResolverTest {
     }
 
     private fun useLocalJavConfigFile(filename: String, action: (FileSystem) -> Unit) {
-        val fs = Jimfs.newFileSystem(Configuration.forCurrentPlatform())
-        val dir = fs.getPath(ROOT, Constants.GAME_NAME)
+        ApplicationPathsMocks.createDirectoryStructure().use { fs ->
+            val dir = fs.getPath(ApplicationPathsMocks.ROOT_DIR, Constants.GAME_NAME)
 
-        Files.createDirectories(dir)
+            val javConfigStream = JavConfigResolver::class.java.getResourceAsStream(filename)
+                ?: throw FileNotFoundException("Failed to find $filename during JavConfigResolverTest")
 
-        val javConfigStream = JavConfigResolver::class.java.getResourceAsStream(filename)
-            ?: throw FileNotFoundException("Failed to find $filename during JavConfigResolverTest")
+            val path = dir.resolve(filename).toAbsolutePath()
 
-        val path = dir.resolve(filename).toAbsolutePath()
+            Files.copy(javConfigStream, path, StandardCopyOption.REPLACE_EXISTING)
 
-        Files.copy(javConfigStream, path, StandardCopyOption.REPLACE_EXISTING)
-
-        action(fs)
-
-        fs.close()
-    }
-
-    private companion object {
-        private const val ROOT = "user-dir"
+            action(fs)
+        }
     }
 }
