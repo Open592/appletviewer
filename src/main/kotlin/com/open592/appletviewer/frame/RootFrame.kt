@@ -1,6 +1,6 @@
 package com.open592.appletviewer.frame
 
-import com.open592.appletviewer.fetch.AssetFetch
+import com.open592.appletviewer.paths.ApplicationPaths
 import java.awt.Frame
 import java.awt.Toolkit
 import javax.inject.Inject
@@ -11,7 +11,7 @@ import kotlin.io.path.notExists
 
 @Singleton
 public class RootFrame @Inject constructor(
-    private val fetch: AssetFetch
+    private val applicationPaths: ApplicationPaths
 ) {
     private val frame = Frame()
 
@@ -27,9 +27,9 @@ public class RootFrame @Inject constructor(
      * Attempt to resolve the icon image from the game directory.
      */
     private fun resolveIconImage() {
-        val path = fetch.resolveGameFileDirectoryPath(ICON_FILE_NAME)
+        val path = applicationPaths.resolveGameFileDirectoryPath(ICON_FILE_NAME)
 
-        if (path.notExists() || !path.isRegularFile() || !path.isReadable()) {
+        if (path == null || !path.isRegularFile() || !path.isReadable()) {
             return
         }
 
