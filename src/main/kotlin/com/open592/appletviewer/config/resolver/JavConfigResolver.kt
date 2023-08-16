@@ -1,11 +1,17 @@
 package com.open592.appletviewer.config.resolver
 
 import com.open592.appletviewer.config.javconfig.JavConfig
-import com.open592.appletviewer.fetch.AssetFetch
+import com.open592.appletviewer.paths.ApplicationPaths
 import com.open592.appletviewer.preferences.AppletViewerPreferences
 import com.open592.appletviewer.settings.SettingsStore
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okio.IOException
+import okio.buffer
+import okio.source
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.io.path.isRegularFile
 
 /**
  * Configuration can come from one of two places depending on which
@@ -22,7 +28,8 @@ import javax.inject.Singleton
 @Singleton
 public class JavConfigResolver @Inject constructor(
     private val appletViewerPreferences: AppletViewerPreferences,
-    private val assetFetch: AssetFetch,
+    private val applicationPaths: ApplicationPaths,
+    private val httpClient: OkHttpClient,
     private val settingsStore: SettingsStore
 ) {
     @Throws(JavConfigResolveException::class)
@@ -42,7 +49,7 @@ public class JavConfigResolver @Inject constructor(
     @Throws(JavConfigResolveException::class)
     private fun resolveRemoteConfiguration(urlTemplate: String): JavConfig {
         val url = resolveConfigurationURLTemplate(urlTemplate)
-        val config = assetFetch.fetchRemoteFile(url) ?: throw JavConfigResolveException.LoadConfigurationException()
+        val config = fetchRemoteConfiguration(url) ?: throw JavConfigResolveException.LoadConfigurationException()
 
         return try {
             JavConfig.parse(config)
@@ -53,12 +60,19 @@ public class JavConfigResolver @Inject constructor(
 
     @Throws(JavConfigResolveException::class)
     private fun resolveLocalConfiguration(fileName: String): JavConfig {
-        val config = assetFetch.fetchLocalGameFile(fileName)
-            ?: throw JavConfigResolveException.LoadConfigurationException()
+        val path = applicationPaths.resolveGameFileDirectoryPath(fileName)
+
+        if (path == null || !path.isRegularFile()) {
+            throw JavConfigResolveException.LoadConfigurationException()
+        }
 
         return try {
-            JavConfig.parse(config)
-        } catch (t: Exception) {
+            path.source().buffer().use {
+                JavConfig.parse(it.readUtf8())
+            }
+        } catch (_: IOException) {
+            throw JavConfigResolveException.LoadConfigurationException()
+        } catch (_: Exception) {
             throw JavConfigResolveException.DecodeConfigurationException()
         }
     }
@@ -117,6 +131,20 @@ public class JavConfigResolver @Inject constructor(
                 endIndex = defaultValueEndIndex + 1,
                 variableValue
             )
+        }
+    }
+
+    private fun fetchRemoteConfiguration(url: String): String? {
+        val request = Request.Builder().url(url).build()
+
+        httpClient.newCall(request).execute().use { response ->
+            if (!response.isSuccessful) {
+                return null
+            }
+
+            response.body.use {
+                return it?.string()
+            }
         }
     }
 
