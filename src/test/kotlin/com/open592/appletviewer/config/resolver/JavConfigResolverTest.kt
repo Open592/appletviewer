@@ -1,9 +1,11 @@
 package com.open592.appletviewer.config.resolver
 
 import com.open592.appletviewer.common.Constants
+import com.open592.appletviewer.config.ApplicationConfiguration
 import com.open592.appletviewer.config.language.SupportedLanguage
 import com.open592.appletviewer.paths.ApplicationPaths
 import com.open592.appletviewer.paths.ApplicationPathsMocks
+import com.open592.appletviewer.paths.WindowsApplicationPaths
 import com.open592.appletviewer.preferences.AppletViewerPreferences
 import com.open592.appletviewer.settings.SystemPropertiesSettingsStore
 import io.mockk.every
@@ -55,8 +57,9 @@ class JavConfigResolverTest {
     @Test
     fun `Should throw a LoadConfigurationException when unable to load a file from the fs`() {
         val nonexistentFile = "i-dont-exist.ws"
+        val config = mockk<ApplicationConfiguration>()
         val settings = mockk<SystemPropertiesSettingsStore>()
-        val applicationPaths = ApplicationPaths(FileSystems.getDefault(), settings)
+        val applicationPaths = WindowsApplicationPaths(config, FileSystems.getDefault(), settings)
         val preferences = mockk<AppletViewerPreferences>()
         val resolver = JavConfigResolver(preferences, applicationPaths, client, settings)
 
@@ -75,7 +78,7 @@ class JavConfigResolverTest {
 
     @Test
     fun `Should throw a LoadConfigurationException when no remote connection could be made`() {
-        val applicationPaths = mockk<ApplicationPaths>()
+        val applicationPaths = mockk<WindowsApplicationPaths>()
         val preferences = mockk<AppletViewerPreferences>()
         val settings = mockk<SystemPropertiesSettingsStore>()
         val resolver = JavConfigResolver(preferences, applicationPaths, client, settings)
@@ -104,7 +107,7 @@ class JavConfigResolverTest {
 
         server.start()
 
-        val applicationPaths = mockk<ApplicationPaths>()
+        val applicationPaths = mockk<WindowsApplicationPaths>()
         val preferences = mockk<AppletViewerPreferences>()
         val settings = mockk<SystemPropertiesSettingsStore>()
         val resolver = JavConfigResolver(preferences, applicationPaths, client, settings)
@@ -191,8 +194,9 @@ class JavConfigResolverTest {
         val configFile = "simple-javconfig.ws"
 
         useLocalJavConfigFile(configFile) { fileSystem ->
+            val config = mockk<ApplicationConfiguration>()
             val settings = mockk<SystemPropertiesSettingsStore>()
-            val applicationPaths = ApplicationPaths(fileSystem, settings)
+            val applicationPaths = WindowsApplicationPaths(config, fileSystem, settings)
             val preferences = mockk<AppletViewerPreferences>()
             val resolver = JavConfigResolver(preferences, applicationPaths, client, settings)
 
@@ -223,8 +227,9 @@ class JavConfigResolverTest {
         val invalidJavConfig = "invalid-javconfig.ws"
 
         useLocalJavConfigFile(invalidJavConfig) { fileSystem ->
+            val config = mockk<ApplicationConfiguration>()
             val settings = mockk<SystemPropertiesSettingsStore>()
-            val applicationPaths = ApplicationPaths(fileSystem, settings)
+            val applicationPaths = WindowsApplicationPaths(config, fileSystem, settings)
             val preferences = mockk<AppletViewerPreferences>()
             val resolver = JavConfigResolver(preferences, applicationPaths, client, settings)
 
@@ -255,7 +260,7 @@ class JavConfigResolverTest {
     }
 
     private fun useLocalJavConfigFile(filename: String, action: (FileSystem) -> Unit) {
-        ApplicationPathsMocks.createDirectoryStructure().use { fs ->
+        ApplicationPathsMocks.createLauncherDirectoryStructure().use { fs ->
             val dir = fs.getPath(ApplicationPathsMocks.ROOT_DIR, Constants.GAME_NAME)
 
             val javConfigStream = JavConfigResolver::class.java.getResourceAsStream(filename)

@@ -9,7 +9,7 @@ import java.nio.file.Files
 object ApplicationPathsMocks {
     const val ROOT_DIR = "jagexlauncher"
 
-    fun createDirectoryStructure(): FileSystem {
+    fun createLauncherDirectoryStructure(): FileSystem {
         val fs = Jimfs.newFileSystem(Configuration.forCurrentPlatform())
 
         val binDirectory = fs.getPath(ROOT_DIR, "bin")
