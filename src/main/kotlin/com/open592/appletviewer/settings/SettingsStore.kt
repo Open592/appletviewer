@@ -33,4 +33,8 @@ public interface SettingsStore {
      * @return `true` is the provided key can resolve a valid value, otherwise `false`
      */
     public fun exists(key: String): Boolean
+
+    public companion object {
+        public const val IS_DEBUG_KEY: String = "com.jagex.debug"
+    }
 }

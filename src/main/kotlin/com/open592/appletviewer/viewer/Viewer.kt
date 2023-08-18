@@ -76,7 +76,7 @@ public class Viewer @Inject constructor(
     }
 
     private fun printDebugInfo() {
-        if (settingsStore.getBoolean("com.jagex.debug")) {
+        if (settingsStore.getBoolean(SettingsStore.IS_DEBUG_KEY)) {
             println("release #7")
             println("java.version = ${System.getProperty("java.version")}")
             println("os.name = ${System.getProperty("os.name")}")
