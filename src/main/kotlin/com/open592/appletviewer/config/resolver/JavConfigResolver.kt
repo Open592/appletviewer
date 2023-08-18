@@ -137,14 +137,18 @@ public class JavConfigResolver @Inject constructor(
     private fun fetchRemoteConfiguration(url: String): String? {
         val request = Request.Builder().url(url).build()
 
-        httpClient.newCall(request).execute().use { response ->
-            if (!response.isSuccessful) {
-                return null
-            }
+        try {
+            httpClient.newCall(request).execute().use { response ->
+                if (!response.isSuccessful) {
+                    return null
+                }
 
-            response.body.use {
-                return it?.string()
+                response.body.use {
+                    return it?.string()
+                }
             }
+        } catch (_: IOException) {
+            return null
         }
     }
 

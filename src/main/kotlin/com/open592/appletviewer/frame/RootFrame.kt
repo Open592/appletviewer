@@ -7,7 +7,6 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.io.path.isReadable
 import kotlin.io.path.isRegularFile
-import kotlin.io.path.notExists
 
 @Singleton
 public class RootFrame @Inject constructor(
