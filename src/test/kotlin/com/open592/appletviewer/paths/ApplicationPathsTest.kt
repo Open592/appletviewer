@@ -1,6 +1,7 @@
 package com.open592.appletviewer.paths
 
 import com.open592.appletviewer.common.Constants
+import com.open592.appletviewer.config.ApplicationConfiguration
 import com.open592.appletviewer.settings.SystemPropertiesSettingsStore
 import io.mockk.every
 import io.mockk.mockk
@@ -18,15 +19,17 @@ import kotlin.test.assertNull
 
 class ApplicationPathsTest {
     @Test
-    fun `Should return null when no path can be resolved`() {
+    fun `Should return null when no game file path can be resolved`() {
+        val config = mockk<ApplicationConfiguration>()
         val settingsStore = mockk<SystemPropertiesSettingsStore>()
         val fs = FileSystems.getDefault()
-        val applicationPaths = ApplicationPaths(fs, settingsStore)
 
         every { settingsStore.getString("com.open592.launcherDirectoryOverride") } returns ""
         every { settingsStore.getString("user.dir") } returns ""
 
         assertDoesNotThrow {
+            val applicationPaths = WindowsApplicationPaths(config, fs, settingsStore)
+
             assertNull(applicationPaths.resolveGameFileDirectoryPath("nonexistent.ws"))
         }
     }
@@ -37,8 +40,8 @@ class ApplicationPathsTest {
         val expectedText = "I exist in the game directory"
 
         useFileWithText(fileName, expectedText) { fs ->
+            val config = mockk<ApplicationConfiguration>()
             val settingsStore = mockk<SystemPropertiesSettingsStore>()
-            val applicationPaths = ApplicationPaths(fs, settingsStore)
 
             every { settingsStore.getString("com.open592.launcherDirectoryOverride") } returns ""
             every { settingsStore.getString("user.dir") } returns (
@@ -46,6 +49,7 @@ class ApplicationPathsTest {
                 )
 
             assertDoesNotThrow {
+                val applicationPaths = WindowsApplicationPaths(config, fs, settingsStore)
                 val path = applicationPaths.resolveGameFileDirectoryPath(fileName)
 
                 assertNotNull(path)
@@ -58,19 +62,20 @@ class ApplicationPathsTest {
     }
 
     @Test
-    fun `Should allow overriding the launcher directory when resolving a local file`() {
+    fun `Should allow overriding the launcher directory when resolving a game file path`() {
         val fileName = "override-test.txt"
         val expectedText = "Happy, oh wait no, sad world!"
 
         useFileWithText(fileName, expectedText) { fs ->
+            val config = mockk<ApplicationConfiguration>()
             val settingsStore = mockk<SystemPropertiesSettingsStore>()
-            val applicationPaths = ApplicationPaths(fs, settingsStore)
 
             every {
                 settingsStore.getString("com.open592.launcherDirectoryOverride")
             } returns fs.getPath(ApplicationPathsMocks.ROOT_DIR, "bin").toAbsolutePath().toString()
 
             assertDoesNotThrow {
+                val applicationPaths = WindowsApplicationPaths(config, fs, settingsStore)
                 val path = applicationPaths.resolveGameFileDirectoryPath(fileName)
 
                 assertNotNull(path)
@@ -85,7 +90,7 @@ class ApplicationPathsTest {
     }
 
     private fun useFileWithText(fileName: String, text: String, action: (fs: FileSystem) -> Unit) {
-        ApplicationPathsMocks.createDirectoryStructure().use { fs ->
+        ApplicationPathsMocks.createLauncherDirectoryStructure().use { fs ->
             val dir = fs.getPath(ApplicationPathsMocks.ROOT_DIR, Constants.GAME_NAME)
             val path = dir.resolve(fileName)
 

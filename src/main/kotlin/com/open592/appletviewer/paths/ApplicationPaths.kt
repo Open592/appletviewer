@@ -4,12 +4,16 @@ import com.open592.appletviewer.common.Constants
 import com.open592.appletviewer.settings.SettingsStore
 import java.nio.file.FileSystem
 import java.nio.file.Path
-import javax.inject.Inject
 
-public class ApplicationPaths @Inject constructor(
+public abstract class ApplicationPaths(
     private val fileSystem: FileSystem,
     private val settingsStore: SettingsStore
 ) {
+    /**
+     * Each platform must provide their own implementation for cache file path resolution.
+     */
+    public abstract fun resolveCacheFilePath(filename: String): Path
+
     /**
      * It is expected that the appletviewer is invoked by the launcher which exists within
      * a sibling directory to the "game directory" which includes a number of assets and
@@ -32,6 +36,15 @@ public class ApplicationPaths @Inject constructor(
         )
 
         return launcherDirectory.parent?.resolve(Constants.GAME_NAME)?.resolve(filename)
+    }
+
+    protected fun handleCacheDirectoryResolutionFailure(filename: String): Nothing {
+        // Retain same behavior as original applet viewer
+        if (settingsStore.getBoolean(SettingsStore.IS_DEBUG_KEY)) {
+            throw RuntimeException("Fatal - could not find ANY location for file: $filename")
+        } else {
+            throw RuntimeException()
+        }
     }
 
     private companion object {

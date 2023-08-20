@@ -1,9 +1,11 @@
 package com.open592.appletviewer.config.resolver
 
 import com.open592.appletviewer.common.Constants
+import com.open592.appletviewer.config.ApplicationConfiguration
 import com.open592.appletviewer.config.language.SupportedLanguage
 import com.open592.appletviewer.paths.ApplicationPaths
 import com.open592.appletviewer.paths.ApplicationPathsMocks
+import com.open592.appletviewer.paths.WindowsApplicationPaths
 import com.open592.appletviewer.preferences.AppletViewerPreferences
 import com.open592.appletviewer.settings.SystemPropertiesSettingsStore
 import io.mockk.every
@@ -55,15 +57,17 @@ class JavConfigResolverTest {
     @Test
     fun `Should throw a LoadConfigurationException when unable to load a file from the fs`() {
         val nonexistentFile = "i-dont-exist.ws"
+        val config = mockk<ApplicationConfiguration>()
         val settings = mockk<SystemPropertiesSettingsStore>()
-        val applicationPaths = ApplicationPaths(FileSystems.getDefault(), settings)
         val preferences = mockk<AppletViewerPreferences>()
-        val resolver = JavConfigResolver(preferences, applicationPaths, client, settings)
 
         every { settings.getString("com.jagex.config") } returns ""
         every { settings.getString("com.jagex.configfile") } returns nonexistentFile
         every { settings.getString("com.open592.launcherDirectoryOverride") } returns ""
         every { settings.getString("user.dir") } returns "not-a-dir"
+
+        val applicationPaths = WindowsApplicationPaths(config, FileSystems.getDefault(), settings)
+        val resolver = JavConfigResolver(preferences, applicationPaths, client, settings)
 
         assertThrows<JavConfigResolveException.LoadConfigurationException> { resolver.resolve() }
 
@@ -75,7 +79,7 @@ class JavConfigResolverTest {
 
     @Test
     fun `Should throw a LoadConfigurationException when no remote connection could be made`() {
-        val applicationPaths = mockk<ApplicationPaths>()
+        val applicationPaths = mockk<WindowsApplicationPaths>()
         val preferences = mockk<AppletViewerPreferences>()
         val settings = mockk<SystemPropertiesSettingsStore>()
         val resolver = JavConfigResolver(preferences, applicationPaths, client, settings)
@@ -104,7 +108,7 @@ class JavConfigResolverTest {
 
         server.start()
 
-        val applicationPaths = mockk<ApplicationPaths>()
+        val applicationPaths = mockk<WindowsApplicationPaths>()
         val preferences = mockk<AppletViewerPreferences>()
         val settings = mockk<SystemPropertiesSettingsStore>()
         val resolver = JavConfigResolver(preferences, applicationPaths, client, settings)
@@ -190,20 +194,21 @@ class JavConfigResolverTest {
     fun `Should correctly read a jav config file from the filesystem`() {
         val configFile = "simple-javconfig.ws"
 
-        useLocalJavConfigFile(configFile) { fileSystem ->
+        useLocalJavConfigFile(configFile) { fs ->
+            val config = mockk<ApplicationConfiguration>()
             val settings = mockk<SystemPropertiesSettingsStore>()
-            val applicationPaths = ApplicationPaths(fileSystem, settings)
+            val applicationPaths = WindowsApplicationPaths(config, fs, settings)
             val preferences = mockk<AppletViewerPreferences>()
-            val resolver = JavConfigResolver(preferences, applicationPaths, client, settings)
 
             every { settings.getString("com.jagex.config") } returns ""
             every { settings.getString("com.jagex.configfile") } returns configFile
             every { settings.getString("com.open592.launcherDirectoryOverride") } returns ""
             every { settings.getString("user.dir") } returns (
-                fileSystem.getPath(ApplicationPathsMocks.ROOT_DIR, "bin").toAbsolutePath().toString()
+                fs.getPath(ApplicationPathsMocks.ROOT_DIR, "bin").toAbsolutePath().toString()
                 )
 
             assertDoesNotThrow {
+                val resolver = JavConfigResolver(preferences, applicationPaths, client, settings)
                 val javConfig = resolver.resolve()
 
                 assertEquals("RuneScape", javConfig.root.getConfig("title"))
@@ -222,18 +227,20 @@ class JavConfigResolverTest {
     fun `Should throw DecodeConfigurationException when an invalid JavConfig file is encountered`() {
         val invalidJavConfig = "invalid-javconfig.ws"
 
-        useLocalJavConfigFile(invalidJavConfig) { fileSystem ->
+        useLocalJavConfigFile(invalidJavConfig) { fs ->
+            val config = mockk<ApplicationConfiguration>()
             val settings = mockk<SystemPropertiesSettingsStore>()
-            val applicationPaths = ApplicationPaths(fileSystem, settings)
+            val applicationPaths = WindowsApplicationPaths(config, fs, settings)
             val preferences = mockk<AppletViewerPreferences>()
-            val resolver = JavConfigResolver(preferences, applicationPaths, client, settings)
 
             every { settings.getString("com.jagex.config") } returns ""
             every { settings.getString("com.jagex.configfile") } returns invalidJavConfig
             every { settings.getString("com.open592.launcherDirectoryOverride") } returns ""
             every { settings.getString("user.dir") } returns (
-                fileSystem.getPath(ApplicationPathsMocks.ROOT_DIR, "bin").toAbsolutePath().toString()
+                fs.getPath(ApplicationPathsMocks.ROOT_DIR, "bin").toAbsolutePath().toString()
                 )
+
+            val resolver = JavConfigResolver(preferences, applicationPaths, client, settings)
 
             assertThrows<JavConfigResolveException.DecodeConfigurationException> { resolver.resolve() }
 
@@ -255,7 +262,7 @@ class JavConfigResolverTest {
     }
 
     private fun useLocalJavConfigFile(filename: String, action: (FileSystem) -> Unit) {
-        ApplicationPathsMocks.createDirectoryStructure().use { fs ->
+        ApplicationPathsMocks.createLauncherDirectoryStructure().use { fs ->
             val dir = fs.getPath(ApplicationPathsMocks.ROOT_DIR, Constants.GAME_NAME)
 
             val javConfigStream = JavConfigResolver::class.java.getResourceAsStream(filename)

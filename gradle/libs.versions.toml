@@ -1,10 +1,10 @@
 [versions]
 guice = "5.1.0"
 okhttp-bom = "4.10.0"
-jimfs = "1.2"
 kotlin = "1.7.10"
 kotlinCoroutines = "1.6.4"
 kotlinter = "3.11.1"
+memoryfilesystem = "2.6.1"
 mockk = "1.12.4"
 
 [plugins]
@@ -14,7 +14,7 @@ kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 [libraries]
 guice = { module = "com.google.inject:guice", version.ref = "guice" }
 okhttp-bom = { group = "com.squareup.okhttp3", name = "okhttp-bom", version.ref = "okhttp-bom" }
-jimfs = { module = "com.google.jimfs:jimfs", version.ref = "jimfs" }
 kotlin-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinCoroutines" }
 kotlin-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinCoroutines" }
+memoryfilesystem = { module = "com.github.marschall:memoryfilesystem", version.ref = "memoryfilesystem" }
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }

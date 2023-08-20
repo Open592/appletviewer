@@ -41,8 +41,8 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp")
 
     testImplementation(kotlin("test"))
-    testImplementation(libs.jimfs)
     testImplementation(libs.kotlin.coroutines.test)
+    testImplementation(libs.memoryfilesystem)
     testImplementation(libs.mockk)
     testImplementation("com.squareup.okhttp3:mockwebserver")
 }

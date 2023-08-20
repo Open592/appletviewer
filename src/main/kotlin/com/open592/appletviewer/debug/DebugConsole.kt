@@ -26,7 +26,7 @@ public class DebugConsole @Inject constructor(
      * On receiving output we need to display the view and append the message.
      */
     public fun initialize() {
-        val isDebug = settings.getBoolean("com.jagex.debug")
+        val isDebug = settings.getBoolean(SettingsStore.IS_DEBUG_KEY)
         val isDisabled = settings.getBoolean("com.open592.disableDebugConsole")
 
         if (!isDebug || isDisabled) {
