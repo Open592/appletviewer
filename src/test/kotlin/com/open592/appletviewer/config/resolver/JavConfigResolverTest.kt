@@ -65,7 +65,6 @@ class JavConfigResolverTest {
         every { settings.getString("com.jagex.configfile") } returns nonexistentFile
         every { settings.getString("com.open592.launcherDirectoryOverride") } returns ""
         every { settings.getString("user.dir") } returns "not-a-dir"
-        every { settings.getString("user.home") } returns "not-a-dir"
 
         val applicationPaths = WindowsApplicationPaths(config, FileSystems.getDefault(), settings)
         val resolver = JavConfigResolver(preferences, applicationPaths, client, settings)
@@ -198,6 +197,8 @@ class JavConfigResolverTest {
         useLocalJavConfigFile(configFile) { fs ->
             val config = mockk<ApplicationConfiguration>()
             val settings = mockk<SystemPropertiesSettingsStore>()
+            val applicationPaths = WindowsApplicationPaths(config, fs, settings)
+            val preferences = mockk<AppletViewerPreferences>()
 
             every { settings.getString("com.jagex.config") } returns ""
             every { settings.getString("com.jagex.configfile") } returns configFile
@@ -205,14 +206,8 @@ class JavConfigResolverTest {
             every { settings.getString("user.dir") } returns (
                 fs.getPath(ApplicationPathsMocks.ROOT_DIR, "bin").toAbsolutePath().toString()
                 )
-            every { settings.getString("user.home") } returns fs
-                .getPath("C:\\Users\\test")
-                .toAbsolutePath()
-                .toString()
 
             assertDoesNotThrow {
-                val applicationPaths = WindowsApplicationPaths(config, fs, settings)
-                val preferences = mockk<AppletViewerPreferences>()
                 val resolver = JavConfigResolver(preferences, applicationPaths, client, settings)
                 val javConfig = resolver.resolve()
 
@@ -235,20 +230,16 @@ class JavConfigResolverTest {
         useLocalJavConfigFile(invalidJavConfig) { fs ->
             val config = mockk<ApplicationConfiguration>()
             val settings = mockk<SystemPropertiesSettingsStore>()
+            val applicationPaths = WindowsApplicationPaths(config, fs, settings)
+            val preferences = mockk<AppletViewerPreferences>()
 
             every { settings.getString("com.jagex.config") } returns ""
             every { settings.getString("com.jagex.configfile") } returns invalidJavConfig
             every { settings.getString("com.open592.launcherDirectoryOverride") } returns ""
-            every { settings.getString("user.home") } returns fs
-                .getPath("C:\\Users\\test")
-                .toAbsolutePath()
-                .toString()
             every { settings.getString("user.dir") } returns (
                 fs.getPath(ApplicationPathsMocks.ROOT_DIR, "bin").toAbsolutePath().toString()
                 )
 
-            val applicationPaths = WindowsApplicationPaths(config, fs, settings)
-            val preferences = mockk<AppletViewerPreferences>()
             val resolver = JavConfigResolver(preferences, applicationPaths, client, settings)
 
             assertThrows<JavConfigResolveException.DecodeConfigurationException> { resolver.resolve() }
