@@ -1,7 +1,6 @@
 package com.open592.appletviewer.paths
 
-import com.google.common.jimfs.Configuration
-import com.google.common.jimfs.Jimfs
+import com.github.marschall.memoryfilesystem.MemoryFileSystemBuilder
 import com.open592.appletviewer.common.Constants
 import com.open592.appletviewer.config.ApplicationConfiguration
 import com.open592.appletviewer.settings.SystemPropertiesSettingsStore
@@ -29,37 +28,42 @@ class WindowsApplicationPathsTest {
         )
 
         expectedPaths.forEach { (parentDirectory, cacheSubDirectory) ->
-            Jimfs.newFileSystem(Configuration.windows()).use { fs ->
-                val config = mockk<ApplicationConfiguration>()
-                val settings = mockk<SystemPropertiesSettingsStore>()
-                val applicationPaths = WindowsApplicationPaths(config, fs, settings)
+            MemoryFileSystemBuilder
+                .newWindows()
+                .addUser("test")
+                .setCurrentWorkingDirectory("C:\\work")
+                .build()
+                .use { fs ->
+                    val config = mockk<ApplicationConfiguration>()
+                    val settings = mockk<SystemPropertiesSettingsStore>()
+                    val applicationPaths = WindowsApplicationPaths(config, fs, settings)
 
-                // Create file
-                val filename = "browsercontrol.dll"
-                val cacheDirectory = if (cacheSubDirectory.isNotEmpty()) {
-                    fs.getPath(parentDirectory, cacheSubDirectory)
-                } else {
-                    fs.getPath(parentDirectory)
-                }.createDirectories()
-                val expectedCacheFilePath = cacheDirectory.resolve(filename).createFile()
+                    // Create file
+                    val filename = "browsercontrol.dll"
+                    val cacheDirectory = if (cacheSubDirectory.isNotEmpty()) {
+                        fs.getPath(parentDirectory, cacheSubDirectory)
+                    } else {
+                        fs.getPath(parentDirectory)
+                    }.createDirectories()
+                    val expectedCacheFilePath = cacheDirectory.resolve(filename).createFile()
 
-                every { settings.getString("user.home") } returns fs
-                    .getPath("C:\\Users\\test")
-                    .toAbsolutePath()
-                    .toString()
-                every { config.getConfig("cachesubdir") } returns cacheSubDirectory
-                every { config.getConfigAsInt("modewhat") } returns 0
+                    every { settings.getString("user.home") } returns fs
+                        .getPath("C:\\Users\\test")
+                        .toAbsolutePath()
+                        .toString()
+                    every { config.getConfig("cachesubdir") } returns cacheSubDirectory
+                    every { config.getConfigAsInt("modewhat") } returns 0
 
-                assertDoesNotThrow {
-                    val path = applicationPaths.resolveCacheFilePath(filename)
+                    assertDoesNotThrow {
+                        val path = applicationPaths.resolveCacheFilePath(filename)
 
-                    assertEquals(expectedCacheFilePath, path)
+                        assertEquals(expectedCacheFilePath, path)
+                    }
+
+                    verify(exactly = 1) { settings.getString("user.home") }
+                    verify { config.getConfig("cachesubdir") }
+                    verify { config.getConfigAsInt("modewhat") }
                 }
-
-                verify(exactly = 1) { settings.getString("user.home") }
-                verify { config.getConfig("cachesubdir") }
-                verify { config.getConfigAsInt("modewhat") }
-            }
         }
     }
 }
