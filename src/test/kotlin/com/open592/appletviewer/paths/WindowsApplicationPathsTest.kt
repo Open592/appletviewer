@@ -8,6 +8,8 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import org.junit.jupiter.api.assertDoesNotThrow
+import java.nio.file.Files
+import java.nio.file.attribute.DosFileAttributeView
 import kotlin.io.path.createDirectories
 import kotlin.io.path.createFile
 import kotlin.test.Test
@@ -24,19 +26,18 @@ class WindowsApplicationPathsTest {
             // Alternate cache directory name
             "C:\\Users\\test\\.file_store_32" to Constants.GAME_NAME,
             // Working directory
-            "C:\\work\\.file_store_32" to Constants.GAME_NAME
+            "C:\\Users\\test\\AppData\\Local\\jagexlauncher\\.file_store_32" to Constants.GAME_NAME
         )
 
         expectedPaths.forEach { (parentDirectory, cacheSubDirectory) ->
             MemoryFileSystemBuilder
                 .newWindows()
                 .addUser("test")
-                .setCurrentWorkingDirectory("C:\\work")
+                .setCurrentWorkingDirectory("C:\\Users\\test\\AppData\\Local\\jagexlauncher")
                 .build()
                 .use { fs ->
                     val config = mockk<ApplicationConfiguration>()
                     val settings = mockk<SystemPropertiesSettingsStore>()
-                    val applicationPaths = WindowsApplicationPaths(config, fs, settings)
 
                     // Create file
                     val filename = "browsercontrol.dll"
@@ -55,6 +56,7 @@ class WindowsApplicationPathsTest {
                     every { config.getConfigAsInt("modewhat") } returns 0
 
                     assertDoesNotThrow {
+                        val applicationPaths = WindowsApplicationPaths(config, fs, settings)
                         val path = applicationPaths.resolveCacheFilePath(filename)
 
                         assertEquals(expectedCacheFilePath, path)
@@ -64,6 +66,118 @@ class WindowsApplicationPathsTest {
                     verify { config.getConfig("cachesubdir") }
                     verify { config.getConfigAsInt("modewhat") }
                 }
+        }
+    }
+
+    @Test
+    fun `When an existing file is found, but it is not writeable, it's path should not be returned`() {
+        MemoryFileSystemBuilder
+            .newWindows()
+            .addUser("test")
+            .build()
+            .use { fs ->
+                val cacheSubDirectory = Constants.GAME_NAME
+                val filename = "browsercontrol.dll"
+                val config = mockk<ApplicationConfiguration>()
+                val settings = mockk<SystemPropertiesSettingsStore>()
+
+                every { settings.getString("user.home") } returns fs
+                    .getPath("C:\\Users\\test")
+                    .toAbsolutePath()
+                    .toString()
+                every { config.getConfig("cachesubdir") } returns cacheSubDirectory
+                every { config.getConfigAsInt("modewhat") } returns 0
+
+                val unWriteableCacheDirectoryPath = fs
+                    .getPath("C:\\Users\\test\\.jagex_cache_32\\$cacheSubDirectory")
+                    .createDirectories()
+                val unWriteableCacheFilePath = unWriteableCacheDirectoryPath.resolve(filename).createFile()
+
+                val unWriteableCacheFilePathAttributes = Files.getFileAttributeView(
+                    unWriteableCacheFilePath,
+                    DosFileAttributeView::class.java
+                )
+                unWriteableCacheFilePathAttributes.setReadOnly(true)
+
+                assertDoesNotThrow {
+                    val applicationPaths = WindowsApplicationPaths(config, fs, settings)
+                    val expectedPath = fs.getPath("C:\\rscache\\.jagex_cache_32\\$cacheSubDirectory\\$filename")
+                    val path = applicationPaths.resolveCacheFilePath(filename)
+
+                    assertEquals(expectedPath, path)
+                }
+
+                verify(exactly = 1) { settings.getString("user.home") }
+                verify { config.getConfig("cachesubdir") }
+                verify { config.getConfigAsInt("modewhat") }
+            }
+    }
+
+    @Test
+    fun `When no existing files are present we should use the first cache path available`() {
+        MemoryFileSystemBuilder.newWindows().build().use { fs ->
+            val config = mockk<ApplicationConfiguration>()
+            val settings = mockk<SystemPropertiesSettingsStore>()
+
+            val cacheSubDirectory = "runescape"
+            val filename = "browsercontrol.dll"
+
+            every { settings.getString("user.home") } returns fs
+                .getPath("C:\\Users\\test")
+                .toAbsolutePath()
+                .toString()
+            every { config.getConfig("cachesubdir") } returns cacheSubDirectory
+            every { config.getConfigAsInt("modewhat") } returns 0
+
+            assertDoesNotThrow {
+                val applicationPaths = WindowsApplicationPaths(config, fs, settings)
+                val path = applicationPaths.resolveCacheFilePath(filename)
+                val expectedPath = fs.getPath("C:\\rscache\\.jagex_cache_32\\$cacheSubDirectory")
+
+                assertEquals(expectedPath.resolve(filename), path)
+            }
+
+            verify(exactly = 1) { settings.getString("user.home") }
+            verify { config.getConfig("cachesubdir") }
+            verify { config.getConfigAsInt("modewhat") }
+        }
+    }
+
+    @Test
+    fun `It should respect the modewhat config when resolving cache directory`() {
+        MemoryFileSystemBuilder.newWindows().build().use { fs ->
+            val config = mockk<ApplicationConfiguration>()
+            val settings = mockk<SystemPropertiesSettingsStore>()
+
+            val cacheSubDirectory = "runescape"
+            val filename = "browsercontrol.dll"
+
+            // Create the desired cache file, but in the wrong directory.
+            // `.jagex_cache_32` would be used if our modewhat was `0` but
+            // in this test case we set it to 1
+            val wrongCacheDirectoryPath = fs
+                .getPath("C:\\Users\\test\\.jagex_cache_32\\$cacheSubDirectory")
+                .createDirectories()
+            wrongCacheDirectoryPath.resolve(filename).createFile()
+
+            every { settings.getString("user.home") } returns fs
+                .getPath("C:\\Users\\test")
+                .toAbsolutePath()
+                .toString()
+            every { config.getConfig("cachesubdir") } returns cacheSubDirectory
+            every { config.getConfigAsInt("modewhat") } returns 1
+
+            assertDoesNotThrow {
+                val applicationPaths = WindowsApplicationPaths(config, fs, settings)
+                val path = applicationPaths.resolveCacheFilePath(filename)
+                val expectedPath = fs.getPath("C:\\rscache\\.jagex_cache_33\\$cacheSubDirectory")
+
+                assertEquals(expectedPath.resolve(filename), path)
+            }
+
+            verify(exactly = 1) { settings.getString("user.home") }
+            verify { config.getConfig("cachesubdir") }
+            verify { config.getConfigAsInt("modewhat") }
         }
     }
 }

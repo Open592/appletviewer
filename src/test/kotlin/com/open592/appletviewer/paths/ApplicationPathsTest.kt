@@ -23,12 +23,16 @@ class ApplicationPathsTest {
         val config = mockk<ApplicationConfiguration>()
         val settingsStore = mockk<SystemPropertiesSettingsStore>()
         val fs = FileSystems.getDefault()
-        val applicationPaths = WindowsApplicationPaths(config, fs, settingsStore)
 
         every { settingsStore.getString("com.open592.launcherDirectoryOverride") } returns ""
+        every { settingsStore.getString("user.home") } returns fs
+            .getPath("C:\\Users\\test")
+            .toAbsolutePath()
+            .toString()
         every { settingsStore.getString("user.dir") } returns ""
 
         assertDoesNotThrow {
+            val applicationPaths = WindowsApplicationPaths(config, fs, settingsStore)
             assertNull(applicationPaths.resolveGameFileDirectoryPath("nonexistent.ws"))
         }
     }
@@ -41,14 +45,18 @@ class ApplicationPathsTest {
         useFileWithText(fileName, expectedText) { fs ->
             val config = mockk<ApplicationConfiguration>()
             val settingsStore = mockk<SystemPropertiesSettingsStore>()
-            val applicationPaths = WindowsApplicationPaths(config, fs, settingsStore)
 
             every { settingsStore.getString("com.open592.launcherDirectoryOverride") } returns ""
+            every { settingsStore.getString("user.home") } returns fs
+                .getPath("C:\\Users\\test")
+                .toAbsolutePath()
+                .toString()
             every { settingsStore.getString("user.dir") } returns (
                 fs.getPath(ApplicationPathsMocks.ROOT_DIR, "bin").toAbsolutePath().toString()
                 )
 
             assertDoesNotThrow {
+                val applicationPaths = WindowsApplicationPaths(config, fs, settingsStore)
                 val path = applicationPaths.resolveGameFileDirectoryPath(fileName)
 
                 assertNotNull(path)
@@ -68,13 +76,17 @@ class ApplicationPathsTest {
         useFileWithText(fileName, expectedText) { fs ->
             val config = mockk<ApplicationConfiguration>()
             val settingsStore = mockk<SystemPropertiesSettingsStore>()
-            val applicationPaths = WindowsApplicationPaths(config, fs, settingsStore)
 
             every {
                 settingsStore.getString("com.open592.launcherDirectoryOverride")
             } returns fs.getPath(ApplicationPathsMocks.ROOT_DIR, "bin").toAbsolutePath().toString()
+            every { settingsStore.getString("user.home") } returns fs
+                .getPath("C:\\Users\\test")
+                .toAbsolutePath()
+                .toString()
 
             assertDoesNotThrow {
+                val applicationPaths = WindowsApplicationPaths(config, fs, settingsStore)
                 val path = applicationPaths.resolveGameFileDirectoryPath(fileName)
 
                 assertNotNull(path)

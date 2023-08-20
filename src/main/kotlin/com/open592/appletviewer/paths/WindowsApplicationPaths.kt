@@ -6,6 +6,7 @@ import java.nio.file.FileSystem
 import java.nio.file.Files
 import java.nio.file.Path
 import javax.inject.Inject
+import kotlin.io.path.createFile
 import kotlin.io.path.exists
 import kotlin.io.path.isWritable
 
@@ -14,6 +15,17 @@ public class WindowsApplicationPaths @Inject constructor(
     private val fileSystem: FileSystem,
     private val settingsStore: SettingsStore
 ) : ApplicationPaths(fileSystem, settingsStore) {
+    // Updated list to remove some duplicates and keep consistent drive letter placement
+    private val potentialParentDirectories = listOf(
+        "C:/rscache/",
+        "C:/windows/",
+        "C:/winnt/",
+        "C:/",
+        getUserHomeDirectory(),
+        "C:/tmp/",
+        "" // Will result in the working directory being prepended
+    )
+
     /**
      * To locate the eventual location where the file will be stored
      * we need to perform two pieces of logic which were present in the
@@ -88,11 +100,7 @@ public class WindowsApplicationPaths @Inject constructor(
             try {
                 Files.createDirectories(it)
 
-                val filePath = it.resolve(filename)
-
-                if (filePath.isWritable()) {
-                    return@processAllPossibleCachePaths filePath.toAbsolutePath()
-                }
+                return@processAllPossibleCachePaths it.resolve(filename).createFile().toAbsolutePath()
             } catch (_: Exception) {
                 // Ignored
             }
@@ -121,17 +129,6 @@ public class WindowsApplicationPaths @Inject constructor(
      * @return A valid `Path` returned from the operation if found, otherwise `null`
      */
     private fun processAllPossibleCachePaths(operation: (path: Path) -> Path?): Path? {
-        // Updated list to remove some duplicates and keep consistent drive letter placement
-        val potentialParentDirectories = listOf(
-            "C:/rscache/",
-            "C:/windows/",
-            "C:/winnt/",
-            "C:/",
-            getUserHomeDirectory(),
-            "C:/tmp/",
-            "" // Will result in the working directory being prepended
-        )
-
         // Represents the top level cache directory names to be used when searching
         // for or creating the cache file.
         val modewhat = getModewhat()
