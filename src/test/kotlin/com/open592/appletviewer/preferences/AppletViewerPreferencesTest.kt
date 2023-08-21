@@ -10,11 +10,8 @@ class AppletViewerPreferencesTest {
     @Test
     fun `Should not throw an exception when the preferences file doesn't exist`() {
         MemoryFileSystemBuilder.newLinux().build().use { fs ->
-            // This should return a path which doesn't resolve to a file
-            val filePath = fs.getPath(AppletViewerPreferences.DEFAULT_FILE_NAME)
-
             assertDoesNotThrow {
-                AppletViewerPreferences(filePath)
+                AppletViewerPreferences(fs)
             }
         }
     }
@@ -22,25 +19,25 @@ class AppletViewerPreferencesTest {
     @Test
     fun `Should properly write values to a previously empty file`() {
         MemoryFileSystemBuilder.newLinux().build().use { fs ->
-            val filePath = fs.getPath(AppletViewerPreferences.DEFAULT_FILE_NAME)
+            val preferencesFilePath = fs.getPath(PREFERENCES_FILE_NAME)
+            Files.createFile(preferencesFilePath)
+
             val (expectedKey, expectedValue) = Pair("Test", "Value")
 
-            Files.createFile(filePath)
-
-            val preferences = AppletViewerPreferences(filePath)
-
             assertDoesNotThrow {
-                preferences.set(expectedKey, expectedValue)
-            }
+                val preferences = AppletViewerPreferences(fs)
 
-            assertEquals(expectedValue, preferences.get(expectedKey))
+                preferences.set(expectedKey, expectedValue)
+
+                assertEquals(expectedValue, preferences.get(expectedKey))
+            }
         }
     }
 
     @Test
     fun `Should properly load data from an existing file and handle updating it`() {
         MemoryFileSystemBuilder.newLinux().build().use { fs ->
-            val filePath = fs.getPath(AppletViewerPreferences.DEFAULT_FILE_NAME)
+            val filePath = fs.getPath(PREFERENCES_FILE_NAME)
             val (initialKey, initialValue) = Pair("Language", "0")
             val (updatedKey, updatedValue) = Pair(initialKey, "1")
 
@@ -50,15 +47,15 @@ class AppletViewerPreferencesTest {
                 it.newLine()
             }
 
-            val preferences = AppletViewerPreferences(filePath)
-
-            assertEquals(initialValue, preferences.get(initialKey))
-
             assertDoesNotThrow {
-                preferences.set(updatedKey, updatedValue)
-            }
+                val preferences = AppletViewerPreferences(fs)
 
-            assertEquals(updatedValue, preferences.get(updatedKey))
+                assertEquals(initialValue, preferences.get(initialKey))
+
+                preferences.set(updatedKey, updatedValue)
+
+                assertEquals(updatedValue, preferences.get(updatedKey))
+            }
 
             // Make sure the underlying filesystem was updated
             Files.newBufferedReader(filePath).useLines {
@@ -72,7 +69,7 @@ class AppletViewerPreferencesTest {
     @Test
     fun `Should allow setting preferences without writing to the filesystem`() {
         MemoryFileSystemBuilder.newLinux().build().use { fs ->
-            val filePath = fs.getPath(AppletViewerPreferences.DEFAULT_FILE_NAME)
+            val filePath = fs.getPath(PREFERENCES_FILE_NAME)
             // Our first set of values should not be written to the filesystem before the second set of values are set
             val firstExpectedValues = listOf(
                 Pair("One", "1"),
@@ -86,25 +83,23 @@ class AppletViewerPreferencesTest {
             // Create an empty file to start
             Files.createFile(filePath)
 
-            val preferences = AppletViewerPreferences(filePath)
-
             assertDoesNotThrow {
+                val preferences = AppletViewerPreferences(fs)
+
                 firstExpectedValues.forEach { (key, value) ->
                     preferences.set(key, value, shouldWrite = false)
                 }
-            }
 
-            // Make sure the file hasn't been modified
-            assertEquals(0, Files.newBufferedReader(filePath).lines().count())
+                // Make sure the file hasn't been modified
+                assertEquals(0, Files.newBufferedReader(filePath).lines().count())
 
-            // Make sure the values are stored
-            firstExpectedValues.forEach { (key, value) ->
-                assertEquals(value, preferences.get(key))
-            }
+                // Make sure the values are stored
+                firstExpectedValues.forEach { (key, value) ->
+                    assertEquals(value, preferences.get(key))
+                }
 
-            // Write the final value, and trigger the previous values
-            // to be flushed to the preferences file
-            assertDoesNotThrow {
+                // Write the final value, and trigger the previous values
+                // to be flushed to the preferences file
                 preferences.set(flushKey, flushValue)
             }
 
@@ -121,5 +116,9 @@ class AppletViewerPreferencesTest {
                 }
             }
         }
+    }
+
+    private companion object {
+        const val PREFERENCES_FILE_NAME = "jagexappletviewer.preferences"
     }
 }

@@ -1,8 +1,10 @@
 package com.open592.appletviewer.preferences
 
 import java.io.IOException
+import java.nio.file.FileSystem
 import java.nio.file.Files
-import java.nio.file.Path
+import javax.inject.Inject
+import javax.inject.Singleton
 
 /**
  * Holds persistent data across AppletViewer sessions.
@@ -21,8 +23,9 @@ import java.nio.file.Path
  * the case it doesn't exist we initialize the internal state to an empty map, and it stays
  * that way until the first write.
 */
-public class AppletViewerPreferences constructor(
-    private val filePath: Path
+@Singleton
+public class AppletViewerPreferences @Inject constructor(
+    private val fileSystem: FileSystem
 ) {
     private val preferences: MutableMap<String, String> = mutableMapOf()
 
@@ -74,12 +77,12 @@ public class AppletViewerPreferences constructor(
      * ```
      */
     private fun readFile() {
-        Files.newBufferedReader(filePath).forEachLine {
-            val split = it.split("=", limit = 2)
+        Files.newBufferedReader(fileSystem.getPath(PREFERENCES_FILE_NAME)).forEachLine { line ->
+            val (key, value) = line
+                .split("=", limit = 2)
+                .takeIf { it.size == 2 } ?: return@forEachLine
 
-            if (split.size == 2) {
-                set(split[0], split[1], shouldWrite = false)
-            }
+            set(key, value, shouldWrite = false)
         }
     }
 
@@ -87,15 +90,15 @@ public class AppletViewerPreferences constructor(
      * Writes the provided preferences values to the
      */
     private fun writeFile() {
-        Files.newBufferedWriter(filePath).use { out ->
+        Files.newBufferedWriter(fileSystem.getPath(PREFERENCES_FILE_NAME)).use { file ->
             preferences.forEach { (key, value) ->
-                out.write("$key=$value")
-                out.newLine()
+                file.write("$key=$value")
+                file.newLine()
             }
         }
     }
 
-    public companion object {
-        public const val DEFAULT_FILE_NAME: String = "jagexappletviewer.preferences"
+    private companion object {
+        private const val PREFERENCES_FILE_NAME: String = "jagexappletviewer.preferences"
     }
 }

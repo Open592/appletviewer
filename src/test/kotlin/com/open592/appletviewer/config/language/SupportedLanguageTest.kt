@@ -16,11 +16,9 @@ class SupportedLanguageTest {
     }
 
     @Test
-    fun `Should resolve the a us-EN user's language, when there doesnt exist a preferences entry`() {
+    fun `Should resolve the us-EN user's language, when there is no preferences entry`() {
         MemoryFileSystemBuilder.newLinux().build().use { fs ->
-            // This should return a path which doesn't resolve to a file
-            val filePath = fs.getPath(AppletViewerPreferences.DEFAULT_FILE_NAME)
-            val preferences = AppletViewerPreferences(filePath)
+            val preferences = AppletViewerPreferences(fs)
 
             // Mock locale
             Locale.setDefault(Locale("en", "US"))
@@ -30,11 +28,9 @@ class SupportedLanguageTest {
     }
 
     @Test
-    fun `Should resolve the a de-DE user's language, when there doesnt exist a preferences entry`() {
+    fun `Should resolve the de-DE user's language, when there is no preferences entry`() {
         MemoryFileSystemBuilder.newLinux().build().use { fs ->
-            // This should return a path which doesn't resolve to a file
-            val filePath = fs.getPath(AppletViewerPreferences.DEFAULT_FILE_NAME)
-            val preferences = AppletViewerPreferences(filePath)
+            val preferences = AppletViewerPreferences(fs)
 
             // Mock locale
             Locale.setDefault(Locale("de", "DE"))
@@ -44,11 +40,9 @@ class SupportedLanguageTest {
     }
 
     @Test
-    fun `Should resolve the a fr-FR user's language, when there doesnt exist a preferences entry`() {
+    fun `Should resolve the fr-FR user's language, when there is no preferences entry`() {
         MemoryFileSystemBuilder.newLinux().build().use { fs ->
-            // This should return a path which doesn't resolve to a file
-            val filePath = fs.getPath(AppletViewerPreferences.DEFAULT_FILE_NAME)
-            val preferences = AppletViewerPreferences(filePath)
+            val preferences = AppletViewerPreferences(fs)
 
             // Mock locale
             Locale.setDefault(Locale("fr", "FR"))
@@ -58,11 +52,9 @@ class SupportedLanguageTest {
     }
 
     @Test
-    fun `Should resolve the a pt-BR user's language, when there doesnt exist a preferences entry`() {
+    fun `Should resolve the pt-BR user's language, when there is no preferences entry`() {
         MemoryFileSystemBuilder.newLinux().build().use { fs ->
-            // This should return a path which doesn't resolve to a file
-            val filePath = fs.getPath(AppletViewerPreferences.DEFAULT_FILE_NAME)
-            val preferences = AppletViewerPreferences(filePath)
+            val preferences = AppletViewerPreferences(fs)
 
             // Mock locale
             Locale.setDefault(Locale("pt", "BR"))
@@ -72,11 +64,10 @@ class SupportedLanguageTest {
     }
 
     @Test
-    fun `Should fall back to ENGLISH for user's with unsupported languages, when there doesnt exist a preferences entry`() {
+    fun `Should fall back to ENGLISH for users with unsupported languages, when there is no preferences entry`() {
         MemoryFileSystemBuilder.newLinux().build().use { fs ->
-            // This should return a path which doesn't resolve to a file
-            val filePath = fs.getPath(AppletViewerPreferences.DEFAULT_FILE_NAME)
-            val preferences = AppletViewerPreferences(filePath)
+            // The preferences file is not present on the fs for this test
+            val preferences = AppletViewerPreferences(fs)
 
             // Mock locale
             Locale.setDefault(Locale("uk", "UA"))
@@ -86,11 +77,9 @@ class SupportedLanguageTest {
     }
 
     @Test
-    fun `Should correctly resolve users language from the preferences file when it exists`() {
+    fun `Should correctly resolve a user's language from the preferences file when it exists`() {
         MemoryFileSystemBuilder.newLinux().build().use { fs ->
-            // This should return a path which doesn't resolve to a file
-            val filePath = fs.getPath(AppletViewerPreferences.DEFAULT_FILE_NAME)
-            val preferences = AppletViewerPreferences(filePath)
+            val preferences = AppletViewerPreferences(fs)
             // We use german to verify we aren't falling back to ENGLISH
             val expectedLanguage = SupportedLanguage.GERMAN
 
@@ -106,11 +95,9 @@ class SupportedLanguageTest {
     }
 
     @Test
-    fun `Given a invalid language code within the preferences file we should fall back to resolving using default Locale`() {
+    fun `Given a invalid language code within the preferences file we should fall back to resolving the default Locale`() {
         MemoryFileSystemBuilder.newLinux().build().use { fs ->
-            // This should return a path which doesn't resolve to a file
-            val filePath = fs.getPath(AppletViewerPreferences.DEFAULT_FILE_NAME)
-            val preferences = AppletViewerPreferences(filePath)
+            val preferences = AppletViewerPreferences(fs)
 
             // Write the invalid language ID to the preferences file. We use a value which can't be
             // converted to an `Int` to verify we are correctly handling the exception thrown from
@@ -126,6 +113,7 @@ class SupportedLanguageTest {
     @Test
     fun `Should correctly return initial locale content for each supported language`() {
         val contentKey = "loaderbox_initial"
+
         // SupportedLanguage to expected output
         val testCases = mapOf(
             SupportedLanguage.ENGLISH to "Loading...",

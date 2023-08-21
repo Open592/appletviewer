@@ -107,7 +107,7 @@ class WindowsApplicationPathsTest {
                     assertEquals(expectedPath, path)
                 }
 
-                verify(exactly = 1) { settings.getString("user.home") }
+                verify { settings.getString("user.home") }
                 verify { config.getConfig("cachesubdir") }
                 verify { config.getConfigAsInt("modewhat") }
             }
@@ -137,7 +137,7 @@ class WindowsApplicationPathsTest {
                 assertEquals(expectedPath.resolve(filename), path)
             }
 
-            verify(exactly = 1) { settings.getString("user.home") }
+            verify { settings.getString("user.home") }
             verify { config.getConfig("cachesubdir") }
             verify { config.getConfigAsInt("modewhat") }
         }
@@ -175,7 +175,7 @@ class WindowsApplicationPathsTest {
                 assertEquals(expectedPath.resolve(filename), path)
             }
 
-            verify(exactly = 1) { settings.getString("user.home") }
+            verify { settings.getString("user.home") }
             verify { config.getConfig("cachesubdir") }
             verify { config.getConfigAsInt("modewhat") }
         }
