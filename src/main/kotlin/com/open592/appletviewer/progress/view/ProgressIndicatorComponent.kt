@@ -63,9 +63,20 @@ public class ProgressIndicatorComponent @Inject constructor(
     }
 
     public override fun changeVisibility(visible: Boolean) {
-        dialog.isVisible = visible
+        if (visible) {
+            // If we had previously called `dispose()` below, because we retained the reference,
+            // `isVisible = true` will make the Dialog displayable again before showing the dialog.
+            dialog.isVisible = true
 
-        this.repaint()
+            // We keep state within this class, so upon repainting the progress state will be retained
+            // even if the underlying Dialog had to be recreated.
+            this.repaint()
+        } else {
+            // There is only a small edge case (switching servers) where we will ever want to make
+            // this displayable again. And on Linux calling `dispose()` instead of `isVisible = false`
+            // solves an issue with a race condition during `displayFatalErrorModal`.
+            dialog.dispose()
+        }
     }
 
     public override fun changeText(text: String) {
