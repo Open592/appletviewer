@@ -30,7 +30,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class JavConfigResolverTest {
-    private val timeout = Duration.ofMinutes(1)
+    private val timeout = Duration.ofMillis(10)
     private val client = OkHttpClient.Builder()
         .connectTimeout(timeout)
         .writeTimeout(timeout)

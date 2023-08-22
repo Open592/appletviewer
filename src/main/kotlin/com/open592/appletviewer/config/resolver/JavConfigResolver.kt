@@ -9,6 +9,7 @@ import okhttp3.Request
 import okio.IOException
 import okio.buffer
 import okio.source
+import java.lang.IllegalArgumentException
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.io.path.isRegularFile
@@ -135,9 +136,9 @@ public class JavConfigResolver @Inject constructor(
     }
 
     private fun fetchRemoteConfiguration(url: String): String? {
-        val request = Request.Builder().url(url).build()
-
         try {
+            val request = Request.Builder().url(url).build()
+
             httpClient.newCall(request).execute().use { response ->
                 if (!response.isSuccessful) {
                     return null
@@ -148,6 +149,8 @@ public class JavConfigResolver @Inject constructor(
                 }
             }
         } catch (_: IOException) {
+            return null
+        } catch (_: IllegalArgumentException) {
             return null
         }
     }
