@@ -28,7 +28,7 @@ public class RootFrame @Inject constructor(
     private fun resolveIconImage() {
         val path = applicationPaths.resolveGameFileDirectoryPath(ICON_FILE_NAME)
 
-        if (path == null || !path.isRegularFile() || !path.isReadable()) {
+        if (path == null || !path.isReadable()) {
             return
         }
 
