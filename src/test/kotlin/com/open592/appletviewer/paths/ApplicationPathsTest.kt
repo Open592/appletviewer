@@ -89,7 +89,11 @@ class ApplicationPathsTest {
         }
     }
 
-    private fun useFileWithText(fileName: String, text: String, action: (fs: FileSystem) -> Unit) {
+    private fun useFileWithText(
+        fileName: String,
+        text: String,
+        action: (fs: FileSystem) -> Unit,
+    ) {
         ApplicationPathsMocks.createLauncherDirectoryStructure().use { fs ->
             val dir = fs.getPath(ApplicationPathsMocks.ROOT_DIR, Constants.GAME_NAME)
             val path = dir.resolve(fileName)
