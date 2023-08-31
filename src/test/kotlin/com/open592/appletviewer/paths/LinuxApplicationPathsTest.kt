@@ -8,7 +8,11 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import org.junit.jupiter.api.assertDoesNotThrow
+import org.junit.jupiter.api.assertThrows
 import java.nio.file.FileSystem
+import java.nio.file.attribute.PosixFilePermissions
+import kotlin.io.path.createDirectories
+import kotlin.io.path.setPosixFilePermissions
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -91,6 +95,33 @@ class LinuxApplicationPathsTest {
                 val cacheDirectory = paths.resolveCacheDirectoryPath("browsercontrol.so")
 
                 assertEquals(expectedPath, cacheDirectory)
+            }
+
+            verify(exactly = 1) { config.getConfig("cachesubdir") }
+            verify(exactly = 1) { config.getConfigAsInt("modewhat") }
+            verify(exactly = 1) { settings.getString("user.home") }
+        }
+    }
+
+    @Test
+    fun `Should throw an exception when the system cache directory is un-writable`() {
+        useFilesystem { fs ->
+            val config = mockk<ApplicationConfiguration>()
+            val settings = mockk<SystemPropertiesSettingsStore>()
+            val cacheSubDirectoryName = Constants.GAME_NAME
+
+            every { config.getConfig("cachesubdir") } returns cacheSubDirectoryName
+            every { config.getConfigAsInt("modewhat") } returns 1
+            every { settings.getString("user.home") } returns fs.getPath("/home/$USERNAME").toAbsolutePath().toString()
+
+            fs.getPath(
+                "/home/$USERNAME/.cache",
+            ).createDirectories().setPosixFilePermissions(PosixFilePermissions.fromString("r--------"))
+
+            val paths = LinuxApplicationPaths(config, fs, settings)
+
+            assertThrows<RuntimeException> {
+                paths.resolveCacheDirectoryPath("browsercontrol.so")
             }
 
             verify(exactly = 1) { config.getConfig("cachesubdir") }

@@ -3,9 +3,9 @@ package com.open592.appletviewer.paths
 import com.open592.appletviewer.config.ApplicationConfiguration
 import com.open592.appletviewer.settings.SettingsStore
 import java.nio.file.FileSystem
-import java.nio.file.Files
 import java.nio.file.Path
 import javax.inject.Inject
+import kotlin.io.path.createDirectories
 
 public class LinuxApplicationPaths
     @Inject
@@ -44,25 +44,13 @@ public class LinuxApplicationPaths
          * @throws RuntimeException If we are unable to resolve the cache file path.
          */
         override fun resolveCacheDirectoryPath(filename: String): Path {
-            val systemCacheDirectory = getSystemCacheDirectory()
-            val modewhat = getModewhat()
-            val parentDirectoryName = ".jagex_cache_$modewhat"
+            val parentDirectoryName = ".jagex_cache_${getModewhat()}"
 
-            return Files.createDirectories(
-                systemCacheDirectory.resolve(parentDirectoryName).resolve(getCacheSubDirectory()),
-            )
-        }
-
-        /**
-         * Returns the path to the system's cache directory, creating
-         * it if needed.
-         *
-         * Example: `/home/user/.cache`
-         */
-        private fun getSystemCacheDirectory(): Path {
-            val homeDirectoryPath = getUserHomeDirectory()
-            val systemCacheDirectoryPath = fileSystem.getPath(homeDirectoryPath, ".cache")
-
-            return Files.createDirectories(systemCacheDirectoryPath)
+            return try {
+                fileSystem.getPath(getUserHomeDirectory(), ".cache", parentDirectoryName, getCacheSubDirectory())
+                    .createDirectories()
+            } catch (_: Exception) {
+                handleCacheDirectoryResolutionFailure(filename)
+            }
         }
     }
