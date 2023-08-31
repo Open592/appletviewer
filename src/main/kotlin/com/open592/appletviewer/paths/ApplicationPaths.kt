@@ -1,18 +1,23 @@
 package com.open592.appletviewer.paths
 
 import com.open592.appletviewer.common.Constants
+import com.open592.appletviewer.config.ApplicationConfiguration
 import com.open592.appletviewer.settings.SettingsStore
 import java.nio.file.FileSystem
 import java.nio.file.Path
 
 public abstract class ApplicationPaths(
+    private val config: ApplicationConfiguration,
     private val fileSystem: FileSystem,
-    private val settingsStore: SettingsStore
+    private val settingsStore: SettingsStore,
 ) {
     /**
      * Each platform must provide their own implementation for cache file path resolution.
+     *
+     * We require the intended filename since some platforms (i.e. Windows) requires it to
+     * determine the cache directory path since it checks for existing files first.
      */
-    public abstract fun resolveCacheFilePath(filename: String): Path
+    public abstract fun resolveCacheDirectoryPath(filename: String): Path
 
     /**
      * It is expected that the appletviewer is invoked by the launcher which exists within
@@ -31,11 +36,28 @@ public abstract class ApplicationPaths(
      */
     public fun resolveGameFileDirectoryPath(filename: String): Path? {
         val overridePath = settingsStore.getString(LAUNCHER_DIRECTORY_OVERRIDE_PROPERTY_NAME)
-        val launcherDirectory = if (overridePath.isNotEmpty()) fileSystem.getPath(overridePath) else fileSystem.getPath(
-            settingsStore.getString("user.dir")
-        )
+        val launcherDirectory =
+            if (overridePath.isNotEmpty()) {
+                fileSystem.getPath(overridePath)
+            } else {
+                fileSystem.getPath(
+                    settingsStore.getString("user.dir"),
+                )
+            }
 
         return launcherDirectory.parent?.resolve(Constants.GAME_NAME)?.resolve(filename)
+    }
+
+    protected fun getCacheSubDirectory(): String {
+        return config.getConfig("cachesubdir")
+    }
+
+    protected fun getModewhat(): Int {
+        return config.getConfigAsInt("modewhat")?.plus(MODEWHAT_ADDEND) ?: MODEWHAT_ADDEND
+    }
+
+    protected fun getUserHomeDirectory(): String {
+        return settingsStore.getString("user.home").ifEmpty { "~" } + "/"
     }
 
     protected fun handleCacheDirectoryResolutionFailure(filename: String): Nothing {
@@ -48,6 +70,9 @@ public abstract class ApplicationPaths(
     }
 
     private companion object {
+        // When added to the modewhat determines the value appended to the cache
+        // directory name
+        private const val MODEWHAT_ADDEND = 32
         private const val LAUNCHER_DIRECTORY_OVERRIDE_PROPERTY_NAME = "com.open592.launcherDirectoryOverride"
     }
 }
