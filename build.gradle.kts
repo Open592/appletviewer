@@ -22,10 +22,6 @@ application {
     mainClass.set("com.open592.appletviewer.cmd.Main")
 }
 
-kotlinter {
-    experimentalRules = true
-}
-
 group = "com.open592"
 version = "1.0-SNAPSHOT"
 
@@ -55,10 +51,14 @@ plugins.withType<KotlinPluginWrapper> {
     }
 }
 
+tasks.check {
+    dependsOn("installKotlinterPrePushHook")
+}
+
 tasks.test {
     useJUnitPlatform()
 }
 
 tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "1.8"
+    kotlinOptions.jvmTarget = "17"
 }

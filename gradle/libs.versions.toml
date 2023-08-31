@@ -1,11 +1,11 @@
 [versions]
-guice = "5.1.0"
-okhttp-bom = "4.10.0"
-kotlin = "1.7.10"
-kotlinCoroutines = "1.6.4"
-kotlinter = "3.11.1"
+guice = "6.0.0"
+okhttp-bom = "4.11.0"
+kotlin = "1.9.10"
+kotlinCoroutines = "1.7.3"
+kotlinter = "3.16.0"
 memoryfilesystem = "2.6.1"
-mockk = "1.12.4"
+mockk = "1.13.7"
 
 [plugins]
 kotlinter = { id = "org.jmailen.kotlinter", version.ref = "kotlinter" }
