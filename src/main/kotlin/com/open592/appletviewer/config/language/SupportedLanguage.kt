@@ -11,7 +11,8 @@ public enum class SupportedLanguage {
     ENGLISH,
     GERMAN,
     FRENCH,
-    BRAZILIAN_PORTUGUESE;
+    BRAZILIAN_PORTUGUESE,
+    ;
 
     /**
      * Due to how Jagex references languages based on 0-indexed value, we
@@ -129,56 +130,61 @@ public enum class SupportedLanguage {
         }
 
         private const val LANGUAGE_PREFERENCE_KEY = "Language"
-        private val PACKAGED_LOCALIZED_STRINGS: Map<SupportedLanguage, Map<String, String>> = mapOf(
-            ENGLISH to mapOf(
-                "err_missing_config" to "Missing com.jagex.config setting",
-                "err_invalid_config" to "Invalid com.jagex.config setting",
-                "loading_config" to "Loading configuration",
-                "err_load_config" to
-                    "There was an error loading the game configuration from the website.\\n" +
-                    "If you have a firewall, check that this program is allowed to access the Internet.",
-                "err_decode_config" to "Error decoding configuration",
-                "loaderbox_initial" to "Loading...",
-                "error" to "Error",
-                "quit" to "Quit"
-            ),
-            GERMAN to mapOf(
-                "err_missing_config" to "Einstellung com.jagex.config fehlt",
-                "err_invalid_config" to "Einstellung com.jagex.config ist ungültig",
-                "loading_config" to "Lade Konfiguration",
-                "err_load_config" to
-                    "Beim Laden der Spielkonfiguration von der Website ist ein " +
-                    "Fehler aufgetreten.\\nBitte überprüfen Sie Ihre Firewall-Einstellungen.",
-                "err_decode_config" to "Fehler beim Entschlüsseln der Konfiguration",
-                "loaderbox_initial" to "Lade...",
-                "error" to "Fehler",
-                "quit" to "Beenden"
-            ),
-            FRENCH to mapOf(
-                "err_missing_config" to "Paramètre com.jagex.config manquant",
-                "err_invalid_config" to "Paramètre com.jagex.config non valide",
-                "loading_config" to "Chargement de la configuration",
-                "err_load_config" to
-                    "Une erreur s'est produite lors du chargement de la configuration du jeu.\\n" +
-                    "Si un pare-feu est actif sur votre ordinateur, assurez-vous\n" +
-                    "qu'il laisse ce programme accéder à internet.",
-                "err_decode_config" to "Erreur de décodage de configuration",
-                "loaderbox_initial" to "Chargement...",
-                "error" to "Erreur",
-                "quit" to "Quitter"
-            ),
-            BRAZILIAN_PORTUGUESE to mapOf(
-                "err_missing_config" to "Faltando configuração de com.jagex.config",
-                "err_invalid_config" to "Configuração inválida de com.jagex.config",
-                "loading_config" to "Carregando configuração",
-                "err_load_config" to
-                    "Houve um erro quando a configuração do jogo estava sendo carregada no site.\\\n" +
-                    "Se você tiver firewall, verifique se o programa pode ter acesso à internet.",
-                "err_decode_config" to "Erro ao decodificar configuração",
-                "loaderbox_initial" to "Carregando...",
-                "error" to "Erro",
-                "quit" to "Fechar"
+        private val PACKAGED_LOCALIZED_STRINGS: Map<SupportedLanguage, Map<String, String>> =
+            mapOf(
+                ENGLISH to
+                    mapOf(
+                        "err_missing_config" to "Missing com.jagex.config setting",
+                        "err_invalid_config" to "Invalid com.jagex.config setting",
+                        "loading_config" to "Loading configuration",
+                        "err_load_config" to
+                            "There was an error loading the game configuration from the website.\\n" +
+                            "If you have a firewall, check that this program is allowed to access the Internet.",
+                        "err_decode_config" to "Error decoding configuration",
+                        "loaderbox_initial" to "Loading...",
+                        "error" to "Error",
+                        "quit" to "Quit",
+                    ),
+                GERMAN to
+                    mapOf(
+                        "err_missing_config" to "Einstellung com.jagex.config fehlt",
+                        "err_invalid_config" to "Einstellung com.jagex.config ist ungültig",
+                        "loading_config" to "Lade Konfiguration",
+                        "err_load_config" to
+                            "Beim Laden der Spielkonfiguration von der Website ist ein " +
+                            "Fehler aufgetreten.\\nBitte überprüfen Sie Ihre Firewall-Einstellungen.",
+                        "err_decode_config" to "Fehler beim Entschlüsseln der Konfiguration",
+                        "loaderbox_initial" to "Lade...",
+                        "error" to "Fehler",
+                        "quit" to "Beenden",
+                    ),
+                FRENCH to
+                    mapOf(
+                        "err_missing_config" to "Paramètre com.jagex.config manquant",
+                        "err_invalid_config" to "Paramètre com.jagex.config non valide",
+                        "loading_config" to "Chargement de la configuration",
+                        "err_load_config" to
+                            "Une erreur s'est produite lors du chargement de la configuration du jeu.\\n" +
+                            "Si un pare-feu est actif sur votre ordinateur, assurez-vous\n" +
+                            "qu'il laisse ce programme accéder à internet.",
+                        "err_decode_config" to "Erreur de décodage de configuration",
+                        "loaderbox_initial" to "Chargement...",
+                        "error" to "Erreur",
+                        "quit" to "Quitter",
+                    ),
+                BRAZILIAN_PORTUGUESE to
+                    mapOf(
+                        "err_missing_config" to "Faltando configuração de com.jagex.config",
+                        "err_invalid_config" to "Configuração inválida de com.jagex.config",
+                        "loading_config" to "Carregando configuração",
+                        "err_load_config" to
+                            "Houve um erro quando a configuração do jogo estava sendo carregada no site.\\\n" +
+                            "Se você tiver firewall, verifique se o programa pode ter acesso à internet.",
+                        "err_decode_config" to "Erro ao decodificar configuração",
+                        "loaderbox_initial" to "Carregando...",
+                        "error" to "Erro",
+                        "quit" to "Fechar",
+                    ),
             )
-        )
     }
 }

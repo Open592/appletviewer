@@ -35,15 +35,24 @@ public class ServerConfiguration constructor(public val id: String = "") {
         return parameters[key].orEmpty()
     }
 
-    public fun setConfig(key: String, value: String) {
+    public fun setConfig(
+        key: String,
+        value: String,
+    ) {
         config[key] = value
     }
 
-    public fun setContent(key: String, value: String) {
+    public fun setContent(
+        key: String,
+        value: String,
+    ) {
         content[key] = value
     }
 
-    public fun setParameter(key: String, value: String) {
+    public fun setParameter(
+        key: String,
+        value: String,
+    ) {
         parameters[key] = value
     }
 }

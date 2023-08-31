@@ -4,7 +4,7 @@ import java.io.PrintStream
 
 class DummyInterceptor constructor(
     type: CapturedMessagedType,
-    systemStream: PrintStream
+    systemStream: PrintStream,
 ) : Interceptor(type, systemStream) {
     private val messages: MutableList<CapturedMessage> = mutableListOf()
 

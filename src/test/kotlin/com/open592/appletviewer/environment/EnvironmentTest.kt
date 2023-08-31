@@ -13,23 +13,24 @@ data class TestCase(
     val osName: String,
     val osArch: String,
     val expectedOperatingSystem: OperatingSystem,
-    val expectedArchitecture: Architecture
+    val expectedArchitecture: Architecture,
 )
 
 class EnvironmentTest {
     @Test
     fun `Should throw exception when encountering an unsupported operating system and architecture combination`() {
-        val testCases = listOf(
-            // We don't support ARM on Windows
-            Pair("Windows 8.1", "aarch64"),
-            // We don't currently support Mac
-            Pair("Mac OS X", "aarch64"),
-            Pair("Mac OS X", "aarch64"),
-            Pair("Mac OS X", "x86_64"),
-            // Linux is only supported on 64 bit arches
-            Pair("Linux", "x86"),
-            Pair("Linux", "i386")
-        )
+        val testCases =
+            listOf(
+                // We don't support ARM on Windows
+                Pair("Windows 8.1", "aarch64"),
+                // We don't currently support Mac
+                Pair("Mac OS X", "aarch64"),
+                Pair("Mac OS X", "aarch64"),
+                Pair("Mac OS X", "x86_64"),
+                // Linux is only supported on 64 bit arches
+                Pair("Linux", "x86"),
+                Pair("Linux", "i386"),
+            )
 
         testCases.forEach { (osName, osArch) ->
             val settingsStore = mockk<SystemPropertiesSettingsStore>()
@@ -45,11 +46,12 @@ class EnvironmentTest {
 
     @Test
     fun `Should properly detect each supported operating system and architecture combination`() {
-        val testCases = listOf(
-            TestCase("Windows 11", "amd64", OperatingSystem.WINDOWS, Architecture.X86_64),
-            TestCase("Windows NT (unknown)", "x86_64", OperatingSystem.WINDOWS, Architecture.X86_64),
-            TestCase("Linux", "x86_64", OperatingSystem.LINUX, Architecture.X86_64)
-        )
+        val testCases =
+            listOf(
+                TestCase("Windows 11", "amd64", OperatingSystem.WINDOWS, Architecture.X86_64),
+                TestCase("Windows NT (unknown)", "x86_64", OperatingSystem.WINDOWS, Architecture.X86_64),
+                TestCase("Linux", "x86_64", OperatingSystem.LINUX, Architecture.X86_64),
+            )
 
         testCases.forEach {
             val settingsStore = mockk<SystemPropertiesSettingsStore>()

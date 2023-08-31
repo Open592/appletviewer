@@ -13,15 +13,18 @@ import java.io.PrintStream
 public abstract class Interceptor(
     public val type: CapturedMessagedType,
     public val systemStream: PrintStream,
-    public var shouldLogToSystemStream: Boolean = false
+    public var shouldLogToSystemStream: Boolean = false,
 ) {
     public abstract fun capture(stream: PrintStream)
+
     public abstract fun release()
+
     public open fun write(message: String) {
         if (shouldLogToSystemStream) {
             systemStream.print(message)
         }
     }
+
     public open fun flush() {
         if (shouldLogToSystemStream) {
             systemStream.flush()

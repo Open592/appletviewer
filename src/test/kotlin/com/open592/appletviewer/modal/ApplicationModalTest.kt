@@ -21,129 +21,133 @@ import kotlin.test.fail
 @OptIn(ExperimentalCoroutinesApi::class)
 class ApplicationModalTest {
     @Test
-    fun `Should properly handle a MESSAGE event type`() = runTest {
-        val config = ApplicationConfiguration(SupportedLanguage.ENGLISH)
-        val eventBus = GlobalEventBus(TestScope(UnconfinedTestDispatcher(testScheduler)))
-        val view = mockk<ApplicationModalView>()
-        val modal = ApplicationModal(config, eventBus, view)
+    fun `Should properly handle a MESSAGE event type`() =
+        runTest {
+            val config = ApplicationConfiguration(SupportedLanguage.ENGLISH)
+            val eventBus = GlobalEventBus(TestScope(UnconfinedTestDispatcher(testScheduler)))
+            val view = mockk<ApplicationModalView>()
+            val modal = ApplicationModal(config, eventBus, view)
 
-        // For MESSAGE events we have to initialize the configuration with
-        // a JavConfig instance that includes the needed content strings
-        // since they are not packaged with the applet viewer.
-        val expectedModalTitle = "Message"
-        val expectedButtonText = "OK"
+            // For MESSAGE events we have to initialize the configuration with
+            // a JavConfig instance that includes the needed content strings
+            // since they are not packaged with the applet viewer.
+            val expectedModalTitle = "Message"
+            val expectedButtonText = "OK"
 
-        val serverConfig = ServerConfiguration()
+            val serverConfig = ServerConfiguration()
 
-        serverConfig.setContent("message", expectedModalTitle)
-        serverConfig.setContent("ok", expectedButtonText)
+            serverConfig.setContent("message", expectedModalTitle)
+            serverConfig.setContent("ok", expectedButtonText)
 
-        val javConfig = JavConfig(root = serverConfig, overrides = linkedMapOf(), languageNames = sortedMapOf())
+            val javConfig = JavConfig(root = serverConfig, overrides = linkedMapOf(), languageNames = sortedMapOf())
 
-        config.initialize(javConfig)
+            config.initialize(javConfig)
 
-        val expectedMessage = "Hello world"
+            val expectedMessage = "Hello world"
 
-        justRun { view.display(any()) }
+            justRun { view.display(any()) }
 
-        modal.displayMessageModal(expectedMessage)
+            modal.displayMessageModal(expectedMessage)
 
-        verify(exactly = 1, timeout = 50) {
-            view.display(
-                withArg {
-                    assertEquals(it.content.size, 1)
-                    assertEquals(it.content.first(), expectedMessage)
-                    assertEquals(it.title, expectedModalTitle)
-                    assertEquals(it.buttonText, expectedButtonText)
-                    assertEquals(it.closeAction, view::close)
-                }
-            )
-        }
-    }
-
-    @Test
-    fun `Should properly handle a FATAL_ERROR event type in a locale other than ENGLISH`() = runTest {
-        val config = ApplicationConfiguration(SupportedLanguage.GERMAN)
-        val eventBus = GlobalEventBus(TestScope(UnconfinedTestDispatcher(testScheduler)))
-        val view = mockk<ApplicationModalView>()
-        val modal = ApplicationModal(config, eventBus, view)
-
-        val expectedModalTitle = "Fehler"
-        val expectedButtonText = "Beenden"
-
-        val expectedMessage = "This is a serious error"
-
-        justRun { view.display(any()) }
-
-        // A FATAL_ERROR should close the progress indicator
-        var progressEvent: ProgressEvent.ChangeVisibility? = null
-
-        eventBus.listen<ProgressEvent> {
-            when (it) {
-                is ProgressEvent.ChangeVisibility -> progressEvent = it
-                else -> fail("Invalid ProgressEvent encountered")
+            verify(exactly = 1, timeout = 50) {
+                view.display(
+                    withArg {
+                        assertEquals(it.content.size, 1)
+                        assertEquals(it.content.first(), expectedMessage)
+                        assertEquals(it.title, expectedModalTitle)
+                        assertEquals(it.buttonText, expectedButtonText)
+                        assertEquals(it.closeAction, view::close)
+                    },
+                )
             }
         }
 
-        modal.displayFatalErrorModal(expectedMessage)
+    @Test
+    fun `Should properly handle a FATAL_ERROR event type in a locale other than ENGLISH`() =
+        runTest {
+            val config = ApplicationConfiguration(SupportedLanguage.GERMAN)
+            val eventBus = GlobalEventBus(TestScope(UnconfinedTestDispatcher(testScheduler)))
+            val view = mockk<ApplicationModalView>()
+            val modal = ApplicationModal(config, eventBus, view)
 
-        verify(exactly = 1, timeout = 50) {
-            view.display(
-                withArg {
-                    assertEquals(it.content.size, 1)
-                    assertEquals(it.content.first(), expectedMessage)
-                    assertEquals(it.title, expectedModalTitle)
-                    assertEquals(it.buttonText, expectedButtonText)
-                    assertEquals(it.closeAction, view::quit)
+            val expectedModalTitle = "Fehler"
+            val expectedButtonText = "Beenden"
+
+            val expectedMessage = "This is a serious error"
+
+            justRun { view.display(any()) }
+
+            // A FATAL_ERROR should close the progress indicator
+            var progressEvent: ProgressEvent.ChangeVisibility? = null
+
+            eventBus.listen<ProgressEvent> {
+                when (it) {
+                    is ProgressEvent.ChangeVisibility -> progressEvent = it
+                    else -> fail("Invalid ProgressEvent encountered")
                 }
-            )
-        }
+            }
 
-        assertEquals(false, progressEvent?.visible)
-    }
+            modal.displayFatalErrorModal(expectedMessage)
+
+            verify(exactly = 1, timeout = 50) {
+                view.display(
+                    withArg {
+                        assertEquals(it.content.size, 1)
+                        assertEquals(it.content.first(), expectedMessage)
+                        assertEquals(it.title, expectedModalTitle)
+                        assertEquals(it.buttonText, expectedButtonText)
+                        assertEquals(it.closeAction, view::quit)
+                    },
+                )
+            }
+
+            assertEquals(false, progressEvent?.visible)
+        }
 
     @Test
-    fun `Should properly handle a FATAL_ERROR event with a multi line message`() = runTest {
-        val config = ApplicationConfiguration(SupportedLanguage.ENGLISH)
-        val eventBus = GlobalEventBus(TestScope(UnconfinedTestDispatcher(testScheduler)))
-        val view = mockk<ApplicationModalView>()
-        val modal = ApplicationModal(config, eventBus, view)
+    fun `Should properly handle a FATAL_ERROR event with a multi line message`() =
+        runTest {
+            val config = ApplicationConfiguration(SupportedLanguage.ENGLISH)
+            val eventBus = GlobalEventBus(TestScope(UnconfinedTestDispatcher(testScheduler)))
+            val view = mockk<ApplicationModalView>()
+            val modal = ApplicationModal(config, eventBus, view)
 
-        val expectedModalTitle = "Error"
-        val expectedButtonText = "Quit"
+            val expectedModalTitle = "Error"
+            val expectedButtonText = "Quit"
 
-        val expectedModalContentStrings = listOf(
-            "This is a really serious error.",
-            "You should definitely fix it.",
-            "You have until tomorrow."
-        )
-        val expectedMessage = expectedModalContentStrings.joinToString("\\n")
+            val expectedModalContentStrings =
+                listOf(
+                    "This is a really serious error.",
+                    "You should definitely fix it.",
+                    "You have until tomorrow.",
+                )
+            val expectedMessage = expectedModalContentStrings.joinToString("\\n")
 
-        justRun { view.display(any()) }
+            justRun { view.display(any()) }
 
-        // A FATAL_ERROR should close the progress indicator
-        var progressEvent: ProgressEvent.ChangeVisibility? = null
+            // A FATAL_ERROR should close the progress indicator
+            var progressEvent: ProgressEvent.ChangeVisibility? = null
 
-        eventBus.listen<ProgressEvent> {
-            when (it) {
-                is ProgressEvent.ChangeVisibility -> progressEvent = it
-                else -> fail("Invalid ProgressEvent encountered")
-            }
-        }
-
-        modal.displayFatalErrorModal(expectedMessage)
-
-        verify(exactly = 1, timeout = 50) {
-            view.display(
-                withArg {
-                    assertEquals(it.content, expectedModalContentStrings)
-                    assertEquals(it.title, expectedModalTitle)
-                    assertEquals(it.buttonText, expectedButtonText)
-                    assertEquals(it.closeAction, view::quit)
+            eventBus.listen<ProgressEvent> {
+                when (it) {
+                    is ProgressEvent.ChangeVisibility -> progressEvent = it
+                    else -> fail("Invalid ProgressEvent encountered")
                 }
-            )
-        }
+            }
 
-        assertEquals(false, progressEvent?.visible)
-    }
+            modal.displayFatalErrorModal(expectedMessage)
+
+            verify(exactly = 1, timeout = 50) {
+                view.display(
+                    withArg {
+                        assertEquals(it.content, expectedModalContentStrings)
+                        assertEquals(it.title, expectedModalTitle)
+                        assertEquals(it.buttonText, expectedButtonText)
+                        assertEquals(it.closeAction, view::quit)
+                    },
+                )
+            }
+
+            assertEquals(false, progressEvent?.visible)
+        }
 }

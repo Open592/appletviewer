@@ -26,7 +26,7 @@ import kotlin.collections.LinkedHashMap
 public data class JavConfig(
     public val root: ServerConfiguration,
     public val overrides: LinkedHashMap<String, ServerConfiguration>,
-    public val languageNames: SortedMap<SupportedLanguage, String>
+    public val languageNames: SortedMap<SupportedLanguage, String>,
 ) {
     public companion object {
         public fun parse(config: String): JavConfig {
@@ -162,7 +162,10 @@ public data class JavConfig(
          * - <line>::param=key=value , <magicStringLength>::5
          * - <line>::key=value , <magicStringLength>::0
          */
-        private fun getEntry(line: String, magicStringLength: Int): Pair<String, String> {
+        private fun getEntry(
+            line: String,
+            magicStringLength: Int,
+        ): Pair<String, String> {
             val valueStartPOS = line.indexOf("=", startIndex = magicStringLength)
 
             if (valueStartPOS < 0) {

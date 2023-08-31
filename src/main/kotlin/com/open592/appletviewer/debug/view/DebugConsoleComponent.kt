@@ -16,13 +16,15 @@ public class DebugConsoleComponent : DebugConsoleView {
         frame.title = WINDOW_TITLE
         frame.setLocation(320, 240)
         frame.setSize(720, 260)
-        frame.addWindowListener(object : WindowAdapter() {
-            override fun windowClosing(e: WindowEvent?) {
-                if (frame.isVisible) {
-                    frame.isVisible = false
+        frame.addWindowListener(
+            object : WindowAdapter() {
+                override fun windowClosing(e: WindowEvent?) {
+                    if (frame.isVisible) {
+                        frame.isVisible = false
+                    }
                 }
-            }
-        })
+            },
+        )
     }
 
     public override fun display() {

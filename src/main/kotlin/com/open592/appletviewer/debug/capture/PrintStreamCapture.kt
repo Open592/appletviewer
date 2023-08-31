@@ -4,7 +4,7 @@ import java.io.OutputStream
 import java.io.PrintStream
 
 public class PrintStreamCapture(
-    interceptor: Interceptor
+    interceptor: Interceptor,
 ) : PrintStream(OutputStreamCapture(interceptor)) {
     /**
      * Implements a OutputStream which intercepts a PrintStream and accepts
@@ -21,11 +21,15 @@ public class PrintStreamCapture(
             super.write(
                 ByteArray(1) {
                     b.toByte()
-                }
+                },
             )
         }
 
-        override fun write(b: ByteArray, off: Int, len: Int) {
+        override fun write(
+            b: ByteArray,
+            off: Int,
+            len: Int,
+        ) {
             val chunk = String(b, off, len)
 
             if (chunk == System.lineSeparator()) {

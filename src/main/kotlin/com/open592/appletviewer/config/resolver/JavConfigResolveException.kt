@@ -8,7 +8,7 @@ import java.lang.Exception
  * @param contentKey Specifies the localized content key to use when showing fatal error modal
  */
 public sealed class JavConfigResolveException(public val contentKey: String, override val message: String) : Exception(
-    message
+    message,
 ) {
     /**
      * We were not supplied with enough information to even find
@@ -16,7 +16,7 @@ public sealed class JavConfigResolveException(public val contentKey: String, ove
      */
     public class MissingConfigurationException : JavConfigResolveException(
         contentKey = "err_missing_config",
-        message = "Failed to find configuration"
+        message = "Failed to find configuration",
     )
 
     /**
@@ -24,7 +24,7 @@ public sealed class JavConfigResolveException(public val contentKey: String, ove
      */
     public class LoadConfigurationException : JavConfigResolveException(
         contentKey = "err_load_config",
-        message = "Failed to load configuration"
+        message = "Failed to load configuration",
     )
 
     /**
@@ -32,6 +32,6 @@ public sealed class JavConfigResolveException(public val contentKey: String, ove
      */
     public class DecodeConfigurationException : JavConfigResolveException(
         contentKey = "err_decode_config",
-        message = "Failed to decode configuration"
+        message = "Failed to decode configuration",
     )
 }

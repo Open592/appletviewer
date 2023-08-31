@@ -5,7 +5,8 @@ package com.open592.appletviewer.environment
  */
 public enum class Architecture(private val needles: Set<String>) {
     X86(setOf("x86", "i386")),
-    X86_64(setOf("x86_64", "amd64"));
+    X86_64(setOf("x86_64", "amd64")),
+    ;
 
     public companion object {
         public fun detect(osArch: String): Architecture {

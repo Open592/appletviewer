@@ -13,7 +13,7 @@ import kotlin.reflect.KClass
 
 @Singleton
 public class GlobalEventBus(
-    private val scope: CoroutineScope = CoroutineScope(Dispatchers.Unconfined)
+    private val scope: CoroutineScope = CoroutineScope(Dispatchers.Unconfined),
 ) {
     private val events = MutableSharedFlow<ApplicationEvent>(extraBufferCapacity = 1)
 
@@ -27,7 +27,10 @@ public class GlobalEventBus(
     }
 
     @Throws(RuntimeException::class)
-    public fun <T : ApplicationEvent> listen(type: KClass<T>, listener: suspend (T) -> Unit): Job {
+    public fun <T : ApplicationEvent> listen(
+        type: KClass<T>,
+        listener: suspend (T) -> Unit,
+    ): Job {
         return retrieveEvent(type)
             .onEach(listener)
             .launchIn(scope)
