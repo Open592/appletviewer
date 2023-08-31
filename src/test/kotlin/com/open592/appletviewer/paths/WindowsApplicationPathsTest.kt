@@ -13,8 +13,10 @@ import java.nio.file.Files
 import java.nio.file.attribute.DosFileAttributeView
 import kotlin.io.path.createDirectories
 import kotlin.io.path.createFile
+import kotlin.io.path.exists
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class WindowsApplicationPathsTest {
     @Test
@@ -59,6 +61,7 @@ class WindowsApplicationPathsTest {
                     val path = applicationPaths.resolveCacheDirectoryPath(filename)
 
                     assertEquals(expectedCacheFilePath, path)
+                    assertTrue(path.exists())
                 }
 
                 verify(exactly = 1) { settings.getString("user.home") }
@@ -103,6 +106,7 @@ class WindowsApplicationPathsTest {
                 val path = applicationPaths.resolveCacheDirectoryPath(filename)
 
                 assertEquals(expectedPath, path)
+                assertTrue(path.exists())
             }
 
             verify { settings.getString("user.home") }
@@ -134,6 +138,7 @@ class WindowsApplicationPathsTest {
                 val expectedPath = fs.getPath("C:\\rscache\\.jagex_cache_32\\$cacheSubDirectory")
 
                 assertEquals(expectedPath.resolve(filename), path)
+                assertTrue(path.exists())
             }
 
             verify { settings.getString("user.home") }
@@ -174,6 +179,7 @@ class WindowsApplicationPathsTest {
                 val expectedPath = fs.getPath("C:\\rscache\\.jagex_cache_33\\$cacheSubDirectory")
 
                 assertEquals(expectedPath.resolve(filename), path)
+                assertTrue(path.exists())
             }
 
             verify { settings.getString("user.home") }

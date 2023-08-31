@@ -12,9 +12,11 @@ import org.junit.jupiter.api.assertThrows
 import java.nio.file.FileSystem
 import java.nio.file.attribute.PosixFilePermissions
 import kotlin.io.path.createDirectories
+import kotlin.io.path.exists
 import kotlin.io.path.setPosixFilePermissions
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class LinuxApplicationPathsTest {
     @Test
@@ -32,9 +34,10 @@ class LinuxApplicationPathsTest {
             assertDoesNotThrow {
                 val paths = LinuxApplicationPaths(config, fs, settings)
 
-                val cachePath = paths.resolveCacheDirectoryPath("browsercontrol.so")
+                val cacheDirectory = paths.resolveCacheDirectoryPath("browsercontrol.so")
 
-                assertEquals(cachePath, expectedPath)
+                assertEquals(expectedPath, cacheDirectory)
+                assertTrue(cacheDirectory.exists())
             }
 
             verify(exactly = 1) { config.getConfig("cachesubdir") }
@@ -65,6 +68,7 @@ class LinuxApplicationPathsTest {
                 val cacheDirectory = paths.resolveCacheDirectoryPath("browsercontrol.so")
 
                 assertEquals(expectedPath, cacheDirectory)
+                assertTrue(cacheDirectory.exists())
             }
 
             verify(exactly = 1) { config.getConfig("cachesubdir") }
@@ -95,6 +99,7 @@ class LinuxApplicationPathsTest {
                 val cacheDirectory = paths.resolveCacheDirectoryPath("browsercontrol.so")
 
                 assertEquals(expectedPath, cacheDirectory)
+                assertTrue(cacheDirectory.exists())
             }
 
             verify(exactly = 1) { config.getConfig("cachesubdir") }
