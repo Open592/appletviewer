@@ -17,80 +17,87 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-public class ApplicationModalComponent @Inject constructor(
-    rootFrame: RootFrame,
-    private val eventBus: GlobalEventBus
-) : ApplicationModalView {
-    private val modal: Dialog = Dialog(rootFrame.getFrame(), Dialog.DEFAULT_MODALITY_TYPE)
+public class ApplicationModalComponent
+    @Inject
+    constructor(
+        rootFrame: RootFrame,
+        private val eventBus: GlobalEventBus,
+    ) : ApplicationModalView {
+        private val modal: Dialog = Dialog(rootFrame.getFrame(), Dialog.DEFAULT_MODALITY_TYPE)
 
-    init {
-        modal.size = Dimension(MODAL_WIDTH, MODAL_HEIGHT)
-        modal.isResizable = false
-        modal.setLocationRelativeTo(rootFrame.getFrame())
-    }
+        init {
+            modal.size = Dimension(MODAL_WIDTH, MODAL_HEIGHT)
+            modal.isResizable = false
+            modal.setLocationRelativeTo(rootFrame.getFrame())
+        }
 
-    public override fun close() {
-        // Remove all child components
-        modal.removeAll()
+        public override fun close() {
+            // Remove all child components
+            modal.removeAll()
 
-        // Remove existing window listeners
-        modal.windowListeners.forEach(modal::removeWindowListener)
+            // Remove existing window listeners
+            modal.windowListeners.forEach(modal::removeWindowListener)
 
-        modal.isVisible = false
-    }
+            modal.isVisible = false
+        }
 
-    public override fun quit() {
-        // Let the viewer know that we want to quit the application
-        eventBus.dispatch(ViewerEvent.Quit)
-    }
+        public override fun quit() {
+            // Let the viewer know that we want to quit the application
+            eventBus.dispatch(ViewerEvent.Quit)
+        }
 
-    public override fun display(properties: ApplicationModalProperties) {
-        modal.title = properties.title
+        public override fun display(properties: ApplicationModalProperties) {
+            modal.title = properties.title
 
-        modal.add(createMessagePanel(properties.content), BorderLayout.CENTER)
-        modal.add(createButtonPanel(properties.buttonText, properties.closeAction), BorderLayout.SOUTH)
+            modal.add(createMessagePanel(properties.content), BorderLayout.CENTER)
+            modal.add(createButtonPanel(properties.buttonText, properties.closeAction), BorderLayout.SOUTH)
 
-        modal.addWindowListener(object : WindowAdapter() {
-            override fun windowClosing(e: WindowEvent?) {
-                properties.closeAction()
+            modal.addWindowListener(
+                object : WindowAdapter() {
+                    override fun windowClosing(e: WindowEvent?) {
+                        properties.closeAction()
+                    }
+                },
+            )
+
+            modal.isVisible = true
+        }
+
+        private fun createButtonPanel(
+            buttonText: String,
+            closeAction: () -> Unit,
+        ): Panel {
+            val panel = Panel()
+
+            panel.layout = FlowLayout(FlowLayout.CENTER)
+
+            val button = Button(buttonText)
+
+            button.addActionListener {
+                closeAction()
             }
-        })
 
-        modal.isVisible = true
-    }
+            panel.add(button)
 
-    private fun createButtonPanel(buttonText: String, closeAction: () -> Unit): Panel {
-        val panel = Panel()
-
-        panel.layout = FlowLayout(FlowLayout.CENTER)
-
-        val button = Button(buttonText)
-
-        button.addActionListener {
-            closeAction()
+            return panel
         }
 
-        panel.add(button)
+        private fun createMessagePanel(content: List<String>): Panel {
+            val panel = Panel()
 
-        return panel
-    }
+            panel.layout = GridLayout(content.size, 1)
 
-    private fun createMessagePanel(content: List<String>): Panel {
-        val panel = Panel()
+            content.forEach {
+                val label = Label(it, Label.CENTER)
 
-        panel.layout = GridLayout(content.size, 1)
+                panel.add(label)
+            }
 
-        content.forEach {
-            val label = Label(it, Label.CENTER)
-
-            panel.add(label)
+            return panel
         }
 
-        return panel
+        private companion object {
+            private const val MODAL_WIDTH = 500
+            private const val MODAL_HEIGHT = 100
+        }
     }
-
-    private companion object {
-        private const val MODAL_WIDTH = 500
-        private const val MODAL_HEIGHT = 100
-    }
-}

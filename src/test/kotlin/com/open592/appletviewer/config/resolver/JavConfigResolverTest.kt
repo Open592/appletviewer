@@ -31,12 +31,13 @@ import kotlin.test.assertEquals
 
 class JavConfigResolverTest {
     private val timeout = Duration.ofMillis(10)
-    private val client = OkHttpClient.Builder()
-        .connectTimeout(timeout)
-        .writeTimeout(timeout)
-        .readTimeout(timeout)
-        .followRedirects(true)
-        .build()
+    private val client =
+        OkHttpClient.Builder()
+            .connectTimeout(timeout)
+            .writeTimeout(timeout)
+            .readTimeout(timeout)
+            .followRedirects(true)
+            .build()
 
     @Test
     fun `Should return MissingConfigurationException when unable to find configuration`() {
@@ -144,8 +145,9 @@ class JavConfigResolverTest {
     @Test
     fun `Should correctly resolve a remote jav config file`() {
         val configFile = "simple-javconfig.ws"
-        val configBuffer = JavConfigResolverTest::class.java.getResourceAsStream(configFile)?.source()?.buffer()
-            ?: throw FileNotFoundException("Failed to find $configFile within JavConfigResolverTest")
+        val configBuffer =
+            JavConfigResolverTest::class.java.getResourceAsStream(configFile)?.source()?.buffer()
+                ?: throw FileNotFoundException("Failed to find $configFile within JavConfigResolverTest")
         val config = cloneFileBuffer(configBuffer)
         val server = MockWebServer()
 
@@ -261,12 +263,16 @@ class JavConfigResolverTest {
         return config
     }
 
-    private fun useLocalJavConfigFile(filename: String, action: (FileSystem) -> Unit) {
+    private fun useLocalJavConfigFile(
+        filename: String,
+        action: (FileSystem) -> Unit,
+    ) {
         ApplicationPathsMocks.createLauncherDirectoryStructure().use { fs ->
             val dir = fs.getPath(ApplicationPathsMocks.ROOT_DIR, Constants.GAME_NAME)
 
-            val javConfigStream = JavConfigResolver::class.java.getResourceAsStream(filename)
-                ?: throw FileNotFoundException("Failed to find $filename during JavConfigResolverTest")
+            val javConfigStream =
+                JavConfigResolver::class.java.getResourceAsStream(filename)
+                    ?: throw FileNotFoundException("Failed to find $filename during JavConfigResolverTest")
 
             val path = dir.resolve(filename).toAbsolutePath()
 

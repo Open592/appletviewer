@@ -71,12 +71,13 @@ class AppletViewerPreferencesTest {
         MemoryFileSystemBuilder.newLinux().build().use { fs ->
             val filePath = fs.getPath(PREFERENCES_FILE_NAME)
             // Our first set of values should not be written to the filesystem before the second set of values are set
-            val firstExpectedValues = listOf(
-                Pair("One", "1"),
-                Pair("Two", "2"),
-                Pair("Three", "3"),
-                Pair("Four", "4")
-            )
+            val firstExpectedValues =
+                listOf(
+                    Pair("One", "1"),
+                    Pair("Two", "2"),
+                    Pair("Three", "3"),
+                    Pair("Four", "4"),
+                )
             // We will write this value and trigger a flush to the filesystem
             val (flushKey, flushValue) = Pair("Five", "5")
 

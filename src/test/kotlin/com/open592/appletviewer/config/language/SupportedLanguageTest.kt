@@ -115,12 +115,13 @@ class SupportedLanguageTest {
         val contentKey = "loaderbox_initial"
 
         // SupportedLanguage to expected output
-        val testCases = mapOf(
-            SupportedLanguage.ENGLISH to "Loading...",
-            SupportedLanguage.GERMAN to "Lade...",
-            SupportedLanguage.FRENCH to "Chargement...",
-            SupportedLanguage.BRAZILIAN_PORTUGUESE to "Carregando..."
-        )
+        val testCases =
+            mapOf(
+                SupportedLanguage.ENGLISH to "Loading...",
+                SupportedLanguage.GERMAN to "Lade...",
+                SupportedLanguage.FRENCH to "Chargement...",
+                SupportedLanguage.BRAZILIAN_PORTUGUESE to "Carregando...",
+            )
 
         testCases.forEach { testCase ->
             assertEquals(testCase.value, testCase.key.getPackagedLocalizedContent(contentKey))

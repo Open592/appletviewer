@@ -5,7 +5,8 @@ package com.open592.appletviewer.environment
  */
 public enum class OperatingSystem(private val supportedArchitectures: Set<Architecture>, private val needle: String) {
     LINUX(setOf(Architecture.X86_64), "linux"),
-    WINDOWS(setOf(Architecture.X86, Architecture.X86_64), "win");
+    WINDOWS(setOf(Architecture.X86, Architecture.X86_64), "win"),
+    ;
 
     /**
      * Detect the present architecture and determine if it is supported.

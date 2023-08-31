@@ -50,7 +50,7 @@ class JavConfigTest {
                 config.languageNames.keys.forEachIndexed { index, language ->
                     assertEquals(
                         language,
-                        SupportedLanguage.resolveFromLanguageId(index)
+                        SupportedLanguage.resolveFromLanguageId(index),
                     )
                 }
             }
@@ -76,7 +76,7 @@ class JavConfigTest {
                 config.overrides.asIterable().forEachIndexed { index, server ->
                     assertEquals(
                         expectedOrder[index],
-                        server.key
+                        server.key,
                     )
                 }
 
@@ -93,9 +93,13 @@ class JavConfigTest {
         }
     }
 
-    private fun useJavConfigFile(filename: String, action: (String) -> Unit) {
-        val javConfig = JavConfigTest::class.java.getResource(filename)?.readText()
-            ?: throw FileNotFoundException("Failed to find $filename during JavConfigTest")
+    private fun useJavConfigFile(
+        filename: String,
+        action: (String) -> Unit,
+    ) {
+        val javConfig =
+            JavConfigTest::class.java.getResource(filename)?.readText()
+                ?: throw FileNotFoundException("Failed to find $filename during JavConfigTest")
 
         action(javConfig)
     }
