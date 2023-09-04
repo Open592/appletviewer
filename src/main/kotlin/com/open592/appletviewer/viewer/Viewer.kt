@@ -15,78 +15,78 @@ import kotlin.system.exitProcess
 
 @Singleton
 public class Viewer
-    @Inject
-    constructor(
-        private val eventBus: GlobalEventBus,
-        private val applicationModal: ApplicationModal,
-        private val config: ApplicationConfiguration,
-        private val debugConsole: DebugConsole,
-        private val progressIndicator: ProgressIndicator,
-        private val settingsStore: SettingsStore,
-        private val javConfigResolver: JavConfigResolver,
-    ) {
-        init {
-            eventBus.listen<ViewerEvent> {
-                when (it) {
-                    is ViewerEvent.Quit -> handleQuitEvent()
-                }
+@Inject
+constructor(
+    private val eventBus: GlobalEventBus,
+    private val applicationModal: ApplicationModal,
+    private val config: ApplicationConfiguration,
+    private val debugConsole: DebugConsole,
+    private val progressIndicator: ProgressIndicator,
+    private val settingsStore: SettingsStore,
+    private val javConfigResolver: JavConfigResolver,
+) {
+    init {
+        eventBus.listen<ViewerEvent> {
+            when (it) {
+                is ViewerEvent.Quit -> handleQuitEvent()
             }
-        }
-
-        public fun initialize() {
-            // Initialize the debug console in case we are in debug mode
-            debugConsole.initialize()
-
-            printDebugInfo()
-
-            // Tell the progress indicator to start listening to events
-            //
-            // TODO: This feels a little weird, would like to avoid having to do this explicitly
-            progressIndicator.initialize()
-
-            // Inform the user that we are loading the configuration
-            eventBus.dispatch(ProgressEvent.ChangeVisibility(visible = true))
-            eventBus.dispatch(ProgressEvent.ChangeText(config.getContent("loading_config")))
-
-            initializeConfiguration()
-
-            checkForNewViewerVersion()
-
-            eventBus.dispatch(ProgressEvent.ChangeText(config.getContent("loading_app_resources")))
-        }
-
-        private fun checkForNewViewerVersion() {
-            val requiredVersion = config.getConfigAsInt("viewerversion") ?: Int.MAX_VALUE
-
-            if (requiredVersion > VIEWER_VERSION) {
-                applicationModal.displayMessageModal(config.getContent("new_version"))
-            }
-        }
-
-        private fun handleQuitEvent() {
-            exitProcess(0)
-        }
-
-        private fun initializeConfiguration() {
-            try {
-                val javConfig = javConfigResolver.resolve()
-
-                config.initialize(javConfig)
-            } catch (e: JavConfigResolveException) {
-                applicationModal.displayFatalErrorModal(config.getContent(e.contentKey))
-            }
-        }
-
-        private fun printDebugInfo() {
-            if (settingsStore.getBoolean(SettingsStore.IS_DEBUG_KEY)) {
-                println("release #7")
-                println("java.version = ${System.getProperty("java.version")}")
-                println("os.name = ${System.getProperty("os.name")}")
-                println("os.arch = ${System.getProperty("os.arch")}")
-            }
-        }
-
-        private companion object {
-            private const val VIEWER_VERSION = 100
         }
     }
+
+    public fun initialize() {
+        // Initialize the debug console in case we are in debug mode
+        debugConsole.initialize()
+
+        printDebugInfo()
+
+        // Tell the progress indicator to start listening to events
+        //
+        // TODO: This feels a little weird, would like to avoid having to do this explicitly
+        progressIndicator.initialize()
+
+        // Inform the user that we are loading the configuration
+        eventBus.dispatch(ProgressEvent.ChangeVisibility(visible = true))
+        eventBus.dispatch(ProgressEvent.ChangeText(config.getContent("loading_config")))
+
+        initializeConfiguration()
+
+        checkForNewViewerVersion()
+
+        eventBus.dispatch(ProgressEvent.ChangeText(config.getContent("loading_app_resources")))
+    }
+
+    private fun checkForNewViewerVersion() {
+        val requiredVersion = config.getConfigAsInt("viewerversion") ?: Int.MAX_VALUE
+
+        if (requiredVersion > VIEWER_VERSION) {
+            applicationModal.displayMessageModal(config.getContent("new_version"))
+        }
+    }
+
+    private fun handleQuitEvent() {
+        exitProcess(0)
+    }
+
+    private fun initializeConfiguration() {
+        try {
+            val javConfig = javConfigResolver.resolve()
+
+            config.initialize(javConfig)
+        } catch (e: JavConfigResolveException) {
+            applicationModal.displayFatalErrorModal(config.getContent(e.contentKey))
+        }
+    }
+
+    private fun printDebugInfo() {
+        if (settingsStore.getBoolean(SettingsStore.IS_DEBUG_KEY)) {
+            println("release #7")
+            println("java.version = ${System.getProperty("java.version")}")
+            println("os.name = ${System.getProperty("os.name")}")
+            println("os.arch = ${System.getProperty("os.arch")}")
+        }
+    }
+
+    private companion object {
+        private const val VIEWER_VERSION = 100
+    }
+}

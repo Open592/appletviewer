@@ -9,17 +9,17 @@ import javax.inject.Inject
 import javax.inject.Provider
 
 public class ApplicationPathsProvider
-    @Inject
-    constructor(
-        private val config: ApplicationConfiguration,
-        private val environment: Environment,
-        private val fileSystem: FileSystem,
-        private val settingsStore: SettingsStore,
-    ) : Provider<ApplicationPaths> {
-        override fun get(): ApplicationPaths {
-            return when (environment.getOperatingSystem()) {
-                OperatingSystem.WINDOWS -> WindowsApplicationPaths(config, fileSystem, settingsStore)
-                OperatingSystem.LINUX -> LinuxApplicationPaths(config, fileSystem, settingsStore)
-            }
+@Inject
+constructor(
+    private val config: ApplicationConfiguration,
+    private val environment: Environment,
+    private val fileSystem: FileSystem,
+    private val settingsStore: SettingsStore,
+) : Provider<ApplicationPaths> {
+    override fun get(): ApplicationPaths {
+        return when (environment.getOperatingSystem()) {
+            OperatingSystem.WINDOWS -> WindowsApplicationPaths(config, fileSystem, settingsStore)
+            OperatingSystem.LINUX -> LinuxApplicationPaths(config, fileSystem, settingsStore)
         }
     }
+}

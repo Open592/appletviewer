@@ -7,16 +7,18 @@ plugins {
     application
     alias(libs.plugins.kotlin.jvm)
 
-    alias(libs.plugins.kotlinter)
+    alias(libs.plugins.ktlint.gradle)
 }
 
 application {
     applicationDefaultJvmArgs = listOf(
         "-Dcom.jagex.debug=${System.getProperty("com.jagex.debug")}",
         "-Dcom.open592.disableDebugConsole=${System.getProperty("com.open592.disableDebugConsole")}",
-        "-Dcom.open592.debugConsoleLogToSystemStream=${System.getProperty("com.open592.debugConsoleLogToSystemStream")}",
+        "-Dcom.open592.debugConsoleLogToSystemStream=${
+            System.getProperty("com.open592.debugConsoleLogToSystemStream")
+        }",
         "-Dcom.jagex.config=${System.getProperty("com.jagex.config")}",
-        "-Dcom.open592.launcherDirectoryOverride=${System.getProperty("com.open592.launcherDirectoryOverride")}"
+        "-Dcom.open592.launcherDirectoryOverride=${System.getProperty("com.open592.launcherDirectoryOverride")}",
     )
 
     mainClass.set("com.open592.appletviewer.cmd.Main")
@@ -44,15 +46,16 @@ dependencies {
 }
 
 plugins.withType<KotlinPluginWrapper> {
-    apply(plugin = "org.jmailen.kotlinter")
+    apply(plugin = "org.jlleitschuh.gradle.ktlint")
 
     kotlin {
         explicitApi()
     }
 }
 
-tasks.check {
-    dependsOn("installKotlinterPrePushHook")
+configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
+    version.set("0.50.0")
+    enableExperimentalRules.set(true)
 }
 
 tasks.test {
