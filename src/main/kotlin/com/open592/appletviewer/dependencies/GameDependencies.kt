@@ -9,7 +9,8 @@ import com.open592.appletviewer.modal.ApplicationModal
 import com.open592.appletviewer.progress.ProgressEvent
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import java.io.ByteArrayOutputStream
+import okio.Buffer
+import okio.source
 import javax.inject.Inject
 
 public class GameDependencies
@@ -44,6 +45,10 @@ constructor(
         return fileBytes
     }
 
+    /**
+     * Fetch the remote jar file from the server, resolving the filename from the
+     * application config.
+     */
     private fun fetchRemoteFileBytes(url: String): ByteArray? {
         try {
             val request = Request.Builder().url(url).build()
@@ -58,21 +63,17 @@ constructor(
                         return null
                     }
 
-                    responseBody.byteStream().use { inputStream ->
-                        val bufferSize = responseBody.contentLength().takeIf { it != -1L }?.toInt() ?: 300_000
-                        val buffer = ByteArray(bufferSize)
-                        var bytesRead: Int
-                        val output = ByteArrayOutputStream()
+                    responseBody.byteStream().source().use { source ->
+                        val bufferSize = responseBody.contentLength().takeIf { it != -1L } ?: 300_000L
+                        val buffer = Buffer()
 
-                        while (inputStream.read(buffer).also { bytesRead = it } != -1) {
-                            output.write(buffer, output.size(), bytesRead)
-
-                            val progress = (100.0F * (output.size() / 58988F)).toInt()
+                        while (source.read(buffer, bufferSize) != -1L) {
+                            val progress = (100.0F * (buffer.size / 58988F)).toInt()
 
                             eventBus.dispatch(ProgressEvent.UpdateProgress(progress))
                         }
 
-                        return output.toByteArray()
+                        return buffer.readByteArray()
                     }
                 }
             }
