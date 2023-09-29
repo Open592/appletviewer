@@ -45,6 +45,12 @@ constructor(
 
         val jar = resolveRemoteJar(fileBytes)
 
+        if (jar == null) {
+            val contentKey = getBrowserControlValidationErrorKey()
+
+            applicationModal.displayFatalErrorModal(contentKey)
+        }
+
         return fileBytes.readByteArray()
     }
 
@@ -121,6 +127,20 @@ constructor(
         val codebaseUrl = getCodebaseUrl()
 
         return "$codebaseUrl$filename"
+    }
+
+    /**
+     * The content key for the error message returned when an issue occurs during
+     * validation of the browsercontrol jar includes the bit size of the architecture,
+     * either 64, or 32.
+     *
+     * Example: bc64
+     */
+    private fun getBrowserControlValidationErrorKey(): String {
+        return when (environment.getArchitecture()) {
+            Architecture.X86 -> "err_verify_bc"
+            Architecture.X86_64 -> "err_verify_bc64"
+        }
     }
 
     /**

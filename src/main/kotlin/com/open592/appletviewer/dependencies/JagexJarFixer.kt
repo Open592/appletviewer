@@ -17,6 +17,22 @@ private const val JAGEX_JAR_SIGNATURE_NAME = "META-INF/zigbert.rsa"
 // The mode in which we will open the temporary jar file
 private const val TEMPORY_JAR_OPEN_MODE = ZipFile.OPEN_READ or ZipFile.OPEN_DELETE
 
+/**
+ * We rely on `JarInputStream` to verify that our remote jar files have not been
+ * tampered with, and that they have been signed with the proper private keys. But
+ * unfortunately it makes a lot of assumptions about the structure of the jar
+ * file, and the naming of its entries. Because of that we are unable to
+ * validate the original Jagex jar files as-is since they use a non-standard
+ * entry order.
+ *
+ * In order to mitigate this we provide this helper function which attempts
+ * to recreate the jar file using the standard entry order and naming
+ * conventions expected by `JarInputStream`.
+ *
+ * @param jarBuffer A buffer pointing to a "Jagex Jar"
+ *
+ * @return Returns a `JarInputStream` with the standard structure and entry order
+ */
 public fun fixJagexJar(jarBuffer: Buffer): JarInputStream? {
     val jarFile = try {
         bufferToJarFile(jarBuffer)
