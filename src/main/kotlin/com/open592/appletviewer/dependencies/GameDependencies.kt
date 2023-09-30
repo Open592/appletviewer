@@ -32,7 +32,7 @@ constructor(
      * 2. The zip archive is validated and the library is extracted from the zip
      * 3. The library file bytes are written to disk. The location is platform dependent.
      */
-    public fun resolveBrowserControl(): ByteArray {
+    public fun resolveBrowserControl(): Buffer {
         val url = getBrowserControlUrl()
         val fileBytes = fetchRemoteFileBytes(url)
 
@@ -44,14 +44,10 @@ constructor(
         }
 
         val jar = resolveRemoteJar(fileBytes)
+            ?: applicationModal.displayFatalErrorModal(getBrowserControlValidationErrorKey())
 
-        if (jar == null) {
-            val contentKey = getBrowserControlValidationErrorKey()
-
-            applicationModal.displayFatalErrorModal(contentKey)
-        }
-
-        return fileBytes.readByteArray()
+        return SignedJarFileEntries.loadAndValidate(jar)?.getEntry(getBrowserControlFilename())
+            ?: applicationModal.displayFatalErrorModal(getBrowserControlValidationErrorKey())
     }
 
     /**
