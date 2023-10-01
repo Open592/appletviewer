@@ -30,6 +30,15 @@ public const val ORIGINAL_JAGEX_PUBLIC_KEY: String =
         "/KjRDa+Fsu+k5gKLiKRNz9PGk+mmrBFOWOWMCsjyOalnkkx+N1/Gh4KcRwIDAQAB"
 
 /**
+ * Our simulated "Jagex" public key
+ */
+public const val FAKE_JAGEX_PUBLIC_KEY: String =
+    "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuMxaBUjyNpGCKIHnZGHNs/8uNXUHYPJMannDFjdJHqMzYQNYTPKW2DXAROmXd8gSXVh5" +
+        "jWIUk16uD3lleeBNJrgfkFgnBCBbJuC2m26shIO9WpumipgcAC6jmjXNnR72RyydLn7Yz0HYIbxqgGR6fP7drQ2LS3DZ0PyyyHvICdtwKKEg" +
+        "qMQMCQ76JUapn+LPhGnfWkEuRcNnTP9MZLxo3l9behO+gBvoHujq+FNp0YcoR3mDyL06Ku8a2Zmx40HVqWGkF4TKf/jgjOBRP3ovg0HSes0N" +
+        "flio3aTxQ0xYmw5bna1BfCvgopkOHeTuS8FENbiwzsPWvk3CYHxbi5pOowIDAQAB"
+
+/**
  * Jagex used Thawte as their CA, and it had the following public key.
  *
  * X.509, CN=Thawte Code Signing CA, O=Thawte Consulting (Pty) Ltd., C=ZA
@@ -41,3 +50,10 @@ public const val ORIGINAL_JAGEX_PUBLIC_KEY: String =
 public const val ORIGINAL_THAWTE_PUBLIC_KEY: String =
     "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDGuLknYK8L45FpZdt+je2R5qrxvtXt/m3ULH/RcHf7JplXtN0/MLjcIepojYGS/C5LkTWEIPLa" +
         "Srq0/ObaiPIgxSGSCUeVoAkcpnm+sUwd/PGKblTSaaHxTJM6Qf591GR7Y0X3YGAdMR2k6dMPi/tuJiSzqP/l5ZDUtMLcUGCuWQIDAQAB"
+
+/**
+ * Our simulated "Thawte" public key.
+ */
+public const val FAKE_THAWTE_PUBLIC_KEY: String =
+    "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCe9NS0y8btwRdIX3ueWh0dnNPVf3ukq266miW2gRwGGon0uxyH0Ai2KTiVIYeZzXZcJf6qdf8l" +
+        "0ve7uuu1cK0UCEPC0eNLFClqTl6Pi8cLJeDYjo6Q0yv5wtkWb2x4oc9Q67WUte2C+bBToXw8L7SFUqmj3EOP8BF8GmUDzsggAwIDAQAB"

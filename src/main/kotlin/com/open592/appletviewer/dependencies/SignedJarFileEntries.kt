@@ -116,7 +116,7 @@ public data class SignedJarFileEntries(
          * - The second entry is our "fake" public key which we will use to sign our
          * custom jars.
          */
-        private val JAGEX_PUBLIC_KEYS: Array<String> = arrayOf(ORIGINAL_JAGEX_PUBLIC_KEY)
+        private val JAGEX_PUBLIC_KEYS: Array<String> = arrayOf(ORIGINAL_JAGEX_PUBLIC_KEY, FAKE_JAGEX_PUBLIC_KEY)
 
         /**
          * These are "Thawte" keys, since in the original jars they are listed
@@ -128,6 +128,6 @@ public data class SignedJarFileEntries(
          * - The second is our fake public key which we will use to sign our
          * custom jars.
          */
-        private val THAWTE_PUBLIC_KEYS = arrayOf(ORIGINAL_THAWTE_PUBLIC_KEY)
+        private val THAWTE_PUBLIC_KEYS = arrayOf(ORIGINAL_THAWTE_PUBLIC_KEY, FAKE_THAWTE_PUBLIC_KEY)
     }
 }

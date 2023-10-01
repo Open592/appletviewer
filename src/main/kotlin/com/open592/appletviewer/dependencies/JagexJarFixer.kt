@@ -10,13 +10,6 @@ import java.util.jar.JarOutputStream
 import java.util.zip.ZipFile
 import kotlin.io.path.createTempFile
 
-private const val JAGEX_JAR_MANIFEST_NAME = "META-INF/manifest.mf"
-private const val JAGEX_JAR_SIGNATURE_FILE_NAME = "META-INF/zigbert.sf"
-private const val JAGEX_JAR_SIGNATURE_NAME = "META-INF/zigbert.rsa"
-
-// The mode in which we will open the temporary jar file
-private const val TEMPORY_JAR_OPEN_MODE = ZipFile.OPEN_READ or ZipFile.OPEN_DELETE
-
 /**
  * We rely on `JarInputStream` to verify that our remote jar files have not been
  * tampered with, and that they have been signed with the proper private keys. But
@@ -118,3 +111,10 @@ private fun initializeStandardizedJar(jarFile: JarFile, buffer: Buffer): JarOutp
 
     return jarStream
 }
+
+private const val JAGEX_JAR_MANIFEST_NAME = "META-INF/manifest.mf"
+private const val JAGEX_JAR_SIGNATURE_FILE_NAME = "META-INF/zigbert.sf"
+private const val JAGEX_JAR_SIGNATURE_NAME = "META-INF/zigbert.rsa"
+
+// The mode in which we will open the temporary jar file
+private const val TEMPORY_JAR_OPEN_MODE = ZipFile.OPEN_READ or ZipFile.OPEN_DELETE
