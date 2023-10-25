@@ -9,7 +9,7 @@ import java.util.jar.Manifest
 
 /**
  * The validations present within the original applet viewer were largely hand
- * rolled, and includes:
+ * rolled, and included:
  *
  * - Manually parsing all the manifest files
  * - Manual `PKCS7` initialization and validation

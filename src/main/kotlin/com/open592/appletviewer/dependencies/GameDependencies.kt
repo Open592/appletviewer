@@ -6,10 +6,13 @@ import com.open592.appletviewer.environment.Environment
 import com.open592.appletviewer.environment.OperatingSystem
 import com.open592.appletviewer.events.GlobalEventBus
 import com.open592.appletviewer.modal.ApplicationModal
+import com.open592.appletviewer.paths.ApplicationPaths
 import com.open592.appletviewer.progress.ProgressEvent
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okio.Buffer
+import okio.buffer
+import okio.sink
 import okio.source
 import java.util.jar.JarInputStream
 import javax.inject.Inject
@@ -22,6 +25,7 @@ constructor(
     private val environment: Environment,
     private val eventBus: GlobalEventBus,
     private val httpClient: OkHttpClient,
+    private val paths: ApplicationPaths,
 ) {
     /**
      * Resolving the browsercontrol library is performed in 3 parts:
@@ -32,12 +36,11 @@ constructor(
      * 2. The zip archive is validated and the library is extracted from the zip
      * 3. The library file bytes are written to disk. The location is platform dependent.
      */
-    public fun resolveBrowserControl(): Buffer {
-        val url = getBrowserControlUrl()
-        val fileBytes = fetchRemoteFileBytes(url)
+    public fun resolveBrowserControl() {
+        val fileBytes = fetchRemoteFileBytes(DependencyType.BROWSERCONTROL)
+        val filename = getBrowserControlFilename()
 
         if (fileBytes == null) {
-            val filename = getBrowserControlFilename()
             val errorMessage = config.getContent("err_downloading")
 
             applicationModal.displayFatalErrorModal("$errorMessage: $filename")
@@ -46,15 +49,25 @@ constructor(
         val jar = resolveRemoteJar(fileBytes)
             ?: applicationModal.displayFatalErrorModal(getBrowserControlValidationErrorKey())
 
-        return SignedJarFileEntries.loadAndValidate(jar)?.getEntry(getBrowserControlFilename())
+        val library = SignedJarFileEntries.loadAndValidate(jar)?.getEntry(filename)
             ?: applicationModal.displayFatalErrorModal(getBrowserControlValidationErrorKey())
+
+        // Now that we have verified the jar and extracted the library, write it to the cache directory.
+        paths.resolveCacheDirectoryPath(filename).sink().buffer().use { destination ->
+            destination.writeAll(library)
+        }
     }
 
     /**
-     * Fetch the remote jar file from the server, resolving the filename from the
+     * Fetch a remote jar file from the server, resolving the filename from the
      * application config.
      */
-    private fun fetchRemoteFileBytes(url: String): Buffer? {
+    private fun fetchRemoteFileBytes(type: DependencyType): Buffer? {
+        val url = when (type) {
+            DependencyType.BROWSERCONTROL -> getBrowserControlUrl()
+            DependencyType.LOADER -> TODO()
+        }
+
         try {
             val request = Request.Builder().url(url).build()
 
@@ -67,11 +80,19 @@ constructor(
                     val responseSource = responseBody?.byteStream()?.source() ?: return null
 
                     responseSource.use { source ->
-                        val bufferSize = responseBody.contentLength().takeIf { it != -1L } ?: 300_000L
+                        val contentLength = responseBody.contentLength().takeIf { it != -1L }
                         val buffer = Buffer()
 
-                        while (source.read(buffer, bufferSize) != -1L) {
-                            val progress = (100.0F * (buffer.size / 58988F)).toInt()
+                        // Before starting the download, update the total download size value if we receive an
+                        // explicit size from the server
+                        if (contentLength != null) {
+                            setFileSize(type, contentLength.toInt())
+                        }
+
+                        // In case we can't resolve the content length from the server use the default
+                        // specified within the original applet viewer
+                        while (source.read(buffer, contentLength ?: 300_000) != -1L) {
+                            val progress = ((100 * buffer.size) / getTotalDownloadSize()).toInt()
 
                             eventBus.dispatch(ProgressEvent.UpdateProgress(progress))
                         }
@@ -147,6 +168,16 @@ constructor(
     }
 
     /**
+     * Get the total size of all dependencies.
+     *
+     * This is used to calculate the percent completion of the overall
+     * dependency download.
+     */
+    private fun getTotalDownloadSize(): Int {
+        return fileSizes.values.reduce { acc, size -> acc + size }
+    }
+
+    /**
      * When dealing with remote jar files we want to offload some validation
      * work to standard library classes like `JarInputStream`. Unfortunately
      * it makes a lot of assumptions about the structure of the jar file, and
@@ -183,7 +214,7 @@ constructor(
         if (jarStream.manifest != null) {
             /**
              * Since we don't need the duplicated `Buffer` let `okio` handle
-             * recycling its resources.
+             * recycling it's resources.
              */
             bufferClone.clear()
 
@@ -200,4 +231,26 @@ constructor(
          */
         return fixJagexJar(bufferClone)
     }
+
+    /**
+     * Upon resolving the actual size of the file we can use this function
+     * to dynamically update the file size map making the progress indicator
+     * more accurate.
+     */
+    private fun setFileSize(type: DependencyType, size: Int) {
+        fileSizes[type] = size
+    }
+
+    /**
+     * Used for calculating the progress as we are downloading dependencies.
+     *
+     * The defaults for each file type are the size of the original files
+     * from Jagex. Within the runtime code for downloading the files, after
+     * resolving the `Content-Length` header, we will dynamically update this
+     * map to make the progress reporting more accurate.
+     */
+    private val fileSizes: MutableMap<DependencyType, Int> = mutableMapOf(
+        DependencyType.BROWSERCONTROL to 27_049,
+        DependencyType.LOADER to 32_901,
+    )
 }
