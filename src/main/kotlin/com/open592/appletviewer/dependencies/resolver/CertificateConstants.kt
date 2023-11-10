@@ -1,4 +1,4 @@
-package com.open592.appletviewer.dependencies
+package com.open592.appletviewer.dependencies.resolver
 
 /**
  * Jagex's certificates for the 592 revision had the following serial number.

@@ -1,4 +1,4 @@
-package com.open592.appletviewer.dependencies
+package com.open592.appletviewer.dependencies.resolver
 
 import com.open592.appletviewer.config.ApplicationConfiguration
 import com.open592.appletviewer.environment.Architecture
@@ -17,7 +17,7 @@ import okio.source
 import java.util.jar.JarInputStream
 import javax.inject.Inject
 
-public class GameDependencies
+public class DependencyResolver
 @Inject
 constructor(
     private val applicationModal: ApplicationModal,
@@ -37,7 +37,7 @@ constructor(
      * 3. The library file bytes are written to disk. The location is platform dependent.
      */
     public fun resolveBrowserControl() {
-        val fileBytes = fetchRemoteFileBytes(DependencyType.BROWSERCONTROL)
+        val fileBytes = fetchRemoteDependency(DependencyType.BROWSERCONTROL)
         val filename = getBrowserControlFilename()
 
         if (fileBytes == null) {
@@ -62,7 +62,7 @@ constructor(
      * Fetch a remote jar file from the server, resolving the filename from the
      * application config.
      */
-    private fun fetchRemoteFileBytes(type: DependencyType): Buffer? {
+    private fun fetchRemoteDependency(type: DependencyType): Buffer? {
         val url = when (type) {
             DependencyType.BROWSERCONTROL -> getBrowserControlUrl()
             DependencyType.LOADER -> TODO()
