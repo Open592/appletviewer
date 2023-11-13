@@ -3,6 +3,7 @@ package com.open592.appletviewer.config.resolver
 import com.open592.appletviewer.common.Constants
 import com.open592.appletviewer.config.ApplicationConfiguration
 import com.open592.appletviewer.config.language.SupportedLanguage
+import com.open592.appletviewer.http.HttpTestConstants
 import com.open592.appletviewer.paths.ApplicationPaths
 import com.open592.appletviewer.paths.ApplicationPathsMocks
 import com.open592.appletviewer.paths.WindowsApplicationPaths
@@ -11,7 +12,6 @@ import com.open592.appletviewer.settings.SystemPropertiesSettingsStore
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import okhttp3.OkHttpClient
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import okio.Buffer
@@ -24,26 +24,16 @@ import org.junit.jupiter.api.assertThrows
 import java.io.FileNotFoundException
 import java.nio.file.FileSystem
 import java.nio.file.FileSystems
-import java.time.Duration
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class JavConfigResolverTest {
-    private val timeout = Duration.ofMillis(10)
-    private val client =
-        OkHttpClient.Builder()
-            .connectTimeout(timeout)
-            .writeTimeout(timeout)
-            .readTimeout(timeout)
-            .followRedirects(true)
-            .build()
-
     @Test
     fun `Should return MissingConfigurationException when unable to find configuration`() {
         val applicationPaths = mockk<ApplicationPaths>()
         val preferences = mockk<AppletViewerPreferences>()
         val settings = mockk<SystemPropertiesSettingsStore>()
-        val resolver = JavConfigResolver(preferences, applicationPaths, client, settings)
+        val resolver = JavConfigResolver(preferences, applicationPaths, HttpTestConstants.client, settings)
 
         every { settings.getString("com.jagex.config") } returns ""
         every { settings.getString("com.jagex.configfile") } returns ""
@@ -67,7 +57,7 @@ class JavConfigResolverTest {
         every { settings.getString("user.dir") } returns "not-a-dir"
 
         val applicationPaths = WindowsApplicationPaths(config, FileSystems.getDefault(), settings)
-        val resolver = JavConfigResolver(preferences, applicationPaths, client, settings)
+        val resolver = JavConfigResolver(preferences, applicationPaths, HttpTestConstants.client, settings)
 
         assertThrows<JavConfigResolveException.LoadConfigurationException> { resolver.resolve() }
 
@@ -82,7 +72,7 @@ class JavConfigResolverTest {
         val applicationPaths = mockk<WindowsApplicationPaths>()
         val preferences = mockk<AppletViewerPreferences>()
         val settings = mockk<SystemPropertiesSettingsStore>()
-        val resolver = JavConfigResolver(preferences, applicationPaths, client, settings)
+        val resolver = JavConfigResolver(preferences, applicationPaths, HttpTestConstants.client, settings)
 
         // Simulates when we attempt to make a connection to an invalid host
         val configUrlTemplate = "https://invalid.connection/k=3/l=\$(Language:0)/jav_config.ws"
@@ -111,7 +101,7 @@ class JavConfigResolverTest {
         val applicationPaths = mockk<WindowsApplicationPaths>()
         val preferences = mockk<AppletViewerPreferences>()
         val settings = mockk<SystemPropertiesSettingsStore>()
-        val resolver = JavConfigResolver(preferences, applicationPaths, client, settings)
+        val resolver = JavConfigResolver(preferences, applicationPaths, HttpTestConstants.client, settings)
 
         // Get mocked URL
         val baseUrl = server.url("/")
@@ -157,7 +147,7 @@ class JavConfigResolverTest {
         val applicationPaths = mockk<ApplicationPaths>()
         val preferences = mockk<AppletViewerPreferences>()
         val settings = mockk<SystemPropertiesSettingsStore>()
-        val resolver = JavConfigResolver(preferences, applicationPaths, client, settings)
+        val resolver = JavConfigResolver(preferences, applicationPaths, HttpTestConstants.client, settings)
 
         // Verify we are resolving URLS templates properly
         val baseUrl = server.url("/")
@@ -209,7 +199,7 @@ class JavConfigResolverTest {
                 )
 
             assertDoesNotThrow {
-                val resolver = JavConfigResolver(preferences, applicationPaths, client, settings)
+                val resolver = JavConfigResolver(preferences, applicationPaths, HttpTestConstants.client, settings)
                 val javConfig = resolver.resolve()
 
                 assertEquals("RuneScape", javConfig.root.getConfig("title"))
@@ -241,7 +231,7 @@ class JavConfigResolverTest {
                 fs.getPath(ApplicationPathsMocks.ROOT_DIR, "bin").toAbsolutePath().toString()
                 )
 
-            val resolver = JavConfigResolver(preferences, applicationPaths, client, settings)
+            val resolver = JavConfigResolver(preferences, applicationPaths, HttpTestConstants.client, settings)
 
             assertThrows<JavConfigResolveException.DecodeConfigurationException> { resolver.resolve() }
 
