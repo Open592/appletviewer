@@ -14,6 +14,8 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
+import org.junit.jupiter.api.assertThrows
+import java.lang.IllegalStateException
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.fail
@@ -87,7 +89,9 @@ class ApplicationModalTest {
                 }
             }
 
-            modal.displayFatalErrorModal(expectedMessage)
+            // Our fatal error models should never return. Due to mocking we fall through
+            // and hit a `error()` call.
+            assertThrows<IllegalStateException> { modal.displayFatalErrorModal(expectedMessage) }
 
             verify(exactly = 1, timeout = 50) {
                 view.display(
@@ -135,7 +139,7 @@ class ApplicationModalTest {
                 }
             }
 
-            modal.displayFatalErrorModal(expectedMessage)
+            assertThrows<IllegalStateException> { modal.displayFatalErrorModal(expectedMessage) }
 
             verify(exactly = 1, timeout = 50) {
                 view.display(

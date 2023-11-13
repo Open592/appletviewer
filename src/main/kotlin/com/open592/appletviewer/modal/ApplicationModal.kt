@@ -16,7 +16,12 @@ constructor(
     private val eventBus: GlobalEventBus,
     private val view: ApplicationModalView,
 ) {
-    public fun displayFatalErrorModal(message: String) {
+    /**
+     * Fatal error messages should open a modal which upon closing, terminates
+     * the application. Due to this we assert that we do not fall through this
+     * function and return `Nothing`.
+     */
+    public fun displayFatalErrorModal(message: String): Nothing {
         // When displaying a FATAL_ERROR we need to hide the progress indicator
         eventBus.dispatch(ProgressEvent.ChangeVisibility(false))
 
@@ -28,6 +33,8 @@ constructor(
                 closeAction = view::quit,
             ),
         )
+
+        error("VERIFY_NOT_REACHED")
     }
 
     public fun displayMessageModal(message: String) {
