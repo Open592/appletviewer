@@ -22,6 +22,7 @@ public object ViewerModule : AbstractModule() {
         install(ApplicationModalModule)
         install(JavConfigResolverModule)
         install(DebugConsoleModule)
+        // Bound as an eager singleton which initializes event listener.
         install(ProgressIndicatorModule)
     }
 }

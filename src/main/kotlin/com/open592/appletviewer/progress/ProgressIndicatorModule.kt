@@ -11,5 +11,7 @@ public object ProgressIndicatorModule : AbstractModule() {
 
         bind(ProgressIndicatorView::class.java)
             .to(ProgressIndicatorComponent::class.java)
+
+        bind(ProgressIndicator::class.java).asEagerSingleton()
     }
 }

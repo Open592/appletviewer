@@ -7,7 +7,6 @@ import com.open592.appletviewer.debug.DebugConsole
 import com.open592.appletviewer.events.GlobalEventBus
 import com.open592.appletviewer.modal.ApplicationModal
 import com.open592.appletviewer.progress.ProgressEvent
-import com.open592.appletviewer.progress.ProgressIndicator
 import com.open592.appletviewer.settings.SettingsStore
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -21,7 +20,6 @@ constructor(
     private val applicationModal: ApplicationModal,
     private val config: ApplicationConfiguration,
     private val debugConsole: DebugConsole,
-    private val progressIndicator: ProgressIndicator,
     private val settingsStore: SettingsStore,
     private val javConfigResolver: JavConfigResolver,
 ) {
@@ -38,11 +36,6 @@ constructor(
         debugConsole.initialize()
 
         printDebugInfo()
-
-        // Tell the progress indicator to start listening to events
-        //
-        // TODO: This feels a little weird, would like to avoid having to do this explicitly
-        progressIndicator.initialize()
 
         // Inform the user that we are loading the configuration
         eventBus.dispatch(ProgressEvent.ChangeVisibility(visible = true))

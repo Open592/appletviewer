@@ -9,13 +9,13 @@ import javax.inject.Singleton
 public class ProgressIndicator
 @Inject
 constructor(
-    private val eventBus: GlobalEventBus,
+    eventBus: GlobalEventBus,
     private val view: ProgressIndicatorView,
 ) {
     /**
-     * Initialize starts listening for the events which will be controlling the progress indicator view
+     * Start listening for the events which will be controlling the progress indicator view.
      */
-    public fun initialize() {
+    init {
         eventBus.listen<ProgressEvent> {
             when (it) {
                 is ProgressEvent.ChangeVisibility -> view.changeVisibility(it.visible)
