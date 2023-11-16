@@ -6,7 +6,6 @@ import com.open592.appletviewer.environment.Environment
 import com.open592.appletviewer.environment.OperatingSystem
 import com.open592.appletviewer.events.GlobalEventBus
 import com.open592.appletviewer.http.HttpTestConstants
-import com.open592.appletviewer.modal.ApplicationModal
 import com.open592.appletviewer.paths.ApplicationPaths
 import io.mockk.every
 import io.mockk.mockk
@@ -31,18 +30,16 @@ class DependencyResolverTest {
 
         server.start()
 
-        val applicationModal = mockk<ApplicationModal>()
         val config = mockk<ApplicationConfiguration>()
         val environment = mockk<Environment>()
         val eventBus = GlobalEventBus(TestScope(UnconfinedTestDispatcher(testScheduler)))
         val applicationPaths = mockk<ApplicationPaths>()
         val dependencyResolver = DependencyResolver(
-            applicationModal,
             config,
             environment,
             eventBus,
             HttpTestConstants.client,
-            applicationPaths
+            applicationPaths,
         )
 
         val browserControlFilename = "browsercontrol_0_-1928975093.jar"
@@ -58,15 +55,11 @@ class DependencyResolverTest {
 
         every { config.getContent("err_downloading") } returns "Error Downloading"
 
-        val expectedErrorMessage = "Error Downloading: browsercontrol64.dll"
-
-        every { applicationModal.displayFatalErrorModal(expectedErrorMessage) } throws IllegalStateException()
-
-        assertThrows<IllegalStateException> { dependencyResolver.resolveBrowserControl() }
+        assertThrows<DependencyResolverException.FetchDependencyException> {
+            dependencyResolver.resolveBrowserControl()
+        }
 
         verify(exactly = 1) { config.getConfig("browsercontrol_win_amd64_jar") }
         verify(exactly = 1) { config.getConfig("codebase") }
-        verify(exactly = 1) { config.getContent("err_downloading") }
-        verify(exactly = 1) { applicationModal.displayFatalErrorModal(expectedErrorMessage) }
     }
 }

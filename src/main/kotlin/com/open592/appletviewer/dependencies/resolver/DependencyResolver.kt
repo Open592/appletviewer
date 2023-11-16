@@ -5,7 +5,6 @@ import com.open592.appletviewer.environment.Architecture
 import com.open592.appletviewer.environment.Environment
 import com.open592.appletviewer.environment.OperatingSystem
 import com.open592.appletviewer.events.GlobalEventBus
-import com.open592.appletviewer.modal.ApplicationModal
 import com.open592.appletviewer.paths.ApplicationPaths
 import com.open592.appletviewer.progress.ProgressEvent
 import okhttp3.OkHttpClient
@@ -20,7 +19,6 @@ import javax.inject.Inject
 public class DependencyResolver
 @Inject
 constructor(
-    private val applicationModal: ApplicationModal,
     private val config: ApplicationConfiguration,
     private val environment: Environment,
     private val eventBus: GlobalEventBus,
@@ -41,16 +39,14 @@ constructor(
         val filename = getBrowserControlFilename()
 
         if (fileBytes == null) {
-            val errorMessage = config.getContent("err_downloading")
-
-            applicationModal.displayFatalErrorModal("$errorMessage: $filename")
+            throw DependencyResolverException.FetchDependencyException(filename)
         }
 
         val jar = resolveRemoteJar(fileBytes)
-            ?: applicationModal.displayFatalErrorModal(getBrowserControlValidationErrorKey())
+            ?: throw DependencyResolverException.VerifyDependencyException()
 
         val library = SignedJarFileEntries.loadAndValidate(jar)?.getEntry(filename)
-            ?: applicationModal.displayFatalErrorModal(getBrowserControlValidationErrorKey())
+            ?: throw DependencyResolverException.VerifyDependencyException()
 
         // Now that we have verified the jar and extracted the library, write it to the cache directory.
         paths.resolveCacheDirectoryPath(filename).sink().buffer().use { destination ->
@@ -147,20 +143,6 @@ constructor(
     }
 
     /**
-     * The content key for the error message returned when an issue occurs during
-     * validation of the browsercontrol jar includes the bit size of the architecture,
-     * either 64, or 32.
-     *
-     * Example: bc64
-     */
-    private fun getBrowserControlValidationErrorKey(): String {
-        return when (environment.getArchitecture()) {
-            Architecture.X86 -> "err_verify_bc"
-            Architecture.X86_64 -> "err_verify_bc64"
-        }
-    }
-
-    /**
      * Returns the root URL for assets we will be fetching.
      */
     private fun getCodebaseUrl(): String {
@@ -214,7 +196,7 @@ constructor(
         if (jarStream.manifest != null) {
             /**
              * Since we don't need the duplicated `Buffer` let `okio` handle
-             * recycling it's resources.
+             * recycling its resources.
              */
             bufferClone.clear()
 
