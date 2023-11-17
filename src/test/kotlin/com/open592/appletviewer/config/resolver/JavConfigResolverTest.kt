@@ -17,14 +17,13 @@ import okhttp3.mockwebserver.MockWebServer
 import okio.Buffer
 import okio.BufferedSource
 import okio.buffer
+import okio.sink
 import okio.source
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
 import java.io.FileNotFoundException
 import java.nio.file.FileSystem
 import java.nio.file.FileSystems
-import java.nio.file.Files
-import java.nio.file.StandardCopyOption
 import java.time.Duration
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -145,9 +144,9 @@ class JavConfigResolverTest {
     @Test
     fun `Should correctly resolve a remote jav config file`() {
         val configFile = "simple-javconfig.ws"
-        val configBuffer =
-            JavConfigResolverTest::class.java.getResourceAsStream(configFile)?.source()?.buffer()
-                ?: throw FileNotFoundException("Failed to find $configFile within JavConfigResolverTest")
+        val configBuffer = this::class.java.getResourceAsStream(configFile)
+            ?.source()?.buffer()
+            ?: throw FileNotFoundException("Failed to find $configFile within JavConfigResolverTest")
         val config = cloneFileBuffer(configBuffer)
         val server = MockWebServer()
 
@@ -254,13 +253,13 @@ class JavConfigResolverTest {
     }
 
     private fun cloneFileBuffer(source: BufferedSource): Buffer {
-        source.request(Long.MAX_VALUE)
+        val sink = Buffer()
 
-        val config = source.buffer.clone()
+        source.use {
+            sink.writeAll(source)
+        }
 
-        source.close()
-
-        return config
+        return sink
     }
 
     private fun useLocalJavConfigFile(
@@ -270,13 +269,15 @@ class JavConfigResolverTest {
         ApplicationPathsMocks.createLauncherDirectoryStructure().use { fs ->
             val dir = fs.getPath(ApplicationPathsMocks.ROOT_DIR, Constants.GAME_NAME)
 
-            val javConfigStream =
-                JavConfigResolver::class.java.getResourceAsStream(filename)
-                    ?: throw FileNotFoundException("Failed to find $filename during JavConfigResolverTest")
+            val javConfigStream = this::class.java.getResourceAsStream(filename)
+                ?.source()
+                ?: throw FileNotFoundException("Failed to find $filename during JavConfigResolverTest")
 
-            val path = dir.resolve(filename).toAbsolutePath()
+            val path = dir.resolve(filename)
 
-            Files.copy(javConfigStream, path, StandardCopyOption.REPLACE_EXISTING)
+            path.sink().buffer().use {
+                it.writeAll(javConfigStream)
+            }
 
             action(fs)
         }
