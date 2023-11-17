@@ -7,22 +7,24 @@ import com.open592.appletviewer.environment.OperatingSystem
 import com.open592.appletviewer.events.GlobalEventBus
 import com.open592.appletviewer.http.HttpTestConstants
 import com.open592.appletviewer.paths.ApplicationPaths
+import com.open592.appletviewer.progress.ProgressEvent
 import io.mockk.every
+import io.mockk.justRun
 import io.mockk.mockk
 import io.mockk.verify
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.TestScope
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
-import kotlinx.coroutines.test.runTest
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
+import okio.Buffer
+import okio.BufferedSource
+import okio.FileNotFoundException
+import okio.buffer
+import okio.source
 import org.junit.jupiter.api.assertThrows
 import kotlin.test.Test
 
-@OptIn(ExperimentalCoroutinesApi::class)
 class DependencyResolverTest {
     @Test
-    fun `Should properly handle download errors and display the correct fatal error message`() = runTest {
+    fun `Should throw a FetchDependencyException if we fail to download the browsercontrol library`() {
         // Start up mock HTTP server which will fail to resolve the browsercontrol library.
         val server = MockWebServer()
 
@@ -32,7 +34,7 @@ class DependencyResolverTest {
 
         val config = mockk<ApplicationConfiguration>()
         val environment = mockk<Environment>()
-        val eventBus = GlobalEventBus(TestScope(UnconfinedTestDispatcher(testScheduler)))
+        val eventBus = mockk<GlobalEventBus>()
         val applicationPaths = mockk<ApplicationPaths>()
         val dependencyResolver = DependencyResolver(
             config,
@@ -44,16 +46,11 @@ class DependencyResolverTest {
 
         val browserControlFilename = "browsercontrol_0_-1928975093.jar"
 
-        // Get mocked browsercontrol URL
-        val baseUrl = server.url("/")
-
         every { environment.getOperatingSystem() } returns OperatingSystem.WINDOWS
         every { environment.getArchitecture() } returns Architecture.X86_64
 
         every { config.getConfig("browsercontrol_win_amd64_jar") } returns browserControlFilename
-        every { config.getConfig("codebase") } returns baseUrl.toString()
-
-        every { config.getContent("err_downloading") } returns "Error Downloading"
+        every { config.getConfig("codebase") } returns server.url("/").toString()
 
         assertThrows<DependencyResolverException.FetchDependencyException> {
             dependencyResolver.resolveBrowserControl()
@@ -61,5 +58,59 @@ class DependencyResolverTest {
 
         verify(exactly = 1) { config.getConfig("browsercontrol_win_amd64_jar") }
         verify(exactly = 1) { config.getConfig("codebase") }
+    }
+
+    @Test
+    fun `Should throw VerifyDependencyException when encountering a browsercontrol jar of an invalid type`() {
+        val server = MockWebServer()
+
+        val invalidBrowsercontrolFilename = "invalid-browsercontrol-file-type.txt"
+        val invalidBrowsercontrolFile = this::class.java.getResourceAsStream(invalidBrowsercontrolFilename)
+            ?.source()?.buffer()
+            ?: throw FileNotFoundException("Failed to find $invalidBrowsercontrolFilename in DependencyResolverTest")
+        val invalidBrowsercontrolBuffer = cloneFile(invalidBrowsercontrolFile)
+
+        server.enqueue(MockResponse().setBody(invalidBrowsercontrolBuffer).setResponseCode(200))
+
+        server.start()
+
+        val config = mockk<ApplicationConfiguration>()
+        val environment = mockk<Environment>()
+        val eventBus = mockk<GlobalEventBus>()
+        val applicationPaths = mockk<ApplicationPaths>()
+        val dependencyResolver = DependencyResolver(
+            config,
+            environment,
+            eventBus,
+            HttpTestConstants.client,
+            applicationPaths,
+        )
+
+        val browserControlFilename = "browsercontrol_0_-1928975093.jar"
+
+        every { environment.getOperatingSystem() } returns OperatingSystem.WINDOWS
+        every { environment.getArchitecture() } returns Architecture.X86_64
+
+        every { config.getConfig("browsercontrol_win_amd64_jar") } returns browserControlFilename
+        every { config.getConfig("codebase") } returns server.url("/").toString()
+        justRun { eventBus.dispatch(any(ProgressEvent.UpdateProgress::class)) }
+
+        assertThrows<DependencyResolverException.VerifyDependencyException> {
+            dependencyResolver.resolveBrowserControl()
+        }
+
+        verify(exactly = 1) { config.getConfig("browsercontrol_win_amd64_jar") }
+        verify(exactly = 1) { config.getConfig("codebase") }
+        verify(atLeast = 1) { eventBus.dispatch(any(ProgressEvent.UpdateProgress::class)) }
+    }
+
+    private fun cloneFile(file: BufferedSource): Buffer {
+        val sink = Buffer()
+
+        file.use {
+            it.readAll(sink)
+        }
+
+        return sink
     }
 }

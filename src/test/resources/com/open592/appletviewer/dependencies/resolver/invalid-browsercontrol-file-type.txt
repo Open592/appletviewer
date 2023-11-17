@@ -1,0 +1,1 @@
+This file is invalid due to being a plane text file, instead of a JAR.

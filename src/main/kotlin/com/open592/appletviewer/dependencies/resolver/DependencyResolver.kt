@@ -55,6 +55,11 @@ constructor(
     }
 
     /**
+     * Represents the types of remote dependencies this resolver can resolve.
+     */
+    private enum class DependencyType { BROWSERCONTROL, LOADER }
+
+    /**
      * Fetch a remote jar file from the server, resolving the filename from the
      * application config.
      */
