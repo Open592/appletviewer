@@ -20,6 +20,8 @@ import okio.FileNotFoundException
 import okio.buffer
 import okio.source
 import org.junit.jupiter.api.assertThrows
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
 import kotlin.test.Test
 
 class DependencyResolverTest {
@@ -60,14 +62,20 @@ class DependencyResolverTest {
         verify(exactly = 1) { config.getConfig("codebase") }
     }
 
-    @Test
-    fun `Should throw VerifyDependencyException when encountering a browsercontrol jar of an invalid type`() {
+    @ParameterizedTest
+    @ValueSource(
+        strings = [
+            "invalid-browsercontrol-file-type.txt",
+            "invalid-browsercontrol-not-signed.jar",
+            "invalid-browsercontrol-entry-file-type.jar",
+        ],
+    )
+    fun `Should throw VerifyDependencyException when encountering an invalid browsercontrol file`(filename: String) {
         val server = MockWebServer()
 
-        val invalidBrowsercontrolFilename = "invalid-browsercontrol-file-type.txt"
-        val invalidBrowsercontrolFile = this::class.java.getResourceAsStream(invalidBrowsercontrolFilename)
+        val invalidBrowsercontrolFile = this::class.java.getResourceAsStream(filename)
             ?.source()?.buffer()
-            ?: throw FileNotFoundException("Failed to find $invalidBrowsercontrolFilename in DependencyResolverTest")
+            ?: throw FileNotFoundException("Failed to find $filename in DependencyResolverTest")
         val invalidBrowsercontrolBuffer = cloneFile(invalidBrowsercontrolFile)
 
         server.enqueue(MockResponse().setBody(invalidBrowsercontrolBuffer).setResponseCode(200))

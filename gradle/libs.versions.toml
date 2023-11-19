@@ -1,11 +1,12 @@
 [versions]
 guice = "6.0.0"
-okhttp-bom = "4.11.0"
-kotlin = "1.9.10"
+okhttp = "4.12.0"
+junit = "5.10.1"
+kotlin = "1.9.20"
 kotlinCoroutines = "1.7.3"
-ktlint-gradle = "11.5.1"
+ktlint-gradle = "11.6.1"
 memoryfilesystem = "2.6.1"
-mockk = "1.13.7"
+mockk = "1.13.8"
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
@@ -13,8 +14,9 @@ ktlint-gradle = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint-gr
 
 [libraries]
 guice = { module = "com.google.inject:guice", version.ref = "guice" }
-okhttp-bom = { group = "com.squareup.okhttp3", name = "okhttp-bom", version.ref = "okhttp-bom" }
+junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
 kotlin-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinCoroutines" }
 kotlin-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinCoroutines" }
 memoryfilesystem = { module = "com.github.marschall:memoryfilesystem", version.ref = "memoryfilesystem" }
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
+okhttp-bom = { group = "com.squareup.okhttp3", name = "okhttp-bom", version.ref = "okhttp" }

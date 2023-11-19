@@ -3,7 +3,7 @@ package com.open592.appletviewer.dependencies.resolver
 import okio.Buffer
 import java.security.cert.CertificateFactory
 import java.security.cert.X509Certificate
-import java.util.Base64
+import java.util.*
 import java.util.jar.JarInputStream
 import java.util.jar.Manifest
 
