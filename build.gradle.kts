@@ -1,7 +1,6 @@
 import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-
 plugins {
     base
     application
@@ -39,6 +38,8 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp")
 
     testImplementation(kotlin("test"))
+    testImplementation(platform(libs.junit.bom))
+    testImplementation("org.junit.jupiter:junit-jupiter")
     testImplementation(libs.kotlin.coroutines.test)
     testImplementation(libs.memoryfilesystem)
     testImplementation(libs.mockk)
