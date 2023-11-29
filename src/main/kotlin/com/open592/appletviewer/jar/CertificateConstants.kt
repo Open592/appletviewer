@@ -33,10 +33,10 @@ public const val ORIGINAL_JAGEX_PUBLIC_KEY: String =
  * Our simulated "Jagex" public key
  */
 public const val FAKE_JAGEX_PUBLIC_KEY: String =
-    "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuMxaBUjyNpGCKIHnZGHNs/8uNXUHYPJMannDFjdJHqMzYQNYTPKW2DXAROmXd8gSXVh5" +
-        "jWIUk16uD3lleeBNJrgfkFgnBCBbJuC2m26shIO9WpumipgcAC6jmjXNnR72RyydLn7Yz0HYIbxqgGR6fP7drQ2LS3DZ0PyyyHvICdtwKKEg" +
-        "qMQMCQ76JUapn+LPhGnfWkEuRcNnTP9MZLxo3l9behO+gBvoHujq+FNp0YcoR3mDyL06Ku8a2Zmx40HVqWGkF4TKf/jgjOBRP3ovg0HSes0N" +
-        "flio3aTxQ0xYmw5bna1BfCvgopkOHeTuS8FENbiwzsPWvk3CYHxbi5pOowIDAQAB"
+    "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAnXcBFzW+hYfez1+Hy7PB79uH0EV/9pwdvOjwq6Kq+k0M3Jq4FJAJH6BnXEzmkMb7IN0u" +
+        "8HC9tuYV8IiQlPgjbdCAHD7HXSne5ERUDodBAbH7CIeb/JhPEJWsIjqKfjnqmozwlfvDiMDO64fzyzxz4FZTHU5ZnAwd33SsUl0YcwOaw0fq" +
+        "lotBmbI/WcthQ/3xpNlw0Eh7B4uJYpIqmhEWu2eXEBndN5Rb0Czu7LDjsi1oOIAQGxLxCe/Hk6Hk8SNw6U+qFTyU6IHpHSwWXvbyfI/rFddb" +
+        "upWz7P6iy6nppX9MuKibCXlhJ6TTYl/GW/U2Annjj6Rj8hJnDYuelGMuaQIDAQAB"
 
 /**
  * Jagex used Thawte as their CA, and it had the following public key.
@@ -55,5 +55,29 @@ public const val ORIGINAL_THAWTE_PUBLIC_KEY: String =
  * Our simulated "Thawte" public key.
  */
 public const val FAKE_THAWTE_PUBLIC_KEY: String =
-    "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCe9NS0y8btwRdIX3ueWh0dnNPVf3ukq266miW2gRwGGon0uxyH0Ai2KTiVIYeZzXZcJf6qdf8l" +
-        "0ve7uuu1cK0UCEPC0eNLFClqTl6Pi8cLJeDYjo6Q0yv5wtkWb2x4oc9Q67WUte2C+bBToXw8L7SFUqmj3EOP8BF8GmUDzsggAwIDAQAB"
+    "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDdCM0K1lmrgoeX5+iH+0OGsloDEXdsW6uqbcEyEiD1R+nRxEBr4AkJKxLV0LKPICQWeG66mQdB" +
+        "l6djszPwatl5INpSPYtwObl94dJmJnxeZHHjfUOfDoiT5UmygOX+Z2mamPFoNHJW0cAXlDEQ455R1XIYnEyOIN7QjPWA9el/iwIDAQAB"
+
+/**
+ * These are "Jagex" keys, since in the original jars they are listed
+ * under the common name "Jagex Ltd".
+ *
+ * - The first entry is Jagex's actual public key from when the 592 revision
+ * was released.
+ *
+ * - The second entry is our "fake" public key which we will use to sign our
+ * custom jars.
+ */
+public val JAGEX_PUBLIC_KEYS: Set<String> = setOf(ORIGINAL_JAGEX_PUBLIC_KEY, FAKE_JAGEX_PUBLIC_KEY)
+
+/**
+ * These are "Thawte" keys, since in the original jars they are listed
+ * under the common name "Thawte Code Signing CA".
+ *
+ * - The first entry is Thawte's actual public key from when the 592
+ * revision was released.
+ *
+ * - The second is our fake public key which we will use to sign our
+ * custom jars.
+ */
+public val THAWTE_PUBLIC_KEYS: Set<String> = setOf(ORIGINAL_THAWTE_PUBLIC_KEY, FAKE_THAWTE_PUBLIC_KEY)

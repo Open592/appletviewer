@@ -1,4 +1,4 @@
-package com.open592.appletviewer.dependencies.resolver
+package com.open592.appletviewer.jar
 
 import okio.Buffer
 import okio.buffer
