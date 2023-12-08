@@ -17,8 +17,8 @@ public class GlobalEventBus(
 ) {
     private val events = MutableSharedFlow<ApplicationEvent>(extraBufferCapacity = 1)
 
-    public fun <T : ApplicationEvent> dispatch(event: T): Boolean {
-        return events.tryEmit(event)
+    public fun <T : ApplicationEvent> dispatch(event: T) {
+        events.tryEmit(event)
     }
 
     @Throws(RuntimeException::class)
