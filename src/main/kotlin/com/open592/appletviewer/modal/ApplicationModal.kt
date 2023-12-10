@@ -5,8 +5,8 @@ import com.open592.appletviewer.events.GlobalEventBus
 import com.open592.appletviewer.modal.view.ApplicationModalProperties
 import com.open592.appletviewer.modal.view.ApplicationModalView
 import com.open592.appletviewer.progress.ProgressEvent
-import javax.inject.Inject
-import javax.inject.Singleton
+import jakarta.inject.Inject
+import jakarta.inject.Singleton
 
 @Singleton
 public class ApplicationModal

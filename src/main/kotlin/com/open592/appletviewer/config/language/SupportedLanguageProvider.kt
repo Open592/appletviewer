@@ -1,8 +1,8 @@
 package com.open592.appletviewer.config.language
 
 import com.open592.appletviewer.preferences.AppletViewerPreferences
-import javax.inject.Inject
-import javax.inject.Provider
+import jakarta.inject.Inject
+import jakarta.inject.Provider
 
 public class SupportedLanguageProvider
 @Inject

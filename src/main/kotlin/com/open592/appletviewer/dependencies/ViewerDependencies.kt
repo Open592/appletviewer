@@ -8,8 +8,8 @@ import com.open592.appletviewer.environment.Environment
 import com.open592.appletviewer.events.GlobalEventBus
 import com.open592.appletviewer.modal.ApplicationModal
 import com.open592.appletviewer.progress.ProgressEvent
-import javax.inject.Inject
-import javax.inject.Singleton
+import jakarta.inject.Inject
+import jakarta.inject.Singleton
 
 @Singleton
 public class ViewerDependencies

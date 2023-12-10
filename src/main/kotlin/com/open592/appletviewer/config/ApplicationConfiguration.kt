@@ -3,8 +3,8 @@ package com.open592.appletviewer.config
 import com.open592.appletviewer.config.javconfig.JavConfig
 import com.open592.appletviewer.config.javconfig.ServerConfiguration
 import com.open592.appletviewer.config.language.SupportedLanguage
-import javax.inject.Inject
-import javax.inject.Singleton
+import jakarta.inject.Inject
+import jakarta.inject.Singleton
 
 @Singleton
 public class ApplicationConfiguration

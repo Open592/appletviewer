@@ -2,9 +2,9 @@ package com.open592.appletviewer.paths
 
 import com.open592.appletviewer.config.ApplicationConfiguration
 import com.open592.appletviewer.settings.SettingsStore
+import jakarta.inject.Inject
 import java.nio.file.FileSystem
 import java.nio.file.Path
-import javax.inject.Inject
 import kotlin.io.path.createDirectories
 
 public class LinuxApplicationPaths

@@ -1,7 +1,7 @@
 package com.open592.appletviewer.debug.capture
 
-import javax.inject.Inject
-import javax.inject.Singleton
+import jakarta.inject.Inject
+import jakarta.inject.Singleton
 
 /**
  * Provides easy access to PrintStreams

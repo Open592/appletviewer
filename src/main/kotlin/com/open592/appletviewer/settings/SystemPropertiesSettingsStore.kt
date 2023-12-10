@@ -1,6 +1,6 @@
 package com.open592.appletviewer.settings
 
-import javax.inject.Singleton
+import jakarta.inject.Singleton
 
 /**
  * A simple settings store which is backed by the JVM system properties

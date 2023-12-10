@@ -2,9 +2,9 @@ package com.open592.appletviewer.debug.capture
 
 import com.open592.appletviewer.debug.DebugConsoleEvent
 import com.open592.appletviewer.events.GlobalEventBus
+import jakarta.inject.Inject
+import jakarta.inject.Singleton
 import java.io.PrintStream
-import javax.inject.Inject
-import javax.inject.Singleton
 
 @Singleton
 public class SystemOutInterceptor

@@ -4,6 +4,8 @@ import com.open592.appletviewer.config.ApplicationConfiguration
 import com.open592.appletviewer.events.GlobalEventBus
 import com.open592.appletviewer.frame.RootFrame
 import com.open592.appletviewer.viewer.ViewerEvent
+import jakarta.inject.Inject
+import jakarta.inject.Singleton
 import java.awt.Color
 import java.awt.Component
 import java.awt.Dialog
@@ -12,8 +14,6 @@ import java.awt.Font
 import java.awt.Graphics
 import java.awt.event.WindowAdapter
 import java.awt.event.WindowEvent
-import javax.inject.Inject
-import javax.inject.Singleton
 
 @Singleton
 public class ProgressIndicatorComponent

@@ -1,7 +1,7 @@
 package com.open592.appletviewer.environment
 
 import com.open592.appletviewer.settings.SettingsStore
-import javax.inject.Inject
+import jakarta.inject.Inject
 
 public class Environment
 @Inject

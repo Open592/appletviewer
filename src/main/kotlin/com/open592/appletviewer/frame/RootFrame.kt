@@ -1,10 +1,10 @@
 package com.open592.appletviewer.frame
 
 import com.open592.appletviewer.paths.ApplicationPaths
+import jakarta.inject.Inject
+import jakarta.inject.Singleton
 import java.awt.Frame
 import java.awt.Toolkit
-import javax.inject.Inject
-import javax.inject.Singleton
 import kotlin.io.path.isReadable
 
 @Singleton

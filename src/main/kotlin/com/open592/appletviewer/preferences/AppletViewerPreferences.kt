@@ -1,10 +1,10 @@
 package com.open592.appletviewer.preferences
 
+import jakarta.inject.Inject
+import jakarta.inject.Singleton
 import java.io.IOException
 import java.nio.file.FileSystem
 import java.nio.file.Files
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * Holds persistent data across AppletViewer sessions.

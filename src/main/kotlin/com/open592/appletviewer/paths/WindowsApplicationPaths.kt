@@ -2,10 +2,10 @@ package com.open592.appletviewer.paths
 
 import com.open592.appletviewer.config.ApplicationConfiguration
 import com.open592.appletviewer.settings.SettingsStore
+import jakarta.inject.Inject
 import java.nio.file.FileSystem
 import java.nio.file.Files
 import java.nio.file.Path
-import javax.inject.Inject
 import kotlin.io.path.createFile
 import kotlin.io.path.exists
 import kotlin.io.path.isWritable

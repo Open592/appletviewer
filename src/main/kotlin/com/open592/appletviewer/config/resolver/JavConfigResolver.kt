@@ -4,14 +4,14 @@ import com.open592.appletviewer.config.javconfig.JavConfig
 import com.open592.appletviewer.paths.ApplicationPaths
 import com.open592.appletviewer.preferences.AppletViewerPreferences
 import com.open592.appletviewer.settings.SettingsStore
+import jakarta.inject.Inject
+import jakarta.inject.Singleton
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okio.IOException
 import okio.buffer
 import okio.source
 import java.lang.IllegalArgumentException
-import javax.inject.Inject
-import javax.inject.Singleton
 import kotlin.io.path.isRegularFile
 
 /**

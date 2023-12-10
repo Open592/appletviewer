@@ -4,9 +4,9 @@ import com.open592.appletviewer.config.ApplicationConfiguration
 import com.open592.appletviewer.environment.Environment
 import com.open592.appletviewer.environment.OperatingSystem
 import com.open592.appletviewer.settings.SettingsStore
+import jakarta.inject.Inject
+import jakarta.inject.Provider
 import java.nio.file.FileSystem
-import javax.inject.Inject
-import javax.inject.Provider
 
 public class ApplicationPathsProvider
 @Inject

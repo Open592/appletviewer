@@ -22,7 +22,6 @@ import okio.source
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
 import java.io.FileNotFoundException
-import java.io.IOException
 import java.nio.file.FileSystem
 import java.nio.file.FileSystems
 import kotlin.test.Test

@@ -7,6 +7,7 @@ import com.open592.appletviewer.environment.OperatingSystem
 import com.open592.appletviewer.events.GlobalEventBus
 import com.open592.appletviewer.paths.ApplicationPaths
 import com.open592.appletviewer.progress.ProgressEvent
+import jakarta.inject.Inject
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okio.Buffer
@@ -14,7 +15,6 @@ import okio.buffer
 import okio.sink
 import okio.source
 import java.util.jar.JarInputStream
-import javax.inject.Inject
 
 public class DependencyResolver
 @Inject

@@ -3,6 +3,8 @@ package com.open592.appletviewer.modal.view
 import com.open592.appletviewer.events.GlobalEventBus
 import com.open592.appletviewer.frame.RootFrame
 import com.open592.appletviewer.viewer.ViewerEvent
+import jakarta.inject.Inject
+import jakarta.inject.Singleton
 import java.awt.BorderLayout
 import java.awt.Button
 import java.awt.Dialog
@@ -13,8 +15,6 @@ import java.awt.Label
 import java.awt.Panel
 import java.awt.event.WindowAdapter
 import java.awt.event.WindowEvent
-import javax.inject.Inject
-import javax.inject.Singleton
 
 @Singleton
 public class ApplicationModalComponent

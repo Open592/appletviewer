@@ -4,8 +4,8 @@ import com.open592.appletviewer.debug.capture.OutputCapture
 import com.open592.appletviewer.debug.view.DebugConsoleView
 import com.open592.appletviewer.events.GlobalEventBus
 import com.open592.appletviewer.settings.SettingsStore
-import javax.inject.Inject
-import javax.inject.Singleton
+import jakarta.inject.Inject
+import jakarta.inject.Singleton
 
 @Singleton
 public class DebugConsole
