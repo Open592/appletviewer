@@ -1,9 +1,5 @@
 package com.open592.appletviewer.jar
 
-import com.open592.appletviewer.dependencies.resolver.JAGEX_PUBLIC_KEYS
-import com.open592.appletviewer.dependencies.resolver.ORIGINAL_JAGEX_CERTIFICATE_SERIAL_NUMBER
-import com.open592.appletviewer.dependencies.resolver.ORIGINAL_THAWTE_CERTIFICATE_SERIAL_NUMBER
-import com.open592.appletviewer.dependencies.resolver.THAWTE_PUBLIC_KEYS
 import okio.Buffer
 import java.security.cert.CertificateFactory
 import java.security.cert.X509Certificate
