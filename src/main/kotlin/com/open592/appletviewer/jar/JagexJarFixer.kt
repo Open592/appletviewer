@@ -72,7 +72,7 @@ private fun bufferToJarFile(jarBuffer: Buffer): JarFile {
     jarSink.writeAll(jarBuffer)
     jarSink.flush()
 
-    return JarFile(jar.toFile(), true, TEMPORY_JAR_OPEN_MODE)
+    return JarFile(jar.toFile(), true, TEMPORARY_JAR_OPEN_MODE)
 }
 
 /**
@@ -117,4 +117,4 @@ private const val JAGEX_JAR_SIGNATURE_FILE_NAME = "META-INF/zigbert.sf"
 private const val JAGEX_JAR_SIGNATURE_NAME = "META-INF/zigbert.rsa"
 
 // The mode in which we will open the temporary jar file
-private const val TEMPORY_JAR_OPEN_MODE = ZipFile.OPEN_READ or ZipFile.OPEN_DELETE
+private const val TEMPORARY_JAR_OPEN_MODE = ZipFile.OPEN_READ or ZipFile.OPEN_DELETE
