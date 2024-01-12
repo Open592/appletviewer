@@ -40,6 +40,7 @@ dependencies {
     testImplementation(kotlin("test"))
     testImplementation(platform(libs.junit.bom))
     testImplementation("org.junit.jupiter:junit-jupiter")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation(libs.kotlin.coroutines.test)
     testImplementation(libs.memoryfilesystem)
     testImplementation(libs.mockk)
