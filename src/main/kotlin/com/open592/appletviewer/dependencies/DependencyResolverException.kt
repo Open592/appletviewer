@@ -1,4 +1,4 @@
-package com.open592.appletviewer.dependencies.resolver
+package com.open592.appletviewer.dependencies
 
 /**
  * Represents errors encountered while resolving viewer dependencies.

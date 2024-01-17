@@ -1,4 +1,4 @@
-package com.open592.appletviewer.dependencies.resolver
+package com.open592.appletviewer.dependencies
 
 import com.github.marschall.memoryfilesystem.MemoryFileSystemBuilder
 import com.open592.appletviewer.common.Constants

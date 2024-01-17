@@ -1,4 +1,4 @@
-package com.open592.appletviewer.dependencies.resolver
+package com.open592.appletviewer.dependencies
 
 import com.open592.appletviewer.config.ApplicationConfiguration
 import com.open592.appletviewer.environment.Architecture
