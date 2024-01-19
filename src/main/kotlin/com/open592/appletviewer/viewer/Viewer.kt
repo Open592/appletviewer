@@ -4,6 +4,7 @@ import com.open592.appletviewer.config.ApplicationConfiguration
 import com.open592.appletviewer.config.resolver.JavConfigResolveException
 import com.open592.appletviewer.config.resolver.JavConfigResolver
 import com.open592.appletviewer.debug.DebugConsole
+import com.open592.appletviewer.dependencies.ViewerDependencies
 import com.open592.appletviewer.events.GlobalEventBus
 import com.open592.appletviewer.modal.ApplicationModal
 import com.open592.appletviewer.progress.ProgressEvent
@@ -22,6 +23,7 @@ constructor(
     private val debugConsole: DebugConsole,
     private val settingsStore: SettingsStore,
     private val javConfigResolver: JavConfigResolver,
+    private val viewerDependencies: ViewerDependencies,
 ) {
     init {
         eventBus.listen<ViewerEvent> {
@@ -37,36 +39,42 @@ constructor(
 
         printDebugInfo()
 
-        // Inform the user that we are loading the configuration
-        eventBus.dispatch(ProgressEvent.ChangeVisibility(visible = true))
-        eventBus.dispatch(ProgressEvent.ChangeText(config.getContent("loading_config")))
-
         initializeConfiguration()
 
-        checkForNewViewerVersion()
-
-        eventBus.dispatch(ProgressEvent.ChangeText(config.getContent("loading_app_resources")))
-    }
-
-    private fun checkForNewViewerVersion() {
-        val requiredVersion = config.getConfigAsInt("viewerversion") ?: Int.MAX_VALUE
-
-        if (requiredVersion > VIEWER_VERSION) {
-            applicationModal.displayMessageModal(config.getContent("new_version"))
-        }
+        viewerDependencies.resolve()
     }
 
     private fun handleQuitEvent() {
         exitProcess(0)
     }
 
+    /**
+     * Resolve the remote jav_config.ws file and verify that the viewer
+     * doesn't have any required updates.
+     */
     private fun initializeConfiguration() {
+        // Inform the user that we are loading the configuration
+        eventBus.dispatch(ProgressEvent.ChangeVisibility(visible = true))
+        eventBus.dispatch(ProgressEvent.ChangeText(config.getContent("loading_config")))
+
         try {
             val javConfig = javConfigResolver.resolve()
 
             config.initialize(javConfig)
         } catch (e: JavConfigResolveException) {
             applicationModal.displayFatalErrorModal(config.getContent(e.contentKey))
+        }
+
+        checkForNewViewerVersion()
+    }
+
+    private fun checkForNewViewerVersion() {
+        // Keeping original functionality where if we can't resolve the remote viewer version
+        // we skip this check and continue.
+        val requiredVersion = config.getConfigAsInt("viewerversion") ?: return
+
+        if (requiredVersion > VIEWER_VERSION) {
+            applicationModal.displayMessageModal(config.getContent("new_version"))
         }
     }
 
