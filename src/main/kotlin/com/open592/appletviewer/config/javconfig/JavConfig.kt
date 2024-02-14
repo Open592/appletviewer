@@ -145,7 +145,7 @@ public data class JavConfig(
                 throw Exception("Encountered an invalid server block declaration: Missing servername")
             }
 
-            val serverName = line.substring(1, line.lastIndexOf("]"))
+            val serverName = line.substring(1, line.lastIndexOf(SERVER_BLOCK_CLOSE_TOKEN))
 
             if (serverName.isEmpty()) {
                 throw Exception("Encountered an invalid server block declaration: Empty servername")
