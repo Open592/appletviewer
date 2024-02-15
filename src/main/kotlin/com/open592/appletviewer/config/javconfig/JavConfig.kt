@@ -139,13 +139,10 @@ public data class JavConfig(
          * And will declare a new server - which overrides any root level configurations.
          */
         private fun processServerBlock(line: String): ServerConfiguration {
-            val blockEndPOS = line.lastIndexOf(SERVER_BLOCK_CLOSE_TOKEN)
-
-            if (blockEndPOS < 0) {
-                throw Exception("Encountered an invalid server block declaration: Missing servername")
-            }
-
-            val serverName = line.substring(1, line.lastIndexOf(SERVER_BLOCK_CLOSE_TOKEN))
+            val serverBlockEndPOS = line.lastIndexOf(SERVER_BLOCK_CLOSE_TOKEN)
+            // Since we are processing a known server block, we can assume that the first character of the line
+            // is a `SERVER_BLOCK_OPEN_TOKEN`
+            val serverName = line.substring(1, serverBlockEndPOS)
 
             if (serverName.isEmpty()) {
                 throw Exception("Encountered an invalid server block declaration: Empty servername")
