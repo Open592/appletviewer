@@ -1,4 +1,4 @@
-package com.open592.appletviewer.dependencies.resolver
+package com.open592.appletviewer.dependencies
 
 import com.github.marschall.memoryfilesystem.MemoryFileSystemBuilder
 import com.open592.appletviewer.common.Constants
@@ -8,9 +8,12 @@ import com.open592.appletviewer.environment.Environment
 import com.open592.appletviewer.environment.OperatingSystem
 import com.open592.appletviewer.events.GlobalEventBus
 import com.open592.appletviewer.http.HttpTestConstants
+import com.open592.appletviewer.jar.CertificateValidator
+import com.open592.appletviewer.jar.SignedJarFileResolver
 import com.open592.appletviewer.paths.ApplicationPaths
 import com.open592.appletviewer.paths.WindowsApplicationPaths
 import com.open592.appletviewer.progress.ProgressEvent
+import com.open592.appletviewer.settings.SettingsStore
 import com.open592.appletviewer.settings.SystemPropertiesSettingsStore
 import io.mockk.every
 import io.mockk.justRun
@@ -45,12 +48,21 @@ class DependencyResolverTest {
         val environment = mockk<Environment>()
         val eventBus = mockk<GlobalEventBus>()
         val applicationPaths = mockk<ApplicationPaths>()
+        val settingsStore = mockk<SettingsStore>()
+
+        every { settingsStore.getString("com.open592.fakeThawtePublicKey") } returns FAKE_THAWTE_PUBLIC_KEY
+        every { settingsStore.getString("com.open592.fakeJagexPublicKey") } returns FAKE_JAGEX_PUBLIC_KEY
+        every { settingsStore.getBoolean("com.open592.disableJarValidation") } returns false
+
+        val certificateValidator = CertificateValidator(settingsStore)
+        val signedJarFileResolver = SignedJarFileResolver(certificateValidator)
         val dependencyResolver = DependencyResolver(
             config,
             environment,
             eventBus,
             HttpTestConstants.client,
             applicationPaths,
+            signedJarFileResolver,
         )
 
         every { environment.getOperatingSystem() } returns OperatingSystem.WINDOWS
@@ -91,12 +103,21 @@ class DependencyResolverTest {
         val environment = mockk<Environment>()
         val eventBus = mockk<GlobalEventBus>()
         val applicationPaths = mockk<ApplicationPaths>()
+        val settingsStore = mockk<SettingsStore>()
+
+        every { settingsStore.getString("com.open592.fakeThawtePublicKey") } returns FAKE_THAWTE_PUBLIC_KEY
+        every { settingsStore.getString("com.open592.fakeJagexPublicKey") } returns FAKE_JAGEX_PUBLIC_KEY
+        every { settingsStore.getBoolean("com.open592.disableJarValidation") } returns false
+
+        val certificateValidator = CertificateValidator(settingsStore)
+        val signedJarFileResolver = SignedJarFileResolver(certificateValidator)
         val dependencyResolver = DependencyResolver(
             config,
             environment,
             eventBus,
             HttpTestConstants.client,
             applicationPaths,
+            signedJarFileResolver,
         )
 
         every { environment.getOperatingSystem() } returns OperatingSystem.WINDOWS
@@ -143,12 +164,21 @@ class DependencyResolverTest {
         val eventBus = mockk<GlobalEventBus>()
         val settings = mockk<SystemPropertiesSettingsStore>()
         val applicationPaths = WindowsApplicationPaths(config, fs, settings)
+        val settingsStore = mockk<SettingsStore>()
+
+        every { settingsStore.getString("com.open592.fakeThawtePublicKey") } returns FAKE_THAWTE_PUBLIC_KEY
+        every { settingsStore.getString("com.open592.fakeJagexPublicKey") } returns FAKE_JAGEX_PUBLIC_KEY
+        every { settingsStore.getBoolean("com.open592.disableJarValidation") } returns false
+
+        val certificateValidator = CertificateValidator(settingsStore)
+        val signedJarFileResolver = SignedJarFileResolver(certificateValidator)
         val dependencyResolver = DependencyResolver(
             config,
             environment,
             eventBus,
             HttpTestConstants.client,
             applicationPaths,
+            signedJarFileResolver,
         )
 
         every { environment.getOperatingSystem() } returns OperatingSystem.WINDOWS
@@ -189,6 +219,23 @@ class DependencyResolverTest {
     }
 
     private companion object {
-        const val DEFAULT_BROWSERCONTROL_FILENAME = "browsercontrol_0_-1928975093.jar"
+        private const val DEFAULT_BROWSERCONTROL_FILENAME = "browsercontrol_0_-1928975093.jar"
+
+        /**
+         * Fake Thawte public key used in our test jars.
+         */
+        private const val FAKE_THAWTE_PUBLIC_KEY: String =
+            "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDdCM0K1lmrgoeX5+iH+0OGsloDEXdsW6uqbcEyEiD1R+nRxEBr4AkJKxLV0LKPICQW" +
+                "eG66mQdBl6djszPwatl5INpSPYtwObl94dJmJnxeZHHjfUOfDoiT5UmygOX+Z2mamPFoNHJW0cAXlDEQ455R1XIYnEyOIN7QjPWA" +
+                "9el/iwIDAQAB"
+
+        /**
+         * Fake Jagex public key used in our test jars.
+         */
+        private const val FAKE_JAGEX_PUBLIC_KEY: String =
+            "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAnXcBFzW+hYfez1+Hy7PB79uH0EV/9pwdvOjwq6Kq+k0M3Jq4FJAJH6BnXEzm" +
+                "kMb7IN0u8HC9tuYV8IiQlPgjbdCAHD7HXSne5ERUDodBAbH7CIeb/JhPEJWsIjqKfjnqmozwlfvDiMDO64fzyzxz4FZTHU5ZnAwd" +
+                "33SsUl0YcwOaw0fqlotBmbI/WcthQ/3xpNlw0Eh7B4uJYpIqmhEWu2eXEBndN5Rb0Czu7LDjsi1oOIAQGxLxCe/Hk6Hk8SNw6U+q" +
+                "FTyU6IHpHSwWXvbyfI/rFddbupWz7P6iy6nppX9MuKibCXlhJ6TTYl/GW/U2Annjj6Rj8hJnDYuelGMuaQIDAQAB"
     }
 }

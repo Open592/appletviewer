@@ -1,8 +1,6 @@
 package com.open592.appletviewer.dependencies
 
 import com.open592.appletviewer.config.ApplicationConfiguration
-import com.open592.appletviewer.dependencies.resolver.DependencyResolver
-import com.open592.appletviewer.dependencies.resolver.DependencyResolverException
 import com.open592.appletviewer.environment.Architecture
 import com.open592.appletviewer.environment.Environment
 import com.open592.appletviewer.events.GlobalEventBus

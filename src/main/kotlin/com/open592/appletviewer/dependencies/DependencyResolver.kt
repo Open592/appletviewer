@@ -1,10 +1,11 @@
-package com.open592.appletviewer.dependencies.resolver
+package com.open592.appletviewer.dependencies
 
 import com.open592.appletviewer.config.ApplicationConfiguration
 import com.open592.appletviewer.environment.Architecture
 import com.open592.appletviewer.environment.Environment
 import com.open592.appletviewer.environment.OperatingSystem
 import com.open592.appletviewer.events.GlobalEventBus
+import com.open592.appletviewer.jar.SignedJarFileResolver
 import com.open592.appletviewer.paths.ApplicationPaths
 import com.open592.appletviewer.progress.ProgressEvent
 import jakarta.inject.Inject
@@ -14,7 +15,6 @@ import okio.Buffer
 import okio.buffer
 import okio.sink
 import okio.source
-import java.util.jar.JarInputStream
 
 public class DependencyResolver
 @Inject
@@ -24,6 +24,7 @@ constructor(
     private val eventBus: GlobalEventBus,
     private val httpClient: OkHttpClient,
     private val paths: ApplicationPaths,
+    private val signedJarFileResolver: SignedJarFileResolver,
 ) {
     /**
      * Resolving the browsercontrol library is performed in 3 parts:
@@ -35,18 +36,15 @@ constructor(
      * 3. The library file bytes are written to disk. The location is platform dependent.
      */
     public fun resolveBrowserControl() {
-        val fileBytes = fetchRemoteDependency(DependencyType.BROWSERCONTROL)
+        val browserControlJarBytes = fetchRemoteDependency(DependencyType.BROWSERCONTROL)
         val filename = getBrowserControlFilename()
 
-        if (fileBytes == null) {
+        if (browserControlJarBytes == null) {
             throw DependencyResolverException.FetchDependencyException(filename)
         }
 
-        val jar = resolveRemoteJar(fileBytes)
-            ?: throw DependencyResolverException.VerifyDependencyException()
-
-        val library = SignedJarFileEntries.loadAndValidate(jar)?.getEntry(filename)
-            ?: throw DependencyResolverException.VerifyDependencyException()
+        val jarEntries = signedJarFileResolver.resolveEntries(browserControlJarBytes)
+        val library = jarEntries[filename] ?: throw DependencyResolverException.VerifyDependencyException()
 
         // Now that we have verified the jar and extracted the library, write it to the cache directory.
         paths.resolveCacheDirectoryPath(filename).sink().buffer().use { destination ->
@@ -162,61 +160,6 @@ constructor(
      */
     private fun getTotalDownloadSize(): Int {
         return fileSizes.values.reduce { acc, size -> acc + size }
-    }
-
-    /**
-     * When dealing with remote jar files we want to offload some validation
-     * work to standard library classes like `JarInputStream`. Unfortunately
-     * it makes a lot of assumptions about the structure of the jar file, and
-     * the naming of its entries. Because of this we are unable to validate
-     * the original Jagex jar files as-is since they use a non-standard entry
-     * order.
-     *
-     * To mitigate the above we check if `JarInputStream` was unable to load the
-     * jar manifest, and if so, we attempt to recreate the jar using the standard
-     * naming and structure.
-     *
-     * The resulting `JarInputStream` will then be passed to our verification
-     * helper to perform additional checks.
-     */
-    private fun resolveRemoteJar(jarBuffer: Buffer): JarInputStream? {
-        /**
-         * `JarInputStream` is going to read a segment off the top of the `Buffer`.
-         * To allow us to later read from the beginning of the buffer if we encounter
-         * a non-standard jar we need to clone the Buffer.
-         */
-        val bufferClone = jarBuffer.clone()
-        val jarStream = JarInputStream(jarBuffer.inputStream())
-
-        /**
-         * Internally `JarInputStream` will attempt to read in the `MANIFEST.MF`
-         * file from the jar. It first skips `META-INF/` then expects `MANIFEST.MF`
-         * as the second file. If it finds a valid manifest file at that location
-         * it will parse it and store it.
-         *
-         * If we are able to find it, we can assume that the jar we are
-         * working with is structured properly. Further validation will confirm
-         * it's signed with either our own, or Jagex's private keys.
-         */
-        if (jarStream.manifest != null) {
-            /**
-             * Since we don't need the duplicated `Buffer` let `okio` handle
-             * recycling its resources.
-             */
-            bufferClone.clear()
-
-            return jarStream
-        }
-
-        /**
-         * At this point we have a jar file which is not structured according
-         * to rules expected by `JarInputStream`. We need to restructure the
-         * jar so that it can be properly read.
-         *
-         * This is an exception case, and most likely will only be encountered
-         * then working with original Jagex jars from the 592 era.
-         */
-        return fixJagexJar(bufferClone)
     }
 
     /**
