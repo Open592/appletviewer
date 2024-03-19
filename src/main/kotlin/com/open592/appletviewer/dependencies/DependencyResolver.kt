@@ -5,7 +5,7 @@ import com.open592.appletviewer.environment.Architecture
 import com.open592.appletviewer.environment.Environment
 import com.open592.appletviewer.environment.OperatingSystem
 import com.open592.appletviewer.events.GlobalEventBus
-import com.open592.appletviewer.jar.SignedJarFileEntries
+import com.open592.appletviewer.jar.SignedJarFileResolver
 import com.open592.appletviewer.paths.ApplicationPaths
 import com.open592.appletviewer.progress.ProgressEvent
 import jakarta.inject.Inject
@@ -24,6 +24,7 @@ constructor(
     private val eventBus: GlobalEventBus,
     private val httpClient: OkHttpClient,
     private val paths: ApplicationPaths,
+    private val signedJarFileResolver: SignedJarFileResolver,
 ) {
     /**
      * Resolving the browsercontrol library is performed in 3 parts:
@@ -35,15 +36,15 @@ constructor(
      * 3. The library file bytes are written to disk. The location is platform dependent.
      */
     public fun resolveBrowserControl() {
-        val fileBytes = fetchRemoteDependency(DependencyType.BROWSERCONTROL)
+        val browserControlJarBytes = fetchRemoteDependency(DependencyType.BROWSERCONTROL)
         val filename = getBrowserControlFilename()
 
-        if (fileBytes == null) {
+        if (browserControlJarBytes == null) {
             throw DependencyResolverException.FetchDependencyException(filename)
         }
 
-        val library = SignedJarFileEntries.readAndValidate(fileBytes)?.getEntry(filename)
-            ?: throw DependencyResolverException.VerifyDependencyException()
+        val jarEntries = signedJarFileResolver.resolveEntries(browserControlJarBytes)
+        val library = jarEntries[filename] ?: throw DependencyResolverException.VerifyDependencyException()
 
         // Now that we have verified the jar and extracted the library, write it to the cache directory.
         paths.resolveCacheDirectoryPath(filename).sink().buffer().use { destination ->
