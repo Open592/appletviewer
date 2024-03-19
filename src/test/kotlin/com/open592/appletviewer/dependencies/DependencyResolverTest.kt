@@ -13,6 +13,7 @@ import com.open592.appletviewer.jar.SignedJarFileResolver
 import com.open592.appletviewer.paths.ApplicationPaths
 import com.open592.appletviewer.paths.WindowsApplicationPaths
 import com.open592.appletviewer.progress.ProgressEvent
+import com.open592.appletviewer.settings.SettingsStore
 import com.open592.appletviewer.settings.SystemPropertiesSettingsStore
 import io.mockk.every
 import io.mockk.justRun
@@ -47,8 +48,13 @@ class DependencyResolverTest {
         val environment = mockk<Environment>()
         val eventBus = mockk<GlobalEventBus>()
         val applicationPaths = mockk<ApplicationPaths>()
-        val certificateValidator =
-            CertificateValidator(FAKE_THAWTE_PUBLIC_KEY, FAKE_JAGEX_PUBLIC_KEY, disableJarValidation = false)
+        val settingsStore = mockk<SettingsStore>()
+
+        every { settingsStore.getString("com.open592.fakeThawtePublicKey") } returns FAKE_THAWTE_PUBLIC_KEY
+        every { settingsStore.getString("com.open592.fakeJagexPublicKey") } returns FAKE_JAGEX_PUBLIC_KEY
+        every { settingsStore.getBoolean("com.open592.disableJarValidation") } returns false
+
+        val certificateValidator = CertificateValidator(settingsStore)
         val signedJarFileResolver = SignedJarFileResolver(certificateValidator)
         val dependencyResolver = DependencyResolver(
             config,
@@ -97,8 +103,13 @@ class DependencyResolverTest {
         val environment = mockk<Environment>()
         val eventBus = mockk<GlobalEventBus>()
         val applicationPaths = mockk<ApplicationPaths>()
-        val certificateValidator =
-            CertificateValidator(FAKE_THAWTE_PUBLIC_KEY, FAKE_JAGEX_PUBLIC_KEY, disableJarValidation = false)
+        val settingsStore = mockk<SettingsStore>()
+
+        every { settingsStore.getString("com.open592.fakeThawtePublicKey") } returns FAKE_THAWTE_PUBLIC_KEY
+        every { settingsStore.getString("com.open592.fakeJagexPublicKey") } returns FAKE_JAGEX_PUBLIC_KEY
+        every { settingsStore.getBoolean("com.open592.disableJarValidation") } returns false
+
+        val certificateValidator = CertificateValidator(settingsStore)
         val signedJarFileResolver = SignedJarFileResolver(certificateValidator)
         val dependencyResolver = DependencyResolver(
             config,
@@ -153,8 +164,13 @@ class DependencyResolverTest {
         val eventBus = mockk<GlobalEventBus>()
         val settings = mockk<SystemPropertiesSettingsStore>()
         val applicationPaths = WindowsApplicationPaths(config, fs, settings)
-        val certificateValidator =
-            CertificateValidator(FAKE_THAWTE_PUBLIC_KEY, FAKE_JAGEX_PUBLIC_KEY, disableJarValidation = false)
+        val settingsStore = mockk<SettingsStore>()
+
+        every { settingsStore.getString("com.open592.fakeThawtePublicKey") } returns FAKE_THAWTE_PUBLIC_KEY
+        every { settingsStore.getString("com.open592.fakeJagexPublicKey") } returns FAKE_JAGEX_PUBLIC_KEY
+        every { settingsStore.getBoolean("com.open592.disableJarValidation") } returns false
+
+        val certificateValidator = CertificateValidator(settingsStore)
         val signedJarFileResolver = SignedJarFileResolver(certificateValidator)
         val dependencyResolver = DependencyResolver(
             config,

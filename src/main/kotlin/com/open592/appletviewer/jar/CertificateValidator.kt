@@ -1,5 +1,7 @@
 package com.open592.appletviewer.jar
 
+import com.open592.appletviewer.settings.SettingsStore
+import jakarta.inject.Inject
 import java.security.cert.X509Certificate
 import java.util.Base64
 
@@ -15,18 +17,36 @@ import java.util.Base64
  * should not be used as a reference for how to verify remote jar files in other
  * projects.
  *
- * @param fakeThawtePublicKey If present we verify jar files with this public
- * key in place of the original Thawte public key.
- * @param fakeJagexPublicKey If present we verify jar files with this public
- * key in place of the original Jagex public key.
- * @param disableJarValidation Allows for disabling the jar file validation
- * logic. Useful if you want to use unsigned jar files.
  */
-public class CertificateValidator(
-    fakeThawtePublicKey: String?,
-    fakeJagexPublicKey: String?,
-    private val disableJarValidation: Boolean,
+public class CertificateValidator @Inject constructor(
+    settingsStore: SettingsStore,
 ) {
+    /**
+     * List of valid "Thawte" public keys which we will accept.
+     */
+    private val thawtePublicKeys: Set<String>
+
+    /**
+     * List of valid "Jagex" public keys which we will accept.
+     */
+    private val jagexPublicKeys: Set<String>
+
+    /**
+     * Allows for disabling the jar file validation logic. Useful if you want to use unsigned jar files.
+     */
+    private val disableJarValidation: Boolean
+
+    init {
+        // If present we verify jar files with this public key in place of the original Thawte public key.
+        val fakeThawtePublicKey = settingsStore.getString("com.open592.fakeThawtePublicKey").ifEmpty { null }
+        // If present we verify jar files with this public key in place of the original Jagex public key.
+        val fakeJagexPublicKey = settingsStore.getString("com.open592.fakeJagexPublicKey").ifEmpty { null }
+
+        thawtePublicKeys = setOfNotNull(fakeThawtePublicKey, ORIGINAL_THAWTE_PUBLIC_KEY)
+        jagexPublicKeys = setOfNotNull(fakeJagexPublicKey, ORIGINAL_JAGEX_PUBLIC_KEY)
+        disableJarValidation = settingsStore.getBoolean("com.open592.disableJarValidation")
+    }
+
     /**
      * The original applet viewer had some rudimentary certificate
      * verification which included:
@@ -50,7 +70,7 @@ public class CertificateValidator(
             .find { it.serialNumber.toString() == JAGEX_CERTIFICATE_SERIAL_NUMBER }
             ?: return false
 
-        if (!jagexPublicKeys.contains(base64Encoder.encodeToString(jagexCertificate.publicKey.encoded))) {
+        if (!jagexPublicKeys.contains(Base64.getEncoder().encodeToString(jagexCertificate.publicKey.encoded))) {
             return false
         }
 
@@ -59,24 +79,13 @@ public class CertificateValidator(
             .find { it.serialNumber.toString() == THAWTE_CERTIFICATE_SERIAL_NUMBER }
             ?: return false
 
-        if (!thawtePublicKeys.contains(base64Encoder.encodeToString(thawteCertificate.publicKey.encoded))) {
+        if (!thawtePublicKeys.contains(Base64.getEncoder().encodeToString(thawteCertificate.publicKey.encoded))) {
             return false
         }
 
         // Lastly verify the Jagex certificate is issued by the Thawte certificate
         return jagexCertificate.issuerX500Principal.equals(thawteCertificate.subjectX500Principal)
     }
-
-    /**
-     * List of valid "Thawte" public keys which we will accept.
-     */
-    private val thawtePublicKeys: Set<String> = setOfNotNull(fakeThawtePublicKey, ORIGINAL_THAWTE_PUBLIC_KEY)
-
-    /**
-     * List of valid "Jagex" public keys which we will accept.
-     */
-    private val jagexPublicKeys: Set<String> = setOfNotNull(fakeJagexPublicKey, ORIGINAL_JAGEX_PUBLIC_KEY)
-    private val base64Encoder: Base64.Encoder = Base64.getEncoder()
 
     private companion object {
         /**
