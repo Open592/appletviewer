@@ -14,7 +14,7 @@ package com.open592.appletviewer.config.javconfig
  * @property parameters Applet parameters
  * @property content Localized content
  */
-public class ServerConfiguration constructor(public val id: String = "") {
+public class ServerConfiguration(public val id: String = "") {
     private val config = mutableMapOf<String, String>()
     private val content = mutableMapOf<String, String>()
     private val parameters = mutableMapOf<String, String>()
