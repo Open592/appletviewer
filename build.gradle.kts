@@ -18,6 +18,8 @@ application {
         }",
         "-Dcom.jagex.config=${System.getProperty("com.jagex.config")}",
         "-Dcom.open592.launcherDirectoryOverride=${System.getProperty("com.open592.launcherDirectoryOverride")}",
+        "-Dcom.open592.fakeThawtePublicKey=${System.getProperty("com.open592.fakeThawtePublicKey")}",
+        "-Dcom.open592.fakeJagexPublicKey=${System.getProperty("com.open592.fakeJagexPublicKey")}",
     )
 
     mainClass.set("com.open592.appletviewer.cmd.Main")
