@@ -52,6 +52,8 @@ public class SignedJarFileResolver @Inject constructor(
             val buffer = Buffer().readFrom(jar)
 
             when (entry.name) {
+                // Ignore top level meta directory entry
+                "META-INF/" -> return@forEach
                 "META-INF/ZIGBERT.SF" -> signatureFile.read(buffer.inputStream())
                 "META-INF/ZIGBERT.RSA" -> certificates.addAll(collectCertificates(buffer))
                 else -> entries[entry.name] = buffer

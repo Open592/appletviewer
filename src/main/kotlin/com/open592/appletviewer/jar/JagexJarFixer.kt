@@ -67,10 +67,10 @@ public fun fixJagexJar(jarBuffer: Buffer): JarInputStream? {
  */
 private fun bufferToJarFile(jarBuffer: Buffer): JarFile {
     val jar = createTempFile(prefix = null, suffix = ".jar")
-    val jarSink = jar.sink().buffer()
+    val sink = jar.sink().buffer()
 
-    jarSink.writeAll(jarBuffer)
-    jarSink.flush()
+    sink.writeAll(jarBuffer)
+    sink.flush()
 
     return JarFile(jar.toFile(), true, TEMPORARY_JAR_OPEN_MODE)
 }
