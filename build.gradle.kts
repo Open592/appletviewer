@@ -1,5 +1,4 @@
 import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     base
@@ -23,6 +22,10 @@ application {
     )
 
     mainClass.set("com.open592.appletviewer.cmd.Main")
+}
+
+kotlin {
+    jvmToolchain(17)
 }
 
 group = "com.open592"
@@ -64,8 +67,4 @@ configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
 
 tasks.test {
     useJUnitPlatform()
-}
-
-tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "17"
 }
