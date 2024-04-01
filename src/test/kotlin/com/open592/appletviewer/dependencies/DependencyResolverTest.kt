@@ -28,6 +28,8 @@ import okio.buffer
 import okio.source
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
 import kotlin.io.path.readText
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -79,17 +81,7 @@ class DependencyResolverTest {
 
     @Test
     fun `Should throw VerifyDependencyException when encountering an invalid browsercontrol file`() {
-        val server = MockWebServer()
-
-        val filename = "invalid-browsercontrol-entry-file-type.jar"
-        val invalidBrowsercontrolFile = this::class.java.getResourceAsStream(filename)
-            ?.source()?.buffer()
-            ?: throw FileNotFoundException("Failed to find $filename in DependencyResolverTest")
-        val invalidBrowsercontrolBuffer = cloneFile(invalidBrowsercontrolFile)
-
-        server.enqueue(MockResponse().setBody(invalidBrowsercontrolBuffer).setResponseCode(200))
-
-        server.start()
+        val mockServer = serveBrowsercontrolTestFile("invalid-browsercontrol-entry-file-type.jar")
 
         val config = mockk<ApplicationConfiguration>()
         val environment = mockk<Environment>()
@@ -116,7 +108,7 @@ class DependencyResolverTest {
         every { environment.getArchitecture() } returns Architecture.X86_64
 
         every { config.getConfig("browsercontrol_win_amd64_jar") } returns DEFAULT_BROWSERCONTROL_FILENAME
-        every { config.getConfig("codebase") } returns server.url("/").toString()
+        every { config.getConfig("codebase") } returns mockServer.url("/").toString()
         justRun { eventBus.dispatch(any(ProgressEvent.UpdateProgress::class)) }
 
         assertThrows<DependencyResolverException.VerifyDependencyException> {
@@ -129,25 +121,25 @@ class DependencyResolverTest {
     }
 
     /**
-     * NOTE: I have not been able to find an original browsercontrol jar from the 592 era. This is due
-     * to only the library files, not the jar file itself, being downloaded to the user's computer.
-     * Because of this I am unable to write a test for the browsercontrol routines which verify original
-     * Jagex jar handling. I _will_ however be able to verify these routines in the loader handling.
+     * The following test cases verify that we handle both Jagex and Open592 browsercontrol libary
+     * jars.
+     *
+     * The only difference is in the underlying library file naming conventions. Jagex included
+     * architecture information in the filename, while we do not.
+     *
+     * NOTE: The reason I'm not able to provide an original Jagex browsercontrol jar is because
+     * the jar file itself never persisted to disk and at the time of the 592 era nobody
+     * (that I've found) was archiving the file itself.
      */
-    @Test
-    fun `Should properly resolve a browsercontrol library file from a Open592 browsercontrol jar`() {
-        val server = MockWebServer()
-
-        val filename = "valid-open592-browsercontrol.jar"
-
-        val validBrowsercontrolFile = this::class.java.getResourceAsStream(filename)
-            ?.source()?.buffer()
-            ?: throw FileNotFoundException("Failed to find $filename in DependencyResolverTest")
-        val validBrowsercontrolBuffer = cloneFile(validBrowsercontrolFile)
-
-        server.enqueue(MockResponse().setBody(validBrowsercontrolBuffer).setResponseCode(200))
-
-        server.start()
+    @ParameterizedTest
+    @ValueSource(
+        strings = [
+            "valid-simulated-jagex-windows-browsercontrol64.jar",
+            "valid-open592-windows-browsercontrol.jar",
+        ],
+    )
+    fun `Should properly resolve valid browsercontrol Windows test jars`(filename: String) {
+        val mockServer = serveBrowsercontrolTestFile(filename)
 
         val fs = MemoryFileSystemBuilder.newWindows().addUser("test").build()
 
@@ -177,7 +169,7 @@ class DependencyResolverTest {
         every { environment.getArchitecture() } returns Architecture.X86_64
 
         every { config.getConfig("browsercontrol_win_amd64_jar") } returns DEFAULT_BROWSERCONTROL_FILENAME
-        every { config.getConfig("codebase") } returns server.url("/").toString()
+        every { config.getConfig("codebase") } returns mockServer.url("/").toString()
         every { config.getConfig("cachesubdir") } returns Constants.GAME_NAME
         every { config.getConfigAsInt("modewhat") } returns 0
 
@@ -192,12 +184,27 @@ class DependencyResolverTest {
             .readText()
             .trim()
 
-        assertEquals("remote browsercontrol64.dll", libraryFileContents)
+        assertEquals("open592-test", libraryFileContents)
 
         // Verify just the calls executed by DependencyResolver
         verify(exactly = 1) { config.getConfig("browsercontrol_win_amd64_jar") }
         verify(exactly = 1) { config.getConfig("codebase") }
         verify(atLeast = 1) { eventBus.dispatch(any(ProgressEvent.UpdateProgress::class)) }
+    }
+
+    private fun serveBrowsercontrolTestFile(filename: String): MockWebServer {
+        val server = MockWebServer()
+
+        val file = this::class.java.getResourceAsStream(filename)
+            ?.source()?.buffer()
+            ?: throw FileNotFoundException("Failed to find $filename in DependencyResolverTest")
+        val buffer = cloneFile(file)
+
+        server.enqueue(MockResponse().setBody(buffer).setResponseCode(200))
+
+        server.start()
+
+        return server
     }
 
     private fun cloneFile(file: BufferedSource): Buffer {
@@ -217,17 +224,17 @@ class DependencyResolverTest {
          * Fake Thawte public key used in our test jars.
          */
         private const val FAKE_THAWTE_PUBLIC_KEY: String =
-            "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDdCM0K1lmrgoeX5+iH+0OGsloDEXdsW6uqbcEyEiD1R+nRxEBr4AkJKxLV0LKPICQW" +
-                "eG66mQdBl6djszPwatl5INpSPYtwObl94dJmJnxeZHHjfUOfDoiT5UmygOX+Z2mamPFoNHJW0cAXlDEQ455R1XIYnEyOIN7QjPWA" +
-                "9el/iwIDAQAB"
+            "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDCg1kw0oUcTFY5OTCluVXHSCOA33ePAePh9lMCRewLpX9XtVVsqDzhopFi4WD7ih19" +
+                "zpdXvMcK61HI7/99TnoD8upiBIeH3bP3h/30i1rQ6S4kDYLBDF58ErzWqp71NurE35sa1bFF1SFtBy17AuSkJLszcK+Z+0Auxvd3" +
+                "0sFcXQIDAQAB"
 
         /**
          * Fake Jagex public key used in our test jars.
          */
         private const val FAKE_JAGEX_PUBLIC_KEY: String =
-            "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAnXcBFzW+hYfez1+Hy7PB79uH0EV/9pwdvOjwq6Kq+k0M3Jq4FJAJH6BnXEzm" +
-                "kMb7IN0u8HC9tuYV8IiQlPgjbdCAHD7HXSne5ERUDodBAbH7CIeb/JhPEJWsIjqKfjnqmozwlfvDiMDO64fzyzxz4FZTHU5ZnAwd" +
-                "33SsUl0YcwOaw0fqlotBmbI/WcthQ/3xpNlw0Eh7B4uJYpIqmhEWu2eXEBndN5Rb0Czu7LDjsi1oOIAQGxLxCe/Hk6Hk8SNw6U+q" +
-                "FTyU6IHpHSwWXvbyfI/rFddbupWz7P6iy6nppX9MuKibCXlhJ6TTYl/GW/U2Annjj6Rj8hJnDYuelGMuaQIDAQAB"
+            "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAu5fJjw2jQ5wmDqjeEf7kYtwmVhk8Fdy0y1Vg+G6azsCiW68pYRaLW7kr/VHf" +
+                "pl6eYyupfpfDnyWqTxGvKoHT28dJHETjN+PLubOGhiwL0KYMx6CUIoTBKXMRRBIa6P07RLYJu9fJyFtKmhb+ept0os+hUDUYquOg" +
+                "CgNF42C2rpmNe3cxm1BO1EGDFXwZHBzwVX06F1v+xcnwkxBqCOFg1zuNpqlK/2THZX3iaMnnjl8B7ad77D+7vzAQThdMPIOj4MmW" +
+                "5CGX70fQgyCRVXRYeRXvvbCpPNPUiZ2jtWCIib6G4pUPp1uAGQXouILp/wMQPhW4EoGABc21B8LVpboM8QIDAQAB"
     }
 }
