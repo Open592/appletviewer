@@ -48,7 +48,7 @@ constructor(
 
         return try {
             fileSystem.getPath(getUserHomeDirectory(), ".cache", parentDirectoryName, getCacheSubDirectory())
-                .createDirectories()
+                .createDirectories().resolve(filename)
         } catch (_: Exception) {
             handleCacheDirectoryResolutionFailure(filename)
         }
