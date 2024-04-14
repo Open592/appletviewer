@@ -7,8 +7,12 @@ import com.open592.appletviewer.settings.SystemPropertiesSettingsStore
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import okio.Buffer
+import okio.buffer
+import okio.source
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
+import java.nio.charset.Charset
 import java.nio.file.FileSystem
 import java.nio.file.attribute.PosixFilePermissions
 import kotlin.io.path.createDirectories
@@ -19,6 +23,33 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class LinuxApplicationPathsTest {
+    @Test
+    fun `Should throw an exception when the system cache directory is un-writable`() {
+        useFilesystem { fs ->
+            val config = mockk<ApplicationConfiguration>()
+            val settings = mockk<SystemPropertiesSettingsStore>()
+            val cacheSubDirectoryName = Constants.GAME_NAME
+
+            every { config.getConfig("cachesubdir") } returns cacheSubDirectoryName
+            every { config.getConfigAsInt("modewhat") } returns 1
+            every { settings.getString("user.home") } returns fs.getPath("/home/$USERNAME").toAbsolutePath().toString()
+
+            fs.getPath(
+                "/home/$USERNAME/.cache",
+            ).createDirectories().setPosixFilePermissions(PosixFilePermissions.fromString("r--------"))
+
+            val paths = LinuxApplicationPaths(config, fs, settings)
+
+            assertThrows<RuntimeException> {
+                paths.resolveCacheDirectoryPath(BROWSERCONTROL_LIBRARY_NAME)
+            }
+
+            verify(exactly = 1) { config.getConfig("cachesubdir") }
+            verify(exactly = 1) { config.getConfigAsInt("modewhat") }
+            verify(exactly = 1) { settings.getString("user.home") }
+        }
+    }
+
     @Test
     fun `Should return the correct cache path when cachesubdir is empty`() {
         useFilesystem { fs ->
@@ -39,7 +70,7 @@ class LinuxApplicationPathsTest {
                 val cacheDirectory = paths.resolveCacheDirectoryPath("browsercontrol.so")
 
                 assertEquals(expectedPath, cacheDirectory)
-                assertTrue(cacheDirectory.parent.exists())
+                assertTrue(cacheDirectory.exists())
             }
 
             verify(exactly = 1) { config.getConfig("cachesubdir") }
@@ -71,7 +102,7 @@ class LinuxApplicationPathsTest {
                 val cacheDirectory = paths.resolveCacheDirectoryPath(filename)
 
                 assertEquals(expectedPath, cacheDirectory)
-                assertTrue(cacheDirectory.parent.exists())
+                assertTrue(cacheDirectory.exists())
             }
 
             verify(exactly = 1) { config.getConfig("cachesubdir") }
@@ -102,7 +133,7 @@ class LinuxApplicationPathsTest {
                 val cacheDirectory = paths.resolveCacheDirectoryPath(BROWSERCONTROL_LIBRARY_NAME)
 
                 assertEquals(expectedPath, cacheDirectory)
-                assertTrue(cacheDirectory.parent.exists())
+                assertTrue(cacheDirectory.exists())
             }
 
             verify(exactly = 1) { config.getConfig("cachesubdir") }
@@ -112,24 +143,34 @@ class LinuxApplicationPathsTest {
     }
 
     @Test
-    fun `Should throw an exception when the system cache directory is un-writable`() {
+    fun `Should properly save a file to the resolved cache path`() {
         useFilesystem { fs ->
             val config = mockk<ApplicationConfiguration>()
             val settings = mockk<SystemPropertiesSettingsStore>()
             val cacheSubDirectoryName = Constants.GAME_NAME
 
             every { config.getConfig("cachesubdir") } returns cacheSubDirectoryName
-            every { config.getConfigAsInt("modewhat") } returns 1
+            every { config.getConfigAsInt("modewhat") } returns 0
             every { settings.getString("user.home") } returns fs.getPath("/home/$USERNAME").toAbsolutePath().toString()
 
-            fs.getPath(
-                "/home/$USERNAME/.cache",
-            ).createDirectories().setPosixFilePermissions(PosixFilePermissions.fromString("r--------"))
+            val path =
+                fs.getPath(
+                    "/home/$USERNAME/.cache/.jagex_cache_32/$cacheSubDirectoryName/$BROWSERCONTROL_LIBRARY_NAME",
+                ).toAbsolutePath()
 
-            val paths = LinuxApplicationPaths(config, fs, settings)
+            assertDoesNotThrow {
+                val expectedContent = "open592"
+                val sink = Buffer()
 
-            assertThrows<RuntimeException> {
-                paths.resolveCacheDirectoryPath(BROWSERCONTROL_LIBRARY_NAME)
+                sink.writeString(expectedContent, Charset.defaultCharset())
+
+                val paths = LinuxApplicationPaths(config, fs, settings)
+
+                paths.saveCacheFile(BROWSERCONTROL_LIBRARY_NAME, sink)
+
+                path.source().buffer().use {
+                    assertEquals(it.readString(Charset.defaultCharset()), expectedContent)
+                }
             }
 
             verify(exactly = 1) { config.getConfig("cachesubdir") }

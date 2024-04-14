@@ -7,7 +7,11 @@ import com.open592.appletviewer.settings.SystemPropertiesSettingsStore
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import okio.Buffer
+import okio.buffer
+import okio.source
 import org.junit.jupiter.api.assertDoesNotThrow
+import java.nio.charset.Charset
 import java.nio.file.FileSystem
 import java.nio.file.Files
 import java.nio.file.attribute.DosFileAttributeView
@@ -75,7 +79,6 @@ class WindowsApplicationPathsTest {
     fun `When an existing file is found, but it is not writeable, it's path should not be returned`() {
         useFilesystem { fs ->
             val cacheSubDirectory = Constants.GAME_NAME
-            val filename = "browsercontrol.dll"
             val config = mockk<ApplicationConfiguration>()
             val settings = mockk<SystemPropertiesSettingsStore>()
 
@@ -91,7 +94,9 @@ class WindowsApplicationPathsTest {
                 fs
                     .getPath("C:\\Users\\test\\.jagex_cache_32\\$cacheSubDirectory")
                     .createDirectories()
-            val unWriteableCacheFilePath = unWriteableCacheDirectoryPath.resolve(filename).createFile()
+            val unWriteableCacheFilePath = unWriteableCacheDirectoryPath.resolve(
+                BROWSERCONTROL_LIBRARY_NAME,
+            ).createFile()
 
             val unWriteableCacheFilePathAttributes =
                 Files.getFileAttributeView(
@@ -102,8 +107,10 @@ class WindowsApplicationPathsTest {
 
             assertDoesNotThrow {
                 val applicationPaths = WindowsApplicationPaths(config, fs, settings)
-                val expectedPath = fs.getPath("C:\\rscache\\.jagex_cache_32\\$cacheSubDirectory\\$filename")
-                val path = applicationPaths.resolveCacheDirectoryPath(filename)
+                val expectedPath = fs.getPath(
+                    "C:\\rscache\\.jagex_cache_32\\$cacheSubDirectory\\$BROWSERCONTROL_LIBRARY_NAME",
+                )
+                val path = applicationPaths.resolveCacheDirectoryPath(BROWSERCONTROL_LIBRARY_NAME)
 
                 assertEquals(expectedPath, path)
                 assertTrue(path.exists())
@@ -122,7 +129,6 @@ class WindowsApplicationPathsTest {
             val settings = mockk<SystemPropertiesSettingsStore>()
 
             val cacheSubDirectory = "runescape"
-            val filename = "browsercontrol.dll"
 
             every { settings.getString("user.home") } returns
                 fs
@@ -134,10 +140,12 @@ class WindowsApplicationPathsTest {
 
             assertDoesNotThrow {
                 val applicationPaths = WindowsApplicationPaths(config, fs, settings)
-                val path = applicationPaths.resolveCacheDirectoryPath(filename)
-                val expectedPath = fs.getPath("C:\\rscache\\.jagex_cache_32\\$cacheSubDirectory")
+                val path = applicationPaths.resolveCacheDirectoryPath(BROWSERCONTROL_LIBRARY_NAME)
+                val expectedPath = fs.getPath(
+                    "C:\\rscache\\.jagex_cache_32\\$cacheSubDirectory\\$BROWSERCONTROL_LIBRARY_NAME",
+                )
 
-                assertEquals(expectedPath.resolve(filename), path)
+                assertEquals(expectedPath, path)
                 assertTrue(path.exists())
             }
 
@@ -154,7 +162,6 @@ class WindowsApplicationPathsTest {
             val settings = mockk<SystemPropertiesSettingsStore>()
 
             val cacheSubDirectory = "runescape"
-            val filename = "browsercontrol.dll"
 
             // Create the desired cache file, but in the wrong directory.
             // `.jagex_cache_32` would be used if our modewhat was `0` but
@@ -163,7 +170,7 @@ class WindowsApplicationPathsTest {
                 fs
                     .getPath("C:\\Users\\test\\.jagex_cache_32\\$cacheSubDirectory")
                     .createDirectories()
-            wrongCacheDirectoryPath.resolve(filename).createFile()
+            wrongCacheDirectoryPath.resolve(BROWSERCONTROL_LIBRARY_NAME).createFile()
 
             every { settings.getString("user.home") } returns
                 fs
@@ -175,11 +182,50 @@ class WindowsApplicationPathsTest {
 
             assertDoesNotThrow {
                 val applicationPaths = WindowsApplicationPaths(config, fs, settings)
-                val path = applicationPaths.resolveCacheDirectoryPath(filename)
-                val expectedPath = fs.getPath("C:\\rscache\\.jagex_cache_33\\$cacheSubDirectory")
+                val path = applicationPaths.resolveCacheDirectoryPath(BROWSERCONTROL_LIBRARY_NAME)
+                val expectedPath = fs.getPath(
+                    "C:\\rscache\\.jagex_cache_33\\$cacheSubDirectory\\$BROWSERCONTROL_LIBRARY_NAME",
+                )
 
-                assertEquals(expectedPath.resolve(filename), path)
+                assertEquals(expectedPath, path)
                 assertTrue(path.exists())
+            }
+
+            verify { settings.getString("user.home") }
+            verify { config.getConfig("cachesubdir") }
+            verify { config.getConfigAsInt("modewhat") }
+        }
+    }
+
+    @Test
+    fun `Should properly save a file to the resolved cache path`() {
+        useFilesystem { fs ->
+            val config = mockk<ApplicationConfiguration>()
+            val settings = mockk<SystemPropertiesSettingsStore>()
+
+            val cacheSubDirectory = "runescape"
+
+            every { settings.getString("user.home") } returns
+                fs
+                    .getPath("C:\\Users\\test")
+                    .toAbsolutePath()
+                    .toString()
+            every { config.getConfig("cachesubdir") } returns cacheSubDirectory
+            every { config.getConfigAsInt("modewhat") } returns 0
+
+            assertDoesNotThrow {
+                val expectedContent = "open592"
+                val applicationPaths = WindowsApplicationPaths(config, fs, settings)
+
+                val sink = Buffer().writeString(expectedContent, Charset.defaultCharset())
+
+                applicationPaths.saveCacheFile(BROWSERCONTROL_LIBRARY_NAME, sink)
+
+                val path = fs.getPath("C:\\rscache\\.jagex_cache_32\\$cacheSubDirectory\\$BROWSERCONTROL_LIBRARY_NAME")
+
+                path.source().buffer().use {
+                    assertEquals(expectedContent, it.readString(Charset.defaultCharset()))
+                }
             }
 
             verify { settings.getString("user.home") }
@@ -199,5 +245,6 @@ class WindowsApplicationPathsTest {
 
     private companion object {
         private const val USERNAME = "test"
+        private const val BROWSERCONTROL_LIBRARY_NAME = "browsercontrol.dll"
     }
 }
