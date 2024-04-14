@@ -51,7 +51,7 @@ public class RemoteDependencyFetcher @Inject constructor(
 
                             totalDownloadedBytes += bytesRead.toInt()
 
-                            val progress = (100.0 * (totalDownloadedBytes / totalDownloadSize)).toInt()
+                            val progress = ((100.0 * totalDownloadedBytes) / totalDownloadSize).toInt()
 
                             eventBus.dispatch(ProgressEvent.UpdateProgress(progress))
                         } while (bytesRead != -1L)
