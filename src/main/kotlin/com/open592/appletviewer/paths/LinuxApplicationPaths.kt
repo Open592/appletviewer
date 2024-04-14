@@ -6,10 +6,9 @@ import jakarta.inject.Inject
 import java.nio.file.FileSystem
 import java.nio.file.Path
 import kotlin.io.path.createDirectories
+import kotlin.io.path.createFile
 
-public class LinuxApplicationPaths
-@Inject
-constructor(
+public class LinuxApplicationPaths @Inject constructor(
     config: ApplicationConfiguration,
     private val fileSystem: FileSystem,
     settingsStore: SettingsStore,
@@ -48,7 +47,7 @@ constructor(
 
         return try {
             fileSystem.getPath(getUserHomeDirectory(), ".cache", parentDirectoryName, getCacheSubDirectory())
-                .createDirectories()
+                .createDirectories().resolve(filename).createFile()
         } catch (_: Exception) {
             handleCacheDirectoryResolutionFailure(filename)
         }

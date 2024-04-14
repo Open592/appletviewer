@@ -3,6 +3,9 @@ package com.open592.appletviewer.paths
 import com.open592.appletviewer.common.Constants
 import com.open592.appletviewer.config.ApplicationConfiguration
 import com.open592.appletviewer.settings.SettingsStore
+import okio.Buffer
+import okio.buffer
+import okio.sink
 import java.nio.file.FileSystem
 import java.nio.file.Path
 
@@ -46,6 +49,15 @@ public abstract class ApplicationPaths(
             }
 
         return launcherDirectory.parent?.resolve(Constants.GAME_NAME)?.resolve(filename)
+    }
+
+    /**
+     * Given a filename and a buffer, save a file to the cache directory.
+     */
+    public fun saveCacheFile(filename: String, buffer: Buffer) {
+        resolveCacheDirectoryPath(filename).sink().buffer().use {
+            it.writeAll(buffer)
+        }
     }
 
     protected fun getCacheSubDirectory(): String {

@@ -32,9 +32,9 @@ class SignedJarFileResolverTest {
         val certificateValidator = CertificateValidator(settingsStore)
         val resolver = SignedJarFileResolver(certificateValidator)
 
-        val file = resolveFileResource(filename)
-
-        assertEquals(emptyMap(), resolver.resolveEntries(file))
+        resolveFileResource(filename).use {
+            assertEquals(JarEntries.emptyEntries(), resolver.resolveEntries(it))
+        }
     }
 
     @Test
@@ -48,11 +48,12 @@ class SignedJarFileResolverTest {
         val certificateValidator = CertificateValidator(settingsStore)
         val resolver = SignedJarFileResolver(certificateValidator)
 
-        val file = resolveFileResource("unsigned-jar.jar")
-        val entries = resolver.resolveEntries(file)
+        resolveFileResource("unsigned-jar.jar").use { file ->
+            val jarEntries = resolver.resolveEntries(file)
 
-        assertEquals(entries.size, 1)
-        assertEquals(EXPECTED_TEST_JAR_ENTRY_CONTENTS, entries[TEST_JAR_ENTRY_NAME]?.readUtf8Line())
+            assertEquals(jarEntries.entries.size, 1)
+            assertEquals(EXPECTED_TEST_JAR_ENTRY_CONTENTS, jarEntries.entries[TEST_JAR_ENTRY_NAME]?.readUtf8Line())
+        }
     }
 
     @Test
@@ -66,15 +67,16 @@ class SignedJarFileResolverTest {
         val certificateValidator = CertificateValidator(settingsStore)
         val resolver = SignedJarFileResolver(certificateValidator)
 
-        val file = resolveFileResource("valid-official-jagex-loader.jar")
-        val entries = resolver.resolveEntries(file)
+        resolveFileResource("valid-official-jagex-loader.jar").use { file ->
+            val jarEntries = resolver.resolveEntries(file)
 
-        // The official 592 loader jar contains 15 entries
-        assertEquals(entries.size, 15)
+            // The official 592 loader jar contains 15 entries
+            assertEquals(jarEntries.entries.size, 15)
 
-        // Test for presence of some known entries
-        assertNotNull(entries["loader.class"])
-        assertNotNull(entries["unpack.class"])
+            // Test for presence of some known entries
+            assertNotNull(jarEntries.entries["loader.class"])
+            assertNotNull(jarEntries.entries["unpack.class"])
+        }
     }
 
     @Test
@@ -88,9 +90,9 @@ class SignedJarFileResolverTest {
         val certificateValidator = CertificateValidator(settingsStore)
         val resolver = SignedJarFileResolver(certificateValidator)
 
-        val file = resolveFileResource("valid-open592-test-jar.jar")
-
-        assertEquals(emptyMap(), resolver.resolveEntries(file))
+        resolveFileResource("valid-open592-test-jar.jar").use {
+            assertEquals(JarEntries.emptyEntries(), resolver.resolveEntries(it))
+        }
     }
 
     @Test
@@ -104,11 +106,12 @@ class SignedJarFileResolverTest {
         val certificateValidator = CertificateValidator(settingsStore)
         val resolver = SignedJarFileResolver(certificateValidator)
 
-        val file = resolveFileResource("valid-open592-test-jar.jar")
-        val entries = resolver.resolveEntries(file)
+        resolveFileResource("valid-open592-test-jar.jar").use { file ->
+            val jarEntries = resolver.resolveEntries(file)
 
-        assertEquals(1, entries.size)
-        assertEquals(EXPECTED_TEST_JAR_ENTRY_CONTENTS, entries[TEST_JAR_ENTRY_NAME]?.readUtf8Line())
+            assertEquals(1, jarEntries.entries.size)
+            assertEquals(EXPECTED_TEST_JAR_ENTRY_CONTENTS, jarEntries.entries[TEST_JAR_ENTRY_NAME]?.readUtf8Line())
+        }
     }
 
     private fun resolveFileResource(filename: String): Buffer {

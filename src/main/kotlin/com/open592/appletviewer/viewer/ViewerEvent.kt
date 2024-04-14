@@ -10,5 +10,5 @@ public sealed interface ViewerEvent : ApplicationEvent {
      * This event is fired when the caller wishes to inform the applet viewer
      * that it should terminate.
      */
-    public object Quit : ViewerEvent
+    public data object Quit : ViewerEvent
 }

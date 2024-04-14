@@ -42,8 +42,8 @@ public class SignedJarFileResolver @Inject constructor(
      * @param jarBuffer A buffer pointing to a jar file.
      * @return A `Map` of the resolved entries.
      */
-    public fun resolveEntries(jarBuffer: Buffer): Map<String, Buffer> {
-        val jar = initializeJarInputStream(jarBuffer) ?: return emptyMap()
+    public fun resolveEntries(jarBuffer: Buffer): JarEntries {
+        val jar = initializeJarInputStream(jarBuffer) ?: return JarEntries.emptyEntries()
         val signatureFile = Manifest()
         val certificates: MutableList<X509Certificate> = mutableListOf()
         val entries: MutableMap<String, Buffer> = mutableMapOf()
@@ -61,10 +61,10 @@ public class SignedJarFileResolver @Inject constructor(
         }
 
         if (certificateValidator.validateCertificates(certificates)) {
-            return entries
+            return JarEntries(entries)
         }
 
-        return emptyMap()
+        return JarEntries.emptyEntries()
     }
 
     /**
