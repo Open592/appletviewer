@@ -29,7 +29,9 @@ class LinuxApplicationPathsTest {
             every { config.getConfigAsInt("modewhat") } returns 0
             every { settings.getString("user.home") } returns fs.getPath("/home/$USERNAME").toAbsolutePath().toString()
 
-            val expectedPath = fs.getPath("/home/$USERNAME/.cache/.jagex_cache_32").toAbsolutePath()
+            val expectedPath = fs.getPath(
+                "/home/$USERNAME/.cache/.jagex_cache_32/$BROWSERCONTROL_LIBRARY_NAME",
+            ).toAbsolutePath()
 
             assertDoesNotThrow {
                 val paths = LinuxApplicationPaths(config, fs, settings)
@@ -37,7 +39,7 @@ class LinuxApplicationPathsTest {
                 val cacheDirectory = paths.resolveCacheDirectoryPath("browsercontrol.so")
 
                 assertEquals(expectedPath, cacheDirectory)
-                assertTrue(cacheDirectory.exists())
+                assertTrue(cacheDirectory.parent.exists())
             }
 
             verify(exactly = 1) { config.getConfig("cachesubdir") }
@@ -57,18 +59,19 @@ class LinuxApplicationPathsTest {
             every { config.getConfigAsInt("modewhat") } returns null
             every { settings.getString("user.home") } returns fs.getPath("/home/$USERNAME").toAbsolutePath().toString()
 
+            val filename = "browsercontrol.so"
             val expectedPath =
                 fs.getPath(
-                    "/home/$USERNAME/.cache/.jagex_cache_32/$cacheSubDirectoryName",
+                    "/home/$USERNAME/.cache/.jagex_cache_32/$cacheSubDirectoryName/$filename",
                 ).toAbsolutePath()
 
             assertDoesNotThrow {
                 val paths = LinuxApplicationPaths(config, fs, settings)
 
-                val cacheDirectory = paths.resolveCacheDirectoryPath("browsercontrol.so")
+                val cacheDirectory = paths.resolveCacheDirectoryPath(filename)
 
                 assertEquals(expectedPath, cacheDirectory)
-                assertTrue(cacheDirectory.exists())
+                assertTrue(cacheDirectory.parent.exists())
             }
 
             verify(exactly = 1) { config.getConfig("cachesubdir") }
@@ -90,16 +93,16 @@ class LinuxApplicationPathsTest {
 
             val expectedPath =
                 fs.getPath(
-                    "/home/$USERNAME/.cache/.jagex_cache_33/$cacheSubDirectoryName",
+                    "/home/$USERNAME/.cache/.jagex_cache_33/$cacheSubDirectoryName/$BROWSERCONTROL_LIBRARY_NAME",
                 ).toAbsolutePath()
 
             assertDoesNotThrow {
                 val paths = LinuxApplicationPaths(config, fs, settings)
 
-                val cacheDirectory = paths.resolveCacheDirectoryPath("browsercontrol.so")
+                val cacheDirectory = paths.resolveCacheDirectoryPath(BROWSERCONTROL_LIBRARY_NAME)
 
                 assertEquals(expectedPath, cacheDirectory)
-                assertTrue(cacheDirectory.exists())
+                assertTrue(cacheDirectory.parent.exists())
             }
 
             verify(exactly = 1) { config.getConfig("cachesubdir") }
@@ -126,7 +129,7 @@ class LinuxApplicationPathsTest {
             val paths = LinuxApplicationPaths(config, fs, settings)
 
             assertThrows<RuntimeException> {
-                paths.resolveCacheDirectoryPath("browsercontrol.so")
+                paths.resolveCacheDirectoryPath(BROWSERCONTROL_LIBRARY_NAME)
             }
 
             verify(exactly = 1) { config.getConfig("cachesubdir") }
@@ -141,5 +144,6 @@ class LinuxApplicationPathsTest {
 
     companion object {
         private const val USERNAME = "test"
+        private const val BROWSERCONTROL_LIBRARY_NAME = "browsercontrol.so"
     }
 }
