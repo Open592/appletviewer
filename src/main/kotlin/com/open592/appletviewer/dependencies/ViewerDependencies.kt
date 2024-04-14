@@ -14,7 +14,6 @@ public class ViewerDependencies @Inject constructor(
     private val browserControlResolver: BrowserControlResolver,
     private val eventBus: GlobalEventBus,
 ) {
-
     public fun resolve() {
         // Signify that we are about to start downloading the browsercontrol library.
         eventBus.dispatch(ProgressEvent.ChangeText(configuration.getContent("loading_app_resources")))

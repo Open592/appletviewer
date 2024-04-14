@@ -15,8 +15,8 @@ public class BrowserControlResolver @Inject constructor(
     private val applicationPaths: ApplicationPaths,
     private val configuration: ApplicationConfiguration,
     private val dependencyFetcher: RemoteDependencyFetcher,
-    environment: Environment,
     private val signedJarFileResolver: SignedJarFileResolver,
+    environment: Environment,
 ) : RemoteDependencyResolver(
     configuration = configuration,
     type = DependencyType.BROWSERCONTROL,
@@ -87,10 +87,8 @@ public class BrowserControlResolver @Inject constructor(
 
         val jarEntries = signedJarFileResolver.resolveEntries(jarFile)
 
-        libraryFile = jarEntries["libbrowsercontrol.so"]
-            ?: throw ResolveException(
-                configuration.getContent("err_verify_${if (is64Bit) "bc64" else "bc"}"),
-            )
+        libraryFile = jarEntries.getEntryByFileExtension(fileExtension.str)
+            ?: throw ResolveException(configuration.getContent("err_verify_${if (is64Bit) "bc64" else "bc"}"))
 
         applicationPaths.saveCacheFile(libraryFilename, libraryFile)
     }
