@@ -11,6 +11,7 @@ import com.open592.appletviewer.http.HttpTestConstants
 import com.open592.appletviewer.jar.CertificateValidator
 import com.open592.appletviewer.jar.SignedJarFileResolver
 import com.open592.appletviewer.paths.ApplicationPaths
+import com.open592.appletviewer.paths.LinuxApplicationPaths
 import com.open592.appletviewer.paths.WindowsApplicationPaths
 import com.open592.appletviewer.progress.ProgressEvent
 import com.open592.appletviewer.settings.SettingsStore
@@ -143,7 +144,7 @@ class BrowserControlResolverTest {
     fun `Should properly resolve valid browsercontrol Windows test jars`(filename: String) {
         val mockServer = serveBrowsercontrolTestFile(filename)
 
-        val fs = MemoryFileSystemBuilder.newWindows().addUser("test").build()
+        val fs = MemoryFileSystemBuilder.newWindows().addUser(USERNAME).build()
 
         val configuration = mockk<ApplicationConfiguration>()
         val environment = mockk<Environment>()
@@ -175,7 +176,10 @@ class BrowserControlResolverTest {
         every { configuration.getConfig("codebase") } returns mockServer.url("/").toString()
         every { configuration.getConfig("cachesubdir") } returns Constants.GAME_NAME
         every { configuration.getConfigAsInt("modewhat") } returns 0
-        every { settingsStore.getString("user.home") } returns fs.getPath("C:\\Users\\test").toAbsolutePath().toString()
+        every { settingsStore.getString("user.home") } returns fs
+            .getPath("C:\\Users\\$USERNAME")
+            .toAbsolutePath()
+            .toString()
         justRun { eventBus.dispatch(any(ProgressEvent.UpdateProgress::class)) }
 
         assertDoesNotThrow { browserControlResolver.resolve() }
@@ -189,6 +193,60 @@ class BrowserControlResolverTest {
 
         // Verify just the calls executed by DependencyResolver
         verify(exactly = 1) { configuration.getConfig("browsercontrol_win_amd64_jar") }
+        verify(exactly = 1) { configuration.getConfig("codebase") }
+        verify(atLeast = 1) { eventBus.dispatch(any(ProgressEvent.UpdateProgress::class)) }
+    }
+
+    @Test
+    fun `Should properly resolve a valid Open592 browsercontrol Linux test jar`() {
+        val mockServer = serveBrowsercontrolTestFile("valid-open592-linux-browsercontrol.jar")
+
+        val fs = MemoryFileSystemBuilder.newLinux().addUser(USERNAME).build()
+
+        val configuration = mockk<ApplicationConfiguration>()
+        val environment = mockk<Environment>()
+        val eventBus = mockk<GlobalEventBus>()
+        val settingsStore = mockk<SettingsStore>()
+
+        val applicationPaths = LinuxApplicationPaths(configuration, fs, settingsStore)
+        val remoteDependencyFetcher = RemoteDependencyFetcher(HttpTestConstants.client, eventBus)
+
+        every { settingsStore.getString("com.open592.fakeThawtePublicKey") } returns FAKE_THAWTE_PUBLIC_KEY
+        every { settingsStore.getString("com.open592.fakeJagexPublicKey") } returns FAKE_JAGEX_PUBLIC_KEY
+        every { settingsStore.getBoolean("com.open592.disableJarValidation") } returns false
+
+        val certificateValidator = CertificateValidator(settingsStore)
+        val signedJarFileResolver = SignedJarFileResolver(certificateValidator)
+
+        every { environment.getOperatingSystem() } returns OperatingSystem.LINUX
+        every { environment.getArchitecture() } returns Architecture.X86_64
+
+        val browserControlResolver = BrowserControlResolver(
+            applicationPaths,
+            configuration,
+            remoteDependencyFetcher,
+            signedJarFileResolver,
+            environment,
+        )
+
+        every { configuration.getConfig("browsercontrol_linux_amd64_jar") } returns DEFAULT_BROWSERCONTROL_FILENAME
+        every { configuration.getConfig("codebase") } returns mockServer.url("/").toString()
+        every { configuration.getConfig("cachesubdir") } returns Constants.GAME_NAME
+        every { configuration.getConfigAsInt("modewhat") } returns 0
+        every { settingsStore.getString("user.home") } returns fs.getPath("/home/$USERNAME").toAbsolutePath().toString()
+        justRun { eventBus.dispatch(any(ProgressEvent.UpdateProgress::class)) }
+
+        assertDoesNotThrow { browserControlResolver.resolve() }
+
+        val libraryFileContents = fs
+            .getPath("/home/$USERNAME/.cache/.jagex_cache_32/runescape/browsercontrol64.so")
+            .readText()
+            .trim()
+
+        assertEquals("open592-test", libraryFileContents)
+
+        // Verify just the calls executed by DependencyResolver
+        verify(exactly = 1) { configuration.getConfig("browsercontrol_linux_amd64_jar") }
         verify(exactly = 1) { configuration.getConfig("codebase") }
         verify(atLeast = 1) { eventBus.dispatch(any(ProgressEvent.UpdateProgress::class)) }
     }
@@ -219,7 +277,13 @@ class BrowserControlResolverTest {
     }
 
     private companion object {
-        private const val DEFAULT_BROWSERCONTROL_FILENAME = "browsercontrol_0_-1928975093.jar"
+        private const val USERNAME = "test"
+
+        /**
+         * In production this filename will have an OS identifier and a hash value. But for these
+         * tests it doesn't matter - we just need to verify correct cache key resolution.
+         */
+        private const val DEFAULT_BROWSERCONTROL_FILENAME = "browsercontrol.jar"
 
         /**
          * Fake Thawte public key used in our test jars.
