@@ -7,8 +7,10 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import okio.buffer
+import okio.sink
 import okio.source
 import org.junit.jupiter.api.assertDoesNotThrow
+import java.nio.charset.Charset
 import java.nio.file.FileSystem
 import java.nio.file.FileSystems
 import java.nio.file.Files
@@ -98,9 +100,11 @@ class ApplicationPathsTest {
             val dir = fs.getPath(ApplicationPathsMocks.ROOT_DIR, Constants.GAME_NAME)
             val path = dir.resolve(fileName)
 
-            Files.createFile(path)
-
             Files.writeString(path, text)
+
+            path.sink().buffer().use {
+                it.writeString(text, Charset.defaultCharset())
+            }
 
             action(fs)
         }

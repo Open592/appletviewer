@@ -3,10 +3,12 @@ package com.open592.appletviewer.paths
 import com.open592.appletviewer.config.ApplicationConfiguration
 import com.open592.appletviewer.settings.SettingsStore
 import jakarta.inject.Inject
+import java.nio.file.FileAlreadyExistsException
 import java.nio.file.FileSystem
 import java.nio.file.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.createFile
+import kotlin.io.path.writeBytes
 
 public class LinuxApplicationPaths @Inject constructor(
     config: ApplicationConfiguration,
@@ -44,10 +46,23 @@ public class LinuxApplicationPaths @Inject constructor(
      */
     override fun resolveCacheDirectoryPath(filename: String): Path {
         val parentDirectoryName = ".jagex_cache_${getModewhat()}"
+        val path = try {
+            fileSystem.getPath(
+                getUserHomeDirectory(),
+                ".cache",
+                parentDirectoryName,
+                getCacheSubDirectory(),
+            ).createDirectories().resolve(filename)
+        } catch (_: Exception) {
+            handleCacheDirectoryResolutionFailure(filename)
+        }
 
-        return try {
-            fileSystem.getPath(getUserHomeDirectory(), ".cache", parentDirectoryName, getCacheSubDirectory())
-                .createDirectories().resolve(filename).createFile()
+        try {
+            return path.createFile()
+        } catch (_: FileAlreadyExistsException) {
+            path.writeBytes(byteArrayOf())
+
+            return path
         } catch (_: Exception) {
             handleCacheDirectoryResolutionFailure(filename)
         }

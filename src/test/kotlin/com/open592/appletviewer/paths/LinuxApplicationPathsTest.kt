@@ -9,6 +9,7 @@ import io.mockk.mockk
 import io.mockk.verify
 import okio.Buffer
 import okio.buffer
+import okio.sink
 import okio.source
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
@@ -16,6 +17,7 @@ import java.nio.charset.Charset
 import java.nio.file.FileSystem
 import java.nio.file.attribute.PosixFilePermissions
 import kotlin.io.path.createDirectories
+import kotlin.io.path.createFile
 import kotlin.io.path.exists
 import kotlin.io.path.setPosixFilePermissions
 import kotlin.test.Test
@@ -160,13 +162,58 @@ class LinuxApplicationPathsTest {
 
             assertDoesNotThrow {
                 val expectedContent = "open592"
+                val paths = LinuxApplicationPaths(config, fs, settings)
                 val sink = Buffer()
 
-                sink.writeString(expectedContent, Charset.defaultCharset())
+                sink.use {
+                    it.writeString(expectedContent, Charset.defaultCharset())
 
+                    paths.saveCacheFile(BROWSERCONTROL_LIBRARY_NAME, it)
+                }
+
+                path.source().buffer().use {
+                    assertEquals(it.readString(Charset.defaultCharset()), expectedContent)
+                }
+            }
+
+            verify(exactly = 1) { config.getConfig("cachesubdir") }
+            verify(exactly = 1) { config.getConfigAsInt("modewhat") }
+            verify(exactly = 1) { settings.getString("user.home") }
+        }
+    }
+
+    @Test
+    fun `Should properly save a file to the resolved cache path when there exists an existing file`() {
+        useFilesystem { fs ->
+            val expectedContent = "open592"
+
+            val config = mockk<ApplicationConfiguration>()
+            val settings = mockk<SystemPropertiesSettingsStore>()
+            val cacheSubDirectoryName = Constants.GAME_NAME
+
+            every { config.getConfig("cachesubdir") } returns cacheSubDirectoryName
+            every { config.getConfigAsInt("modewhat") } returns 0
+            every { settings.getString("user.home") } returns fs.getPath("/home/$USERNAME").toAbsolutePath().toString()
+            every { settings.getBoolean("com.jagex.debug") } returns true
+
+            val path =
+                fs.getPath(
+                    "/home/$USERNAME/.cache/.jagex_cache_32/$cacheSubDirectoryName",
+                ).toAbsolutePath().createDirectories().resolve(BROWSERCONTROL_LIBRARY_NAME).createFile()
+
+            path.sink().buffer().use {
+                it.writeString("existing content", Charset.defaultCharset())
+            }
+
+            assertDoesNotThrow {
+                val sink = Buffer()
                 val paths = LinuxApplicationPaths(config, fs, settings)
 
-                paths.saveCacheFile(BROWSERCONTROL_LIBRARY_NAME, sink)
+                sink.use {
+                    it.writeString(expectedContent, Charset.defaultCharset())
+
+                    paths.saveCacheFile(BROWSERCONTROL_LIBRARY_NAME, it)
+                }
 
                 path.source().buffer().use {
                     assertEquals(it.readString(Charset.defaultCharset()), expectedContent)
