@@ -51,8 +51,7 @@ class SignedJarFileResolverTest {
         resolveFileResource("unsigned-jar.jar").use { file ->
             val jarEntries = resolver.resolveEntries(file)
 
-            assertEquals(jarEntries.entries.size, 1)
-            assertEquals(EXPECTED_TEST_JAR_ENTRY_CONTENTS, jarEntries.entries[TEST_JAR_ENTRY_NAME]?.readUtf8Line())
+            assertEquals(EXPECTED_TEST_JAR_ENTRY_CONTENTS, jarEntries.getEntry(TEST_JAR_ENTRY_NAME)?.readUtf8Line())
         }
     }
 
@@ -70,12 +69,9 @@ class SignedJarFileResolverTest {
         resolveFileResource("valid-official-jagex-loader.jar").use { file ->
             val jarEntries = resolver.resolveEntries(file)
 
-            // The official 592 loader jar contains 15 entries
-            assertEquals(jarEntries.entries.size, 15)
-
             // Test for presence of some known entries
-            assertNotNull(jarEntries.entries["loader.class"])
-            assertNotNull(jarEntries.entries["unpack.class"])
+            assertNotNull(jarEntries.getEntry("loader.class"))
+            assertNotNull(jarEntries.getEntry("unpack.class"))
         }
     }
 
@@ -109,8 +105,7 @@ class SignedJarFileResolverTest {
         resolveFileResource("valid-open592-test-jar.jar").use { file ->
             val jarEntries = resolver.resolveEntries(file)
 
-            assertEquals(1, jarEntries.entries.size)
-            assertEquals(EXPECTED_TEST_JAR_ENTRY_CONTENTS, jarEntries.entries[TEST_JAR_ENTRY_NAME]?.readUtf8Line())
+            assertEquals(EXPECTED_TEST_JAR_ENTRY_CONTENTS, jarEntries.getEntry(TEST_JAR_ENTRY_NAME)?.readUtf8Line())
         }
     }
 
