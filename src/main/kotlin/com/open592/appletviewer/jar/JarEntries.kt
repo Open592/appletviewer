@@ -6,7 +6,16 @@ import okio.Buffer
  * A simple wrapper around jar entries, provide some helper
  * methods to extract their content.
  */
-public data class JarEntries(public val entries: Map<String, Buffer>) {
+public data class JarEntries(private val entries: Map<String, Buffer>) {
+    /**
+     * Return the entry with the given name
+     *
+     * @param name Name of the extension to retrieve
+     */
+    public fun getEntry(name: String): Buffer? {
+        return entries[name]
+    }
+
     /**
      * Return the first entry with the provided file extension.
      *
