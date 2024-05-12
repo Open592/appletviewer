@@ -1,7 +1,6 @@
 package com.open592.appletviewer.jar
 
 import jakarta.inject.Inject
-import jakarta.inject.Singleton
 import okio.Buffer
 import java.security.cert.CertificateFactory
 import java.security.cert.X509Certificate
@@ -31,7 +30,6 @@ import java.util.jar.Manifest
  * This provides a much more efficient implementation, since we don't need to
  * perform verifications for every single request for a file from the jar.
  */
-@Singleton
 public class SignedJarFileResolver @Inject constructor(
     private val certificateValidator: CertificateValidator,
 ) {
