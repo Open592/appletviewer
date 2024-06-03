@@ -44,17 +44,23 @@ public class RemoteDependencyFetcher @Inject constructor(
                         }
 
                         val totalDownloadSize = getTotalDownloadSize()
-                        do {
+                        var bytesRead: Long
+
+                        while (true) {
                             // In case we can't resolve the content length from the server use the default
                             // specified within the original applet viewer
-                            val bytesRead = source.read(buffer, contentLength ?: 300_000)
+                            bytesRead = source.read(buffer, contentLength ?: 300_000)
+
+                            if (bytesRead == -1L) {
+                                break
+                            }
 
                             totalDownloadedBytes += bytesRead.toInt()
 
                             val progress = ((100.0 * totalDownloadedBytes) / totalDownloadSize).toInt()
 
                             eventBus.dispatch(ProgressEvent.UpdateProgress(progress))
-                        } while (bytesRead != -1L)
+                        }
 
                         return buffer
                     }
