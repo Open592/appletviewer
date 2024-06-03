@@ -1,5 +1,6 @@
 package com.open592.appletviewer.jar
 
+import com.google.inject.assistedinject.Assisted
 import jakarta.inject.Inject
 import okio.Buffer
 import java.security.AllPermission
@@ -13,12 +14,12 @@ import java.security.cert.Certificate
  * interface to that jar file.
  */
 public class InMemoryClassLoader @Inject constructor(
-    private val signedJarFileResolver: SignedJarFileResolver,
+    signedJarFileResolver: SignedJarFileResolver,
+    @Assisted private val jarFile: Buffer,
 ) : ClassLoader() {
-    private val classCache: MutableMap<String, Class<*>> = mutableMapOf()
+    private val resolvedClassCache: MutableMap<String, Class<*>> = mutableMapOf()
     private val protectionDomain: ProtectionDomain
-
-    private lateinit var jarEntries: JarEntries
+    private val jarEntries: JarEntries
 
     init {
         // I feel like `CodeSource` is mistyped. It's documentation specifically specifies that
@@ -30,35 +31,20 @@ public class InMemoryClassLoader @Inject constructor(
         permissions.add(AllPermission())
 
         protectionDomain = ProtectionDomain(codeSource, permissions)
-    }
-
-    public fun initialize(jarFile: Buffer) {
-        assert(!isInitialized()) {
-            "Invalid attempt to initialize InMemoryJarFileClassLoader more than once!"
-        }
-
         jarEntries = signedJarFileResolver.resolveEntries(jarFile)
     }
 
     override fun loadClass(name: String): Class<*> {
-        assert(isInitialized()) {
-            "Invalid attempt to load class from InMemoryJarFileClassLoader before calling initialize()!"
-        }
-
-        if (classCache.contains(name)) {
-            return classCache[name] as Class<*>
+        if (resolvedClassCache.contains(name)) {
+            return resolvedClassCache[name] as Class<*>
         }
 
         val bytes = jarEntries.getEntry("$name.class") ?: return super.findSystemClass(name)
         val byteArray = bytes.readByteArray()
-        val klass = this.defineClass(name, byteArray, 0, byteArray.size, this.protectionDomain)
+        val resolvedClass = this.defineClass(name, byteArray, 0, byteArray.size, this.protectionDomain)
 
-        classCache[name] = klass
+        resolvedClassCache[name] = resolvedClass
 
-        return klass
-    }
-
-    private fun isInitialized(): Boolean {
-        return this::jarEntries.isInitialized
+        return resolvedClass
     }
 }
