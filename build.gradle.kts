@@ -36,8 +36,8 @@ repositories {
 }
 
 dependencies {
-    api(libs.guice)
-
+    implementation(libs.guice)
+    implementation(libs.guice.assistedinject)
     implementation(libs.kotlin.coroutines.core)
     implementation(platform(libs.okhttp.bom))
     implementation("com.squareup.okhttp3:okhttp")

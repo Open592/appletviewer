@@ -13,6 +13,7 @@ public class ViewerDependencies @Inject constructor(
     private val configuration: ApplicationConfiguration,
     private val browserControlResolver: BrowserControlResolver,
     private val eventBus: GlobalEventBus,
+    private val loaderResolver: LoaderResolver,
 ) {
     public fun resolve() {
         // Signify that we are about to start downloading the browsercontrol library.
@@ -26,5 +27,11 @@ public class ViewerDependencies @Inject constructor(
 
         // Signify that we are about to start downloading the loader jar.
         eventBus.dispatch(ProgressEvent.ChangeText(configuration.getContent("loading_app")))
+
+        try {
+            loaderResolver.resolve()
+        } catch (e: RemoteDependencyResolver.ResolveException) {
+            applicationModal.displayFatalErrorModal(e.message)
+        }
     }
 }
