@@ -8,10 +8,10 @@ public class LoaderResolver @Inject constructor(
     private val dependencyFetcher: RemoteDependencyFetcher,
     private val configuration: ApplicationConfiguration,
     private val inMemoryClassLoaderFactory: InMemoryClassLoaderFactory,
-) : RemoteDependencyResolver(configuration, type = DependencyType.LOADER) {
+) : RemoteDependencyResolver(configuration) {
     override fun resolve() {
         val jarFile = dependencyFetcher.fetchRemoteDependency(
-            type = DependencyType.LOADER,
+            DependencyType.LOADER,
             getUrl(URL_CONFIG_KEY),
         ) ?: throw ResolveException(configuration.getContent(RESOLVE_LOADER_ERROR_KEY))
         val inMemoryClassLoader = inMemoryClassLoaderFactory.create(jarFile)

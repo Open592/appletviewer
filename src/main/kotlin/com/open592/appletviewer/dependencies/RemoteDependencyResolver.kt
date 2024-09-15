@@ -4,7 +4,6 @@ import com.open592.appletviewer.config.ApplicationConfiguration
 
 public abstract class RemoteDependencyResolver(
     private val configuration: ApplicationConfiguration,
-    public val type: DependencyType,
 ) {
     public abstract fun resolve()
 

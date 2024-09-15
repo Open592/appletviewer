@@ -19,7 +19,6 @@ public class BrowserControlResolver @Inject constructor(
     environment: Environment,
 ) : RemoteDependencyResolver(
     configuration = configuration,
-    type = DependencyType.BROWSERCONTROL,
 ) {
     /**
      * The extension of the resulting library file on the filesystem.
@@ -82,8 +81,10 @@ public class BrowserControlResolver @Inject constructor(
     public override fun resolve() {
         val libraryFilename = getLibraryFilename()
 
-        val jarFile = dependencyFetcher.fetchRemoteDependency(type, getUrl(getRemoteFileConfigKey()))
-            ?: throw ResolveException(configuration.getContent("err_load_bc"))
+        val jarFile = dependencyFetcher.fetchRemoteDependency(
+            DependencyType.BROWSERCONTROL,
+            getUrl(getRemoteFileConfigKey()),
+        ) ?: throw ResolveException(configuration.getContent("err_load_bc"))
 
         val jarEntries = signedJarFileResolver.resolveEntries(jarFile)
 
